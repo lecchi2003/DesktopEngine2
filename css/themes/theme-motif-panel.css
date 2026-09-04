@@ -1,0 +1,451 @@
+/* DesktopEngine V2.0 - Look and Feel: motif-panel */
+
+:root,
+[data-laf="default"],
+[data-laf="steel-metal"],
+[data-laf="ocean-metal"],
+[data-laf="nimbus-vector"],
+[data-laf="modena-soft"],
+[data-laf="yellow-tab"],
+[data-laf="retro-3d"],
+[data-laf="luna-blue"],
+[data-laf="aero-glass"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"],
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"],
+[data-laf="neumorphism"],
+[data-laf="material-tonal"],
+[data-laf="one-touch"],
+[data-laf="flat-tiles"],
+[data-laf="pantheon-pure"],
+[data-laf="greybird-lite"],
+[data-laf="aubergine-orange"],
+[data-laf="aqua-frosted"],
+[data-laf="fluent-acrylic"],
+[data-laf="spatial-glass"],
+[data-laf="cupertino-touch"],
+[data-laf="flatlaf-light"],
+[data-laf="comic-doodle"] {
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --menu-text: #111827;
+    --input-bg: #ffffff;
+    --input-border: #9ca3af;
+    --input-text: #111827;
+}
+
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"] {
+    --menu-bg: #2b303b;
+    --menu-text: #f8f9fa;
+    --menu-hover: #4f5b66;
+}
+
+[data-laf="steel-metal"] .statusbar,
+[data-laf="ocean-metal"] .statusbar,
+[data-laf="nimbus-vector"] .statusbar,
+[data-laf="modena-soft"] .statusbar,
+[data-laf="yellow-tab"] .statusbar,
+[data-laf="retro-3d"] .statusbar,
+[data-laf="luna-blue"] .statusbar,
+[data-laf="aero-glass"] .statusbar,
+[data-laf="platinum-classic"] .statusbar,
+[data-laf="warp-enterprise"] .statusbar,
+[data-laf="motif-panel"] .statusbar,
+[data-laf="adwaita-slate"] .statusbar,
+[data-laf="breeze-plasma"] .statusbar {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.15) !important;
+    color: #111827 !important;
+}
+
+[data-laf="motif-panel"] .window {
+    border: 4px solid #6b7189;
+    border-radius: 0;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+    background: #a2a8be;
+    color: #000000 !important;
+}
+
+[data-laf="motif-panel"] .windowBody {
+    background: #a2a8be;
+    color: #000000 !important;
+}
+
+[data-laf="motif-panel"] .windowBody label,
+[data-laf="motif-panel"] .windowBody span,
+[data-laf="motif-panel"] .windowBody p,
+[data-laf="motif-panel"] .windowBody h1,
+[data-laf="motif-panel"] .windowBody h2,
+[data-laf="motif-panel"] .windowBody h3,
+[data-laf="motif-panel"] .windowBody h4,
+[data-laf="motif-panel"] .windowBody li,
+[data-laf="motif-panel"] .windowBody td,
+[data-laf="motif-panel"] .windowBody th {
+    color: #000000 !important;
+}
+
+[data-laf="motif-panel"] .ui-card,
+[data-laf="motif-panel"] .card {
+    background: #9098b0;
+    border: 2px outset #c0c6dc;
+    color: #000000 !important;
+}
+
+[data-laf="motif-panel"] input,
+[data-laf="motif-panel"] select,
+[data-laf="motif-panel"] textarea {
+    background: #ffffff !important;
+    border: 2px inset #888 !important;
+    color: #000000 !important;
+}
+
+[data-laf="motif-panel"] .titlebar {
+    height: 28px;
+    background: #555b73 !important;
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace, sans-serif;
+    font-weight: bold;
+    border-bottom: 2px solid #3d4153;
+    padding: 0 4px;
+}
+
+[data-laf="motif-panel"] .titleText {
+    color: #ffffff !important;
+}
+
+[data-laf="motif-panel"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="motif-panel"] .winBtn {
+    width: 20px;
+    height: 20px;
+    background: #8990a8;
+    border: 2px outset #c0c6dc;
+    color: #ffffff !important;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="motif-panel"] .winBtn:active {
+    border-style: inset;
+}
+
+[data-laf="motif-panel"] #menubar,
+[data-laf="motif-panel"] .ui-menubar {
+    background: #555b73 !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid #3d4153 !important;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+[data-laf="motif-panel"] .menubar-item {
+    color: #ffffff !important;
+}
+
+[data-laf="motif-panel"] .menubar-item:hover,
+[data-laf="motif-panel"] .menubar-item.active {
+    background: #3d4153 !important;
+    color: #ffffff !important;
+    box-shadow: inset 1px 1px 0 #2a2c38, inset -1px -1px 0 #737b98 !important;
+}
+
+[data-laf="motif-panel"] .dropdown,
+[data-laf="motif-panel"] .sub-dropdown,
+[data-laf="motif-panel"] .menubar-dropdown,
+[data-laf="motif-panel"] .dropdown.sub-dropdown,
+[data-laf="motif-panel"] .dropdown.menubar-dropdown,
+[data-laf="motif-panel"] .ui-menubar .dropdown,
+[data-laf="motif-panel"] .window-menubar .dropdown,
+[data-laf="motif-panel"] .window-menubar .sub-dropdown,
+[data-laf="motif-panel"] .ui-start-menu,
+[data-laf="motif-panel"] #startMenu,
+[data-laf="motif-panel"] .ui-start-menu .dropdown,
+[data-laf="motif-panel"] .ui-start-menu .sub-dropdown,
+[data-laf="motif-panel"] .ui-context-menu,
+[data-laf="motif-panel"] .ui-context-menu .dropdown,
+[data-laf="motif-panel"] .ui-context-menu .sub-dropdown {
+    background: #555b73 !important;
+    color: #ffffff !important;
+    border: 2px outset #8990a8 !important;
+    border-radius: 0 !important;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.45) !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    padding: 3px 0 !important;
+}
+
+[data-laf="motif-panel"] .menuOption,
+[data-laf="motif-panel"] .dropdown .menuOption,
+[data-laf="motif-panel"] .sub-dropdown .menuOption,
+[data-laf="motif-panel"] .ui-start-menu .menuOption,
+[data-laf="motif-panel"] #startMenu .menuOption,
+[data-laf="motif-panel"] .ui-context-menu .menuOption,
+[data-laf="motif-panel"] .window-menubar .menuOption {
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    font-weight: bold !important;
+    font-size: 12px !important;
+    border-radius: 0 !important;
+    padding: 4px 12px !important;
+    margin: 1px 2px !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+}
+
+[data-laf="motif-panel"] .menuOption:hover,
+[data-laf="motif-panel"] .menuOption:active,
+[data-laf="motif-panel"] .menuOption.active,
+[data-laf="motif-panel"] .dropdown .menuOption:hover,
+[data-laf="motif-panel"] .dropdown .menuOption.active,
+[data-laf="motif-panel"] .sub-dropdown .menuOption:hover,
+[data-laf="motif-panel"] .sub-dropdown .menuOption.active,
+[data-laf="motif-panel"] .ui-start-menu .menuOption:hover,
+[data-laf="motif-panel"] .ui-start-menu .menuOption.active,
+[data-laf="motif-panel"] #startMenu .menuOption:hover,
+[data-laf="motif-panel"] #startMenu .menuOption.active,
+[data-laf="motif-panel"] .ui-context-menu .menuOption:hover,
+[data-laf="motif-panel"] .ui-context-menu .menuOption.active,
+[data-laf="motif-panel"] .window-menubar .menuOption:hover,
+[data-laf="motif-panel"] .window-menubar .menuOption.active {
+    background: #3d4153 !important;
+    color: #ffffff !important;
+    box-shadow: inset 1px 1px 0 #2a2c38, inset -1px -1px 0 #737b98 !important;
+    border: 1px inset #2a2c38 !important;
+}
+
+[data-laf="motif-panel"] .menuOption.disabled,
+[data-laf="motif-panel"] .menuOption.disabled:hover,
+[data-laf="motif-panel"] .dropdown .menuOption.disabled,
+[data-laf="motif-panel"] .sub-dropdown .menuOption.disabled {
+    color: #8990a8 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 1px solid transparent !important;
+}
+
+[data-laf="motif-panel"] .menuOption-label,
+[data-laf="motif-panel"] .menuOption-left,
+[data-laf="motif-panel"] .menuShortcut,
+[data-laf="motif-panel"] .submenu-arrow {
+    color: inherit !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    font-weight: bold !important;
+}
+
+[data-laf="motif-panel"] .submenu-arrow {
+    color: #ffffff !important;
+    font-size: 11px !important;
+}
+
+[data-laf="motif-panel"] .menuSep {
+    height: 2px !important;
+    background: #3d4153 !important;
+    border-bottom: 1px solid #737b98 !important;
+    margin: 3px 2px !important;
+}
+
+[data-laf="motif-panel"] #taskbar {
+    background: #555b73 !important;
+    color: #ffffff !important;
+    border-top: 3px solid #3d4153 !important;
+    height: 36px;
+    flex: 0 0 36px;
+}
+
+[data-laf="motif-panel"] .taskStart,
+[data-laf="motif-panel"] .taskButton {
+    background: #8990a8 !important;
+    border: 2px outset #c0c6dc !important;
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    border-radius: 0;
+    height: 28px;
+}
+
+[data-laf="motif-panel"] .taskButton.active {
+    border-style: inset !important;
+    background: #6b7189 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="motif-panel"] .clock {
+    background: #3d4153;
+    border: 2px inset #2a2c38;
+    color: #ffffff !important;
+    padding: 2px 8px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+[data-laf="motif-panel"] .menubar-mobile-drawer,
+.menubar-mobile-drawer[data-laf="motif-panel"] {
+    background: #555b73 !important;
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    font-weight: bold !important;
+    border-radius: 0 !important;
+    border-right: 3px outset #8990a8 !important;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-laf="motif-panel"] .ui-bottom-sheet,
+.ui-bottom-sheet[data-laf="motif-panel"] {
+    background: #555b73 !important;
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    font-weight: bold !important;
+    border-radius: 0 !important;
+    border-top: 3px outset #8990a8 !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-laf="motif-panel"] .drawer-header,
+.menubar-mobile-drawer[data-laf="motif-panel"] .drawer-header,
+.ui-bottom-sheet[data-laf="motif-panel"] .drawer-header {
+    background: #3d4153 !important;
+    color: #ffffff !important;
+    border-bottom: 2px outset #8990a8 !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    font-weight: bold !important;
+}
+
+[data-laf="motif-panel"] .drawer-title,
+.menubar-mobile-drawer[data-laf="motif-panel"] .drawer-title,
+.ui-bottom-sheet[data-laf="motif-panel"] .drawer-title {
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    font-weight: bold !important;
+}
+
+[data-laf="motif-panel"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="motif-panel"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="motif-panel"] .drawer-close-btn {
+    border: 2px outset #8990a8 !important;
+    background: #555b73 !important;
+    color: #ffffff !important;
+    border-radius: 0 !important;
+    font-weight: bold !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    opacity: 1 !important;
+}
+
+[data-laf="motif-panel"] .drawer-close-btn:hover,
+[data-laf="motif-panel"] .drawer-close-btn:active {
+    background: #3d4153 !important;
+    border-style: inset !important;
+}
+
+[data-laf="motif-panel"] .drawer-category-group {
+    border-bottom: 1px solid #3d4153 !important;
+}
+
+[data-laf="motif-panel"] .drawer-cat-header {
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    font-weight: bold !important;
+    border-bottom: 1px solid #3d4153 !important;
+}
+
+[data-laf="motif-panel"] .drawer-cat-header:hover,
+[data-laf="motif-panel"] .drawer-cat-header:active,
+[data-laf="motif-panel"] .drawer-cat-header.expanded {
+    background: #3d4153 !important;
+    color: #ffffff !important;
+    box-shadow: inset 1px 1px 0 #2a2c38, inset -1px -1px 0 #737b98 !important;
+}
+
+[data-laf="motif-panel"] .drawer-item-list,
+[data-laf="motif-panel"] .bottom-sheet-sub-list {
+    background: #464b5f !important;
+    border-left: 3px solid #8990a8 !important;
+    margin-left: 8px !important;
+    padding: 3px 0 3px 6px !important;
+}
+
+[data-laf="motif-panel"] .drawer-group,
+[data-laf="motif-panel"] .bottom-sheet-group {
+    border-bottom: 1px solid rgba(61, 65, 83, 0.4) !important;
+}
+
+[data-laf="motif-panel"] .drawer-option,
+[data-laf="motif-panel"] .bottom-sheet-option {
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    font-weight: bold !important;
+    border-radius: 0 !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+}
+
+[data-laf="motif-panel"] .drawer-option:hover,
+[data-laf="motif-panel"] .drawer-option:active,
+[data-laf="motif-panel"] .bottom-sheet-option:hover,
+[data-laf="motif-panel"] .bottom-sheet-option:active,
+[data-laf="motif-panel"] .drawer-option.expanded,
+[data-laf="motif-panel"] .bottom-sheet-option.expanded {
+    background: #3d4153 !important;
+    color: #ffffff !important;
+    border: 1px inset #2a2c38 !important;
+    box-shadow: inset 1px 1px 0 #2a2c38, inset -1px -1px 0 #737b98 !important;
+}
+
+[data-laf="motif-panel"] .drawer-opt-label,
+[data-laf="motif-panel"] .bottom-sheet-label,
+[data-laf="motif-panel"] .drawer-cat-title,
+[data-laf="motif-panel"] .drawer-opt-icon,
+[data-laf="motif-panel"] .bottom-sheet-icon,
+[data-laf="motif-panel"] .bottom-sheet-shortcut {
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    font-weight: bold !important;
+}
+
+[data-laf="motif-panel"] .drawer-accordion-arrow {
+    color: #ffffff !important;
+    font-weight: bold !important;
+}
+
+[data-laf="motif-panel"] .drawer-sep,
+[data-laf="motif-panel"] .bottom-sheet-sep {
+    height: 2px !important;
+    background: #3d4153 !important;
+    border-bottom: 1px solid #737b98 !important;
+    margin: 4px 8px !important;
+}
+
+[data-laf="motif-panel"] .bottom-sheet-handle {
+    background: #8990a8 !important;
+    border: 1px outset #c0c6dc !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="motif-panel"] .bottom-sheet-cancel-btn {
+    border: 2px outset #8990a8 !important;
+    border-radius: 0 !important;
+    background: #555b73 !important;
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    font-weight: bold !important;
+}
+
+[data-laf="motif-panel"] .bottom-sheet-cancel-btn:hover,
+[data-laf="motif-panel"] .bottom-sheet-cancel-btn:active {
+    background: #3d4153 !important;
+    border-style: inset !important;
+}
+
+[data-laf="motif-panel"] {
+    --menu-bg: #d4d0c8 !important;
+    --menu-text: #000000 !important;
+}

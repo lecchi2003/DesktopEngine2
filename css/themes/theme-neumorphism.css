@@ -1,0 +1,268 @@
+/* DesktopEngine V2.0 - Look and Feel: neumorphism */
+
+[data-laf="neumorphism"] .ui-context-menu {
+    background: #e0e5ec !important;
+    border: none !important;
+    box-shadow: 6px 6px 14px #b8b9be, -6px -6px 14px #ffffff !important;
+    border-radius: 16px !important;
+    color: #31344b !important;
+    padding: 6px !important;
+}
+
+[data-laf="neumorphism"] .ui-context-menu .menuOption {
+    color: #31344b !important;
+    border-radius: 10px;
+}
+
+[data-laf="neumorphism"] .ui-context-menu .menuOption:hover {
+    box-shadow: inset 2px 2px 5px #b8b9be, inset -2px -2px 5px #ffffff;
+    color: #0381fe !important;
+    background: #e0e5ec !important;
+}
+
+[data-laf="neumorphism"] .ui-context-menu .menuSep {
+    background: #b8b9be !important;
+}
+
+:root,
+[data-laf="default"],
+[data-laf="steel-metal"],
+[data-laf="ocean-metal"],
+[data-laf="nimbus-vector"],
+[data-laf="modena-soft"],
+[data-laf="yellow-tab"],
+[data-laf="retro-3d"],
+[data-laf="luna-blue"],
+[data-laf="aero-glass"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"],
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"],
+[data-laf="neumorphism"],
+[data-laf="material-tonal"],
+[data-laf="one-touch"],
+[data-laf="flat-tiles"],
+[data-laf="pantheon-pure"],
+[data-laf="greybird-lite"],
+[data-laf="aubergine-orange"],
+[data-laf="aqua-frosted"],
+[data-laf="fluent-acrylic"],
+[data-laf="spatial-glass"],
+[data-laf="cupertino-touch"],
+[data-laf="flatlaf-light"],
+[data-laf="comic-doodle"] {
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --menu-text: #111827;
+    --input-bg: #ffffff;
+    --input-border: #9ca3af;
+    --input-text: #111827;
+}
+
+[data-laf="neumorphism"] .statusbar {
+    background: #e0e5ec !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.7) !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .ui-dock-widget {
+    background: #e0e5ec !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 4px 4px 10px #b8b9be, -4px -4px 10px #ffffff !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .ui-dock-widget .ui-dock-header {
+    background: #e0e5ec !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .ui-dock-widget .ui-dock-body {
+    background: #e0e5ec !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .ui-dock-widget .ui-dock-text-item {
+    background: #e0e5ec !important;
+    border: 1px solid rgba(255, 255, 255, 0.7) !important;
+    color: #31344b !important;
+    box-shadow: inset 2px 2px 5px #b8b9be, inset -2px -2px 5px #ffffff !important;
+}
+
+[data-laf="neumorphism"] .window {
+    background: #e0e5ec !important;
+    border-radius: 22px !important;
+    border: none !important;
+    box-shadow: 10px 10px 20px #b8b9be, -10px -10px 20px #ffffff !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .titlebar {
+    background: #e0e5ec !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6) !important;
+    color: #31344b !important;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 22px 22px 0 0;
+}
+
+[data-laf="neumorphism"] .titleText {
+    font-weight: 700;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .winBtn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #e0e5ec;
+    box-shadow: 3px 3px 6px #b8b9be, -3px -3px 6px #ffffff;
+    color: #44476a !important;
+}
+
+[data-laf="neumorphism"] .winBtn:hover {
+    box-shadow: inset 2px 2px 4px #b8b9be, inset -2px -2px 4px #ffffff;
+}
+
+[data-laf="neumorphism"] .windowBody {
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .ui-card,
+[data-laf="neumorphism"] .card {
+    background: #e0e5ec !important;
+    border-radius: 18px;
+    border: none;
+    box-shadow: 6px 6px 12px #b8b9be, -6px -6px 12px #ffffff;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .ui-btn,
+[data-laf="neumorphism"] .ui-button,
+[data-laf="neumorphism"] .btn {
+    background: #e0e5ec;
+    border-radius: 14px;
+    border: none;
+    box-shadow: 4px 4px 8px #b8b9be, -4px -4px 8px #ffffff;
+    color: #31344b !important;
+    font-weight: 600;
+}
+
+[data-laf="neumorphism"] .ui-btn:active,
+[data-laf="neumorphism"] .ui-button:active {
+    box-shadow: inset 3px 3px 6px #b8b9be, inset -3px -3px 6px #ffffff;
+}
+
+[data-laf="neumorphism"] input,
+[data-laf="neumorphism"] textarea,
+[data-laf="neumorphism"] select {
+    background: #e0e5ec !important;
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: inset 3px 3px 6px #b8b9be, inset -3px -3px 6px #ffffff !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] #menubar,
+[data-laf="neumorphism"] .ui-menubar {
+    background: #e0e5ec;
+    box-shadow: 0 4px 10px #b8b9be;
+    border-bottom: none;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .menubar-item {
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] #taskbar {
+    background: #e0e5ec;
+    box-shadow: 0 -4px 10px #b8b9be;
+    border-top: none;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .taskButton {
+    background: #e0e5ec;
+    border-radius: 14px;
+    border: none;
+    box-shadow: 3px 3px 6px #b8b9be, -3px -3px 6px #ffffff;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .taskButton.active {
+    box-shadow: inset 3px 3px 6px #b8b9be, inset -3px -3px 6px #ffffff;
+    color: #0381fe !important;
+    font-weight: bold;
+}
+
+[data-laf="neumorphism"] .menubar-mobile-drawer,
+.menubar-mobile-drawer[data-laf="neumorphism"] {
+    background: #e0e5ec !important;
+    color: #31344b !important;
+    border: none !important;
+    box-shadow: 8px 0 20px #b8b9be !important;
+}
+
+[data-laf="neumorphism"] .ui-bottom-sheet,
+.ui-bottom-sheet[data-laf="neumorphism"] {
+    background: #e0e5ec !important;
+    color: #31344b !important;
+    border: none !important;
+    box-shadow: 0 -8px 24px #b8b9be !important;
+    border-radius: 24px 24px 0 0 !important;
+}
+
+[data-laf="neumorphism"] .bottom-sheet-handle {
+    background: #b8b9be !important;
+    box-shadow: inset 1px 1px 3px #9a9ba0, inset -1px -1px 3px #ffffff !important;
+}
+
+[data-laf="neumorphism"] .drawer-header {
+    background: #e0e5ec !important;
+    border-bottom: 1px solid #d1d9e6 !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .drawer-title,
+.menubar-mobile-drawer[data-laf="neumorphism"] .drawer-title,
+.ui-bottom-sheet[data-laf="neumorphism"] .drawer-title {
+    color: #31344b !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="neumorphism"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="neumorphism"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="neumorphism"] .drawer-close-btn {
+    color: #31344b !important;
+    box-shadow: 2px 2px 5px #b8b9be, -2px -2px 5px #ffffff !important;
+    border-radius: 8px !important;
+    border: none !important;
+    background: #e0e5ec !important;
+    opacity: 1 !important;
+}
+
+[data-laf="neumorphism"] .drawer-option:hover,
+[data-laf="neumorphism"] .drawer-option:active,
+[data-laf="neumorphism"] .bottom-sheet-option:hover,
+[data-laf="neumorphism"] .bottom-sheet-option:active {
+    box-shadow: inset 3px 3px 6px #b8b9be, inset -3px -3px 6px #ffffff !important;
+    background: #e0e5ec !important;
+    border-radius: 12px !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .bottom-sheet-cancel-btn {
+    box-shadow: 4px 4px 10px #b8b9be, -4px -4px 10px #ffffff !important;
+    background: #e0e5ec !important;
+    border: none !important;
+    border-radius: 14px !important;
+    color: #31344b !important;
+    font-weight: 600 !important;
+}
+
+[data-laf="neumorphism"] {
+    --menu-bg: #e0e5ec !important;
+    --menu-text: #31344b !important;
+}

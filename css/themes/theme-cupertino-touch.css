@@ -1,0 +1,282 @@
+/* DesktopEngine V2.0 - Look and Feel: cupertino-touch */
+
+[data-laf="cupertino-touch"] .ui-context-menu,
+[data-laf="aqua-frosted"] .ui-context-menu,
+[data-laf="fluent-acrylic"] .ui-context-menu,
+[data-laf="one-touch"] .ui-context-menu,
+[data-laf="material-tonal"] .ui-context-menu,
+[data-laf="aero-glass"] .ui-context-menu {
+    background: var(--menu-bg) !important;
+    border: 1px solid var(--win-border) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
+    color: var(--menu-text) !important;
+}
+
+[data-laf="cupertino-touch"] .ui-context-menu .menuOption,
+[data-laf="aqua-frosted"] .ui-context-menu .menuOption,
+[data-laf="fluent-acrylic"] .ui-context-menu .menuOption,
+[data-laf="one-touch"] .ui-context-menu .menuOption,
+[data-laf="material-tonal"] .ui-context-menu .menuOption,
+[data-laf="aero-glass"] .ui-context-menu .menuOption {
+    color: var(--menu-text) !important;
+    border-radius: 8px;
+}
+
+[data-laf="cupertino-touch"] .ui-context-menu .menuOption:hover,
+[data-laf="aqua-frosted"] .ui-context-menu .menuOption:hover,
+[data-laf="fluent-acrylic"] .ui-context-menu .menuOption:hover,
+[data-laf="one-touch"] .ui-context-menu .menuOption:hover,
+[data-laf="material-tonal"] .ui-context-menu .menuOption:hover,
+[data-laf="aero-glass"] .ui-context-menu .menuOption:hover {
+    background: var(--menu-hover) !important;
+    color: var(--menu-text) !important;
+}
+
+:root,
+[data-laf="default"],
+[data-laf="steel-metal"],
+[data-laf="ocean-metal"],
+[data-laf="nimbus-vector"],
+[data-laf="modena-soft"],
+[data-laf="yellow-tab"],
+[data-laf="retro-3d"],
+[data-laf="luna-blue"],
+[data-laf="aero-glass"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"],
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"],
+[data-laf="neumorphism"],
+[data-laf="material-tonal"],
+[data-laf="one-touch"],
+[data-laf="flat-tiles"],
+[data-laf="pantheon-pure"],
+[data-laf="greybird-lite"],
+[data-laf="aubergine-orange"],
+[data-laf="aqua-frosted"],
+[data-laf="fluent-acrylic"],
+[data-laf="spatial-glass"],
+[data-laf="cupertino-touch"],
+[data-laf="flatlaf-light"],
+[data-laf="comic-doodle"] {
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --menu-text: #111827;
+    --input-bg: #ffffff;
+    --input-border: #9ca3af;
+    --input-text: #111827;
+}
+
+[data-laf="spatial-glass"] .statusbar,
+[data-laf="cupertino-touch"] .statusbar {
+    background: rgba(255, 255, 255, 0.4) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    color: #1d1d1f !important;
+}
+
+[data-laf="cupertino-touch"] .window {
+    border-radius: 22px;
+    border: 1px solid var(--win-border);
+    background: var(--win-bg);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    color: var(--text-primary);
+}
+
+[data-laf="cupertino-touch"] .titlebar {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--win-border);
+    color: var(--text-primary);
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 22px 22px 0 0;
+}
+
+[data-laf="cupertino-touch"] .titleText {
+    font-weight: 600;
+    font-size: 14.5px;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+}
+
+[data-laf="cupertino-touch"] .winBtn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+[data-laf="cupertino-touch"] .winBtn:hover {
+    background: rgba(128, 128, 128, 0.28);
+}
+
+[data-laf="cupertino-touch"] .winBtn.close:hover {
+    background: #ff3b30;
+    color: #ffffff;
+}
+
+[data-laf="cupertino-touch"] .windowBody {
+    background: transparent;
+    color: var(--text-primary);
+}
+
+[data-laf="cupertino-touch"] .ui-btn,
+[data-laf="cupertino-touch"] .ui-button,
+[data-laf="cupertino-touch"] .btn {
+    border-radius: 14px;
+    font-weight: 500;
+}
+
+[data-laf="cupertino-touch"] .ui-card,
+[data-laf="cupertino-touch"] .card {
+    border-radius: 18px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--win-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    color: var(--text-primary);
+}
+
+[data-laf="cupertino-touch"] #menubar,
+[data-laf="cupertino-touch"] .ui-menubar {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--win-border);
+    color: var(--text-primary);
+}
+
+[data-laf="cupertino-touch"] #taskbar {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--win-border);
+}
+
+[data-laf="cupertino-touch"] .taskButton {
+    border-radius: 14px;
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-primary);
+    border: none;
+}
+
+[data-laf="cupertino-touch"] .taskButton.active {
+    background: #007aff;
+    color: #ffffff;
+}
+
+[data-laf="aqua-frosted"] .menubar-mobile-drawer,
+[data-laf="aqua-frosted"] .ui-bottom-sheet,
+[data-laf="spatial-glass"] .menubar-mobile-drawer,
+[data-laf="spatial-glass"] .ui-bottom-sheet,
+[data-laf="fluent-acrylic"] .menubar-mobile-drawer,
+[data-laf="fluent-acrylic"] .ui-bottom-sheet,
+[data-laf="cupertino-touch"] .menubar-mobile-drawer,
+[data-laf="cupertino-touch"] .ui-bottom-sheet,
+[data-laf="one-touch"] .menubar-mobile-drawer,
+[data-laf="one-touch"] .ui-bottom-sheet,
+[data-laf="material-tonal"] .menubar-mobile-drawer,
+[data-laf="material-tonal"] .ui-bottom-sheet,
+[data-laf="aero-glass"] .menubar-mobile-drawer,
+[data-laf="aero-glass"] .ui-bottom-sheet,
+[data-laf="win11"] .menubar-mobile-drawer,
+[data-laf="win11"] .ui-bottom-sheet,
+[data-laf="win11-2"] .menubar-mobile-drawer,
+[data-laf="win11-2"] .ui-bottom-sheet {
+    backdrop-filter: blur(28px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+}
+
+[data-laf="aqua-frosted"] .drawer-header,
+.menubar-mobile-drawer[data-laf="aqua-frosted"] .drawer-header,
+.ui-bottom-sheet[data-laf="aqua-frosted"] .drawer-header,
+[data-laf="fluent-acrylic"] .drawer-header,
+.menubar-mobile-drawer[data-laf="fluent-acrylic"] .drawer-header,
+.ui-bottom-sheet[data-laf="fluent-acrylic"] .drawer-header,
+[data-laf="cupertino-touch"] .drawer-header,
+.menubar-mobile-drawer[data-laf="cupertino-touch"] .drawer-header,
+.ui-bottom-sheet[data-laf="cupertino-touch"] .drawer-header,
+[data-laf="one-touch"] .drawer-header,
+.menubar-mobile-drawer[data-laf="one-touch"] .drawer-header,
+.ui-bottom-sheet[data-laf="one-touch"] .drawer-header,
+[data-laf="material-tonal"] .drawer-header,
+.menubar-mobile-drawer[data-laf="material-tonal"] .drawer-header,
+.ui-bottom-sheet[data-laf="material-tonal"] .drawer-header,
+[data-laf="aero-glass"] .drawer-header,
+.menubar-mobile-drawer[data-laf="aero-glass"] .drawer-header,
+.ui-bottom-sheet[data-laf="aero-glass"] .drawer-header,
+[data-laf="win11"] .drawer-header,
+.menubar-mobile-drawer[data-laf="win11"] .drawer-header,
+.ui-bottom-sheet[data-laf="win11"] .drawer-header,
+[data-laf="win11-2"] .drawer-header,
+.menubar-mobile-drawer[data-laf="win11-2"] .drawer-header,
+.ui-bottom-sheet[data-laf="win11-2"] .drawer-header {
+    background: rgba(0, 0, 0, 0.04) !important;
+    color: #0f172a !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-laf="aqua-frosted"] .drawer-title,
+.menubar-mobile-drawer[data-laf="aqua-frosted"] .drawer-title,
+.ui-bottom-sheet[data-laf="aqua-frosted"] .drawer-title,
+[data-laf="fluent-acrylic"] .drawer-title,
+.menubar-mobile-drawer[data-laf="fluent-acrylic"] .drawer-title,
+.ui-bottom-sheet[data-laf="fluent-acrylic"] .drawer-title,
+[data-laf="cupertino-touch"] .drawer-title,
+.menubar-mobile-drawer[data-laf="cupertino-touch"] .drawer-title,
+.ui-bottom-sheet[data-laf="cupertino-touch"] .drawer-title,
+[data-laf="one-touch"] .drawer-title,
+.menubar-mobile-drawer[data-laf="one-touch"] .drawer-title,
+.ui-bottom-sheet[data-laf="one-touch"] .drawer-title,
+[data-laf="material-tonal"] .drawer-title,
+.menubar-mobile-drawer[data-laf="material-tonal"] .drawer-title,
+.ui-bottom-sheet[data-laf="material-tonal"] .drawer-title,
+[data-laf="aero-glass"] .drawer-title,
+.menubar-mobile-drawer[data-laf="aero-glass"] .drawer-title,
+.ui-bottom-sheet[data-laf="aero-glass"] .drawer-title,
+[data-laf="win11"] .drawer-title,
+.menubar-mobile-drawer[data-laf="win11"] .drawer-title,
+.ui-bottom-sheet[data-laf="win11"] .drawer-title,
+[data-laf="win11-2"] .drawer-title,
+.menubar-mobile-drawer[data-laf="win11-2"] .drawer-title,
+.ui-bottom-sheet[data-laf="win11-2"] .drawer-title {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="aqua-frosted"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="aqua-frosted"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="aqua-frosted"] .drawer-close-btn,
+[data-laf="fluent-acrylic"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="fluent-acrylic"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="fluent-acrylic"] .drawer-close-btn,
+[data-laf="cupertino-touch"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="cupertino-touch"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="cupertino-touch"] .drawer-close-btn,
+[data-laf="one-touch"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="one-touch"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="one-touch"] .drawer-close-btn,
+[data-laf="material-tonal"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="material-tonal"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="material-tonal"] .drawer-close-btn,
+[data-laf="aero-glass"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="aero-glass"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="aero-glass"] .drawer-close-btn,
+[data-laf="win11"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="win11"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="win11"] .drawer-close-btn,
+[data-laf="win11-2"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="win11-2"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="win11-2"] .drawer-close-btn {
+    color: #334155 !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+    border-radius: 50% !important;
+    opacity: 0.9 !important;
+}

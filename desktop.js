@@ -1233,6 +1233,10 @@ export const Desktop = {
         } else {
             document.documentElement.setAttribute('data-laf', laf);
         }
+
+        // Lazy loading dinâmico do tema sob demanda
+        this.loadThemeStylesheet(laf);
+
         if (persist) {
             try { localStorage.setItem("desktop_engine_laf", laf); } catch (e) { }
         }
@@ -1241,6 +1245,27 @@ export const Desktop = {
         this.updateStartButton(laf);
 
         EventBus.emit("laf:change", laf);
+    },
+
+    loadThemeStylesheet(laf) {
+        const themeLinkId = 'desktop-theme-stylesheet';
+        let themeLink = document.getElementById(themeLinkId);
+
+        if (!laf || laf === 'default') {
+            if (themeLink) themeLink.remove();
+            return;
+        }
+
+        const themeHref = `css/themes/theme-${laf}.css`;
+        if (!themeLink) {
+            themeLink = document.createElement('link');
+            themeLink.id = themeLinkId;
+            themeLink.rel = 'stylesheet';
+            themeLink.href = themeHref;
+            document.head.appendChild(themeLink);
+        } else if (themeLink.getAttribute('href') !== themeHref) {
+            themeLink.href = themeHref;
+        }
     },
 
     getLookAndFeel() {

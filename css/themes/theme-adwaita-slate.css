@@ -1,0 +1,257 @@
+/* DesktopEngine V2.0 - Look and Feel: adwaita-slate */
+
+[data-laf="adwaita-slate"] .ui-context-menu,
+[data-laf="breeze-plasma"] .ui-context-menu,
+[data-laf="flatlaf-light"] .ui-context-menu, [data-laf="flatlaf-dark"] .ui-context-menu {
+    background: var(--menu-bg) !important;
+    color: var(--menu-text) !important;
+    border: 1px solid var(--menu-border) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+    border-radius: 6px !important;
+}
+
+:root,
+[data-laf="default"],
+[data-laf="steel-metal"],
+[data-laf="ocean-metal"],
+[data-laf="nimbus-vector"],
+[data-laf="modena-soft"],
+[data-laf="yellow-tab"],
+[data-laf="retro-3d"],
+[data-laf="luna-blue"],
+[data-laf="aero-glass"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"],
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"],
+[data-laf="neumorphism"],
+[data-laf="material-tonal"],
+[data-laf="one-touch"],
+[data-laf="flat-tiles"],
+[data-laf="pantheon-pure"],
+[data-laf="greybird-lite"],
+[data-laf="aubergine-orange"],
+[data-laf="aqua-frosted"],
+[data-laf="fluent-acrylic"],
+[data-laf="spatial-glass"],
+[data-laf="cupertino-touch"],
+[data-laf="flatlaf-light"],
+[data-laf="comic-doodle"] {
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --menu-text: #111827;
+    --input-bg: #ffffff;
+    --input-border: #9ca3af;
+    --input-text: #111827;
+}
+
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"] {
+    --menu-bg: #2b303b;
+    --menu-text: #f8f9fa;
+    --menu-hover: #4f5b66;
+}
+
+[data-laf="steel-metal"] .statusbar,
+[data-laf="ocean-metal"] .statusbar,
+[data-laf="nimbus-vector"] .statusbar,
+[data-laf="modena-soft"] .statusbar,
+[data-laf="yellow-tab"] .statusbar,
+[data-laf="retro-3d"] .statusbar,
+[data-laf="luna-blue"] .statusbar,
+[data-laf="aero-glass"] .statusbar,
+[data-laf="platinum-classic"] .statusbar,
+[data-laf="warp-enterprise"] .statusbar,
+[data-laf="motif-panel"] .statusbar,
+[data-laf="adwaita-slate"] .statusbar,
+[data-laf="breeze-plasma"] .statusbar {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.15) !important;
+    color: #111827 !important;
+}
+
+[data-laf="adwaita-slate"] .window {
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--win-border);
+}
+
+[data-laf="adwaita-slate"] .titlebar {
+    height: 42px;
+    background: transparent;
+    border-bottom: 1px solid var(--win-border);
+    padding: 0 12px;
+    color: var(--text-primary);
+}
+
+[data-laf="adwaita-slate"] .titleText {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+[data-laf="adwaita-slate"] .winButtons {
+    align-items: center;
+    gap: 4px;
+}
+
+[data-laf="adwaita-slate"] .winBtn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(128, 128, 128, 0.18);
+    color: var(--text-primary) !important;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+}
+
+[data-laf="adwaita-slate"] .winBtn:hover {
+    background: rgba(128, 128, 128, 0.35);
+}
+
+[data-laf="adwaita-slate"] .winBtn.close:hover {
+    background: #e01b24 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="adwaita-slate"] #menubar,
+[data-laf="adwaita-slate"] .ui-menubar,
+[data-laf="adwaita-slate"] #taskbar {
+    background: rgba(30, 30, 30, 0.95) !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+[data-laf="adwaita-slate"] .menubar-item,
+[data-laf="adwaita-slate"] .clock {
+    color: #ffffff !important;
+}
+
+[data-laf="adwaita-slate"] .taskStart,
+[data-laf="adwaita-slate"] .taskButton {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid transparent !important;
+    border-radius: 16px;
+    color: #ffffff !important;
+    font-size: 12px;
+    height: 28px;
+}
+
+[data-laf="adwaita-slate"] .taskButton.active {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+[data-laf="aubergine-orange"] .menubar-mobile-hamburger,
+[data-laf="aubergine-orange"] .menubar-mobile-hamburger,
+[data-laf="adwaita-slate"] .menubar-mobile-hamburger,
+[data-laf="adwaita-slate"] .menubar-mobile-hamburger,
+[data-laf="breeze-plasma"] .menubar-mobile-hamburger,
+[data-laf="breeze-plasma"] .menubar-mobile-hamburger,
+[data-laf="e-fusion"] .menubar-mobile-hamburger,
+[data-laf="e-fusion"] .menubar-mobile-hamburger,
+[data-laf="cosmic-teal"] .menubar-mobile-hamburger,
+[data-laf="cosmic-teal"] .menubar-mobile-hamburger,
+[data-laf="x11-box"] .menubar-mobile-hamburger,
+[data-laf="x11-box"] .menubar-mobile-hamburger {
+    color: #ffffff !important;
+}
+
+[data-laf="aubergine-orange"] .window-menubar-hamburger,
+[data-laf="aubergine-orange"] .window-menubar-hamburger,
+[data-laf="adwaita-slate"] .window-menubar-hamburger,
+[data-laf="adwaita-slate"] .window-menubar-hamburger {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+}
+
+[data-laf="adwaita-slate"] .drawer-header,
+.menubar-mobile-drawer[data-laf="adwaita-slate"] .drawer-header,
+.ui-bottom-sheet[data-laf="adwaita-slate"] .drawer-header,
+[data-laf="breeze-plasma"] .drawer-header,
+.menubar-mobile-drawer[data-laf="breeze-plasma"] .drawer-header,
+.ui-bottom-sheet[data-laf="breeze-plasma"] .drawer-header,
+[data-laf="flatlaf-light"] .drawer-header,
+.menubar-mobile-drawer[data-laf="flatlaf-light"] .drawer-header,
+.ui-bottom-sheet[data-laf="flatlaf-light"] .drawer-header,
+[data-laf="pantheon-pure"] .drawer-header,
+.menubar-mobile-drawer[data-laf="pantheon-pure"] .drawer-header,
+.ui-bottom-sheet[data-laf="pantheon-pure"] .drawer-header,
+[data-laf="greybird-lite"] .drawer-header,
+.menubar-mobile-drawer[data-laf="greybird-lite"] .drawer-header,
+.ui-bottom-sheet[data-laf="greybird-lite"] .drawer-header,
+[data-laf="default"] .drawer-header,
+.menubar-mobile-drawer[data-laf="default"] .drawer-header,
+.ui-bottom-sheet[data-laf="default"] .drawer-header {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-laf="adwaita-slate"] .drawer-title,
+.menubar-mobile-drawer[data-laf="adwaita-slate"] .drawer-title,
+.ui-bottom-sheet[data-laf="adwaita-slate"] .drawer-title,
+[data-laf="breeze-plasma"] .drawer-title,
+.menubar-mobile-drawer[data-laf="breeze-plasma"] .drawer-title,
+.ui-bottom-sheet[data-laf="breeze-plasma"] .drawer-title,
+[data-laf="flatlaf-light"] .drawer-title,
+.menubar-mobile-drawer[data-laf="flatlaf-light"] .drawer-title,
+.ui-bottom-sheet[data-laf="flatlaf-light"] .drawer-title,
+[data-laf="pantheon-pure"] .drawer-title,
+.menubar-mobile-drawer[data-laf="pantheon-pure"] .drawer-title,
+.ui-bottom-sheet[data-laf="pantheon-pure"] .drawer-title,
+[data-laf="greybird-lite"] .drawer-title,
+.menubar-mobile-drawer[data-laf="greybird-lite"] .drawer-title,
+.ui-bottom-sheet[data-laf="greybird-lite"] .drawer-title,
+[data-laf="default"] .drawer-title,
+.menubar-mobile-drawer[data-laf="default"] .drawer-title,
+.ui-bottom-sheet[data-laf="default"] .drawer-title {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="adwaita-slate"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="adwaita-slate"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="adwaita-slate"] .drawer-close-btn,
+[data-laf="breeze-plasma"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="breeze-plasma"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="breeze-plasma"] .drawer-close-btn,
+[data-laf="flatlaf-light"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="flatlaf-light"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="flatlaf-light"] .drawer-close-btn,
+[data-laf="pantheon-pure"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="pantheon-pure"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="pantheon-pure"] .drawer-close-btn,
+[data-laf="greybird-lite"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="greybird-lite"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="greybird-lite"] .drawer-close-btn,
+[data-laf="default"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="default"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="default"] .drawer-close-btn {
+    color: #475569 !important;
+    background: transparent !important;
+    border: none !important;
+    opacity: 0.9 !important;
+}
+
+[data-laf="adwaita-slate"] .taskShowDesktop,
+[data-laf="adwaita-slate"] .taskShowDesktop {
+    height: 26px !important;
+    padding: 0 6px !important;
+    border-radius: 6px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}

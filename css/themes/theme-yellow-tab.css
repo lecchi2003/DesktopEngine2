@@ -1,0 +1,316 @@
+/* DesktopEngine V2.0 - Look and Feel: yellow-tab */
+
+[data-laf="retro-3d"] .ui-context-menu,
+[data-laf="steel-metal"] .ui-context-menu,
+[data-laf="ocean-metal"] .ui-context-menu,
+[data-laf="yellow-tab"] .ui-context-menu,
+[data-laf="modena-soft"] .ui-context-menu,
+[data-laf="nimbus-vector"] .ui-context-menu,
+[data-laf="luna-blue"] .ui-context-menu,
+[data-laf="workbench-boing"] .ui-context-menu,
+[data-laf="warp-enterprise"] .ui-context-menu,
+[data-laf="platinum-classic"] .ui-context-menu {
+    background: #d4d0c8 !important;
+    color: #000000 !important;
+    border: 2px outset #ffffff !important;
+    border-radius: 0px !important;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.35) !important;
+    padding: 2px !important;
+}
+
+[data-laf="retro-3d"] .ui-context-menu .menuOption,
+[data-laf="steel-metal"] .ui-context-menu .menuOption,
+[data-laf="ocean-metal"] .ui-context-menu .menuOption,
+[data-laf="yellow-tab"] .ui-context-menu .menuOption,
+[data-laf="modena-soft"] .ui-context-menu .menuOption,
+[data-laf="nimbus-vector"] .ui-context-menu .menuOption,
+[data-laf="luna-blue"] .ui-context-menu .menuOption,
+[data-laf="workbench-boing"] .ui-context-menu .menuOption,
+[data-laf="warp-enterprise"] .ui-context-menu .menuOption,
+[data-laf="platinum-classic"] .ui-context-menu .menuOption {
+    color: #000000 !important;
+    border-radius: 0px;
+}
+
+[data-laf="yellow-tab"] .ui-context-menu .menuOption:hover {
+    background: #ffcc00 !important;
+    color: #000000 !important;
+}
+
+:root,
+[data-laf="default"],
+[data-laf="steel-metal"],
+[data-laf="ocean-metal"],
+[data-laf="nimbus-vector"],
+[data-laf="modena-soft"],
+[data-laf="yellow-tab"],
+[data-laf="retro-3d"],
+[data-laf="luna-blue"],
+[data-laf="aero-glass"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"],
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"],
+[data-laf="neumorphism"],
+[data-laf="material-tonal"],
+[data-laf="one-touch"],
+[data-laf="flat-tiles"],
+[data-laf="pantheon-pure"],
+[data-laf="greybird-lite"],
+[data-laf="aubergine-orange"],
+[data-laf="aqua-frosted"],
+[data-laf="fluent-acrylic"],
+[data-laf="spatial-glass"],
+[data-laf="cupertino-touch"],
+[data-laf="flatlaf-light"],
+[data-laf="comic-doodle"] {
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --menu-text: #111827;
+    --input-bg: #ffffff;
+    --input-border: #9ca3af;
+    --input-text: #111827;
+}
+
+[data-laf="steel-metal"] .statusbar,
+[data-laf="ocean-metal"] .statusbar,
+[data-laf="nimbus-vector"] .statusbar,
+[data-laf="modena-soft"] .statusbar,
+[data-laf="yellow-tab"] .statusbar,
+[data-laf="retro-3d"] .statusbar,
+[data-laf="luna-blue"] .statusbar,
+[data-laf="aero-glass"] .statusbar,
+[data-laf="platinum-classic"] .statusbar,
+[data-laf="warp-enterprise"] .statusbar,
+[data-laf="motif-panel"] .statusbar,
+[data-laf="adwaita-slate"] .statusbar,
+[data-laf="breeze-plasma"] .statusbar {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.15) !important;
+    color: #111827 !important;
+}
+
+[data-laf="yellow-tab"] .window {
+    border: 2px solid #333333;
+    border-radius: 0;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.35);
+    background: #e0e0e0;
+}
+
+[data-laf="yellow-tab"] .titlebar {
+    background: #ffcc00 !important;
+    color: #000000 !important;
+    height: 26px;
+    border: 2px solid #333;
+    border-bottom: none;
+    align-self: flex-start;
+    max-width: 80%;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 10px;
+    padding: 0 8px;
+    font-family: 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+}
+
+[data-laf="yellow-tab"] .titleText {
+    color: #000000 !important;
+}
+
+[data-laf="yellow-tab"] .winButtons {
+    order: -1;
+    margin-right: 8px;
+    align-items: center;
+}
+
+[data-laf="yellow-tab"] .winBtn {
+    width: 16px;
+    height: 16px;
+    background: #ffe033;
+    border: 1px solid #333;
+    color: #000000 !important;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+    border-radius: 2px;
+    margin-right: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="yellow-tab"] .winBtn:hover {
+    background: #ffffff;
+}
+
+[data-laf="yellow-tab"] .winBtn.close:hover {
+    background: #ff4444;
+    color: #ffffff !important;
+}
+
+[data-laf="yellow-tab"] #menubar,
+[data-laf="yellow-tab"] .ui-menubar {
+    background: #d8d8d8 !important;
+    color: #000000 !important;
+    border-bottom: 2px solid #333 !important;
+    font-family: 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+[data-laf="yellow-tab"] .menubar-item {
+    color: #000000 !important;
+}
+
+[data-laf="yellow-tab"] .menubar-item:hover,
+[data-laf="yellow-tab"] .menubar-item.active {
+    background: #ffcc00 !important;
+    color: #000000 !important;
+}
+
+[data-laf="yellow-tab"] #taskbar {
+    background: #dcdcdc !important;
+    border-top: 2px solid #333 !important;
+    color: #000000 !important;
+    height: 32px;
+    flex: 0 0 32px;
+}
+
+[data-laf="yellow-tab"] .taskStart {
+    background: #ffcc00 !important;
+    border: 1px solid #333 !important;
+    color: #000000 !important;
+    font-weight: bold;
+    font-family: 'Trebuchet MS', sans-serif;
+    border-radius: 3px;
+    height: 26px;
+}
+
+[data-laf="yellow-tab"] .taskButton {
+    background: #e4e4e4 !important;
+    border: 1px solid #666 !important;
+    color: #000000 !important;
+    border-radius: 2px;
+    height: 26px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+[data-laf="yellow-tab"] .taskButton.active {
+    background: #ffcc00 !important;
+    border-color: #000000 !important;
+    color: #000000 !important;
+    font-weight: 900;
+}
+
+[data-laf="yellow-tab"] .clock {
+    background: #ffffff;
+    border: 1px solid #333;
+    color: #000000 !important;
+    padding: 2px 6px;
+    font-weight: bold;
+    font-family: monospace;
+}
+
+[data-laf="yellow-tab"] .dropdown,
+[data-laf="yellow-tab"] .ui-start-menu,
+[data-laf="yellow-tab"] .ui-context-menu {
+    background: #e8e8e8 !important;
+    color: #000000 !important;
+    border: 1px solid #333 !important;
+}
+
+[data-laf="yellow-tab"] .menuOption {
+    color: #000000 !important;
+}
+
+[data-laf="yellow-tab"] .menuOption:hover {
+    background: #ffcc00 !important;
+    color: #000000 !important;
+}
+
+[data-laf="retro-3d"] .menubar-mobile-drawer,
+[data-laf="retro-3d"] .ui-bottom-sheet,
+[data-laf="steel-metal"] .menubar-mobile-drawer,
+[data-laf="steel-metal"] .ui-bottom-sheet,
+[data-laf="ocean-metal"] .menubar-mobile-drawer,
+[data-laf="ocean-metal"] .ui-bottom-sheet,
+[data-laf="yellow-tab"] .menubar-mobile-drawer,
+[data-laf="yellow-tab"] .ui-bottom-sheet,
+[data-laf="modena-soft"] .menubar-mobile-drawer,
+[data-laf="modena-soft"] .ui-bottom-sheet,
+[data-laf="nimbus-vector"] .menubar-mobile-drawer,
+[data-laf="nimbus-vector"] .ui-bottom-sheet,
+[data-laf="luna-blue"] .menubar-mobile-drawer,
+[data-laf="luna-blue"] .ui-bottom-sheet,
+[data-laf="workbench-boing"] .menubar-mobile-drawer,
+[data-laf="workbench-boing"] .ui-bottom-sheet,
+[data-laf="warp-enterprise"] .menubar-mobile-drawer,
+[data-laf="warp-enterprise"] .ui-bottom-sheet,
+[data-laf="platinum-classic"] .menubar-mobile-drawer,
+[data-laf="platinum-classic"] .ui-bottom-sheet {
+    background: #c0c0c0 !important;
+    color: #000000 !important;
+    border-radius: 0 !important;
+    font-family: 'Tahoma', 'MS Sans Serif', sans-serif !important;
+}
+
+[data-laf="retro-3d"] .menubar-mobile-drawer,
+[data-laf="steel-metal"] .menubar-mobile-drawer,
+[data-laf="ocean-metal"] .menubar-mobile-drawer,
+[data-laf="yellow-tab"] .menubar-mobile-drawer,
+[data-laf="modena-soft"] .menubar-mobile-drawer,
+[data-laf="nimbus-vector"] .menubar-mobile-drawer,
+[data-laf="luna-blue"] .menubar-mobile-drawer,
+[data-laf="workbench-boing"] .menubar-mobile-drawer,
+[data-laf="warp-enterprise"] .menubar-mobile-drawer,
+[data-laf="platinum-classic"] .menubar-mobile-drawer {
+    border-right: 3px outset #ffffff !important;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-laf="retro-3d"] .ui-bottom-sheet,
+[data-laf="steel-metal"] .ui-bottom-sheet,
+[data-laf="ocean-metal"] .ui-bottom-sheet,
+[data-laf="yellow-tab"] .ui-bottom-sheet,
+[data-laf="modena-soft"] .ui-bottom-sheet,
+[data-laf="nimbus-vector"] .ui-bottom-sheet,
+[data-laf="luna-blue"] .ui-bottom-sheet,
+[data-laf="workbench-boing"] .ui-bottom-sheet,
+[data-laf="warp-enterprise"] .ui-bottom-sheet,
+[data-laf="platinum-classic"] .ui-bottom-sheet {
+    border-top: 3px outset #ffffff !important;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-laf="yellow-tab"] .drawer-header,
+.menubar-mobile-drawer[data-laf="yellow-tab"] .drawer-header,
+.ui-bottom-sheet[data-laf="yellow-tab"] .drawer-header {
+    background: #ffcc00 !important;
+    color: #000000 !important;
+    border-bottom: 2px solid #cca300 !important;
+    font-weight: bold !important;
+}
+
+[data-laf="yellow-tab"] .drawer-title,
+.menubar-mobile-drawer[data-laf="yellow-tab"] .drawer-title,
+.ui-bottom-sheet[data-laf="yellow-tab"] .drawer-title {
+    color: #000000 !important;
+    font-weight: bold !important;
+}
+
+[data-laf="yellow-tab"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="yellow-tab"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="yellow-tab"] .drawer-close-btn {
+    background: #000000 !important;
+    color: #ffcc00 !important;
+    border: 1px solid #cca300 !important;
+    border-radius: 3px !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
+}
+
+[data-laf="yellow-tab"] {
+    --menu-bg: #e8e8e8 !important;
+    --menu-text: #000000 !important;
+}

@@ -1,0 +1,176 @@
+/* DesktopEngine V2.0 - Look and Feel: win11-2 */
+
+[data-laf="aqua-frosted"] .menubar-mobile-drawer,
+[data-laf="aqua-frosted"] .ui-bottom-sheet,
+[data-laf="spatial-glass"] .menubar-mobile-drawer,
+[data-laf="spatial-glass"] .ui-bottom-sheet,
+[data-laf="fluent-acrylic"] .menubar-mobile-drawer,
+[data-laf="fluent-acrylic"] .ui-bottom-sheet,
+[data-laf="cupertino-touch"] .menubar-mobile-drawer,
+[data-laf="cupertino-touch"] .ui-bottom-sheet,
+[data-laf="one-touch"] .menubar-mobile-drawer,
+[data-laf="one-touch"] .ui-bottom-sheet,
+[data-laf="material-tonal"] .menubar-mobile-drawer,
+[data-laf="material-tonal"] .ui-bottom-sheet,
+[data-laf="aero-glass"] .menubar-mobile-drawer,
+[data-laf="aero-glass"] .ui-bottom-sheet,
+[data-laf="win11"] .menubar-mobile-drawer,
+[data-laf="win11"] .ui-bottom-sheet,
+[data-laf="win11-2"] .menubar-mobile-drawer,
+[data-laf="win11-2"] .ui-bottom-sheet {
+    backdrop-filter: blur(28px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+}
+
+[data-laf="aqua-frosted"] .drawer-header,
+.menubar-mobile-drawer[data-laf="aqua-frosted"] .drawer-header,
+.ui-bottom-sheet[data-laf="aqua-frosted"] .drawer-header,
+[data-laf="fluent-acrylic"] .drawer-header,
+.menubar-mobile-drawer[data-laf="fluent-acrylic"] .drawer-header,
+.ui-bottom-sheet[data-laf="fluent-acrylic"] .drawer-header,
+[data-laf="cupertino-touch"] .drawer-header,
+.menubar-mobile-drawer[data-laf="cupertino-touch"] .drawer-header,
+.ui-bottom-sheet[data-laf="cupertino-touch"] .drawer-header,
+[data-laf="one-touch"] .drawer-header,
+.menubar-mobile-drawer[data-laf="one-touch"] .drawer-header,
+.ui-bottom-sheet[data-laf="one-touch"] .drawer-header,
+[data-laf="material-tonal"] .drawer-header,
+.menubar-mobile-drawer[data-laf="material-tonal"] .drawer-header,
+.ui-bottom-sheet[data-laf="material-tonal"] .drawer-header,
+[data-laf="aero-glass"] .drawer-header,
+.menubar-mobile-drawer[data-laf="aero-glass"] .drawer-header,
+.ui-bottom-sheet[data-laf="aero-glass"] .drawer-header,
+[data-laf="win11"] .drawer-header,
+.menubar-mobile-drawer[data-laf="win11"] .drawer-header,
+.ui-bottom-sheet[data-laf="win11"] .drawer-header,
+[data-laf="win11-2"] .drawer-header,
+.menubar-mobile-drawer[data-laf="win11-2"] .drawer-header,
+.ui-bottom-sheet[data-laf="win11-2"] .drawer-header {
+    background: rgba(0, 0, 0, 0.04) !important;
+    color: #0f172a !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-laf="aqua-frosted"] .drawer-title,
+.menubar-mobile-drawer[data-laf="aqua-frosted"] .drawer-title,
+.ui-bottom-sheet[data-laf="aqua-frosted"] .drawer-title,
+[data-laf="fluent-acrylic"] .drawer-title,
+.menubar-mobile-drawer[data-laf="fluent-acrylic"] .drawer-title,
+.ui-bottom-sheet[data-laf="fluent-acrylic"] .drawer-title,
+[data-laf="cupertino-touch"] .drawer-title,
+.menubar-mobile-drawer[data-laf="cupertino-touch"] .drawer-title,
+.ui-bottom-sheet[data-laf="cupertino-touch"] .drawer-title,
+[data-laf="one-touch"] .drawer-title,
+.menubar-mobile-drawer[data-laf="one-touch"] .drawer-title,
+.ui-bottom-sheet[data-laf="one-touch"] .drawer-title,
+[data-laf="material-tonal"] .drawer-title,
+.menubar-mobile-drawer[data-laf="material-tonal"] .drawer-title,
+.ui-bottom-sheet[data-laf="material-tonal"] .drawer-title,
+[data-laf="aero-glass"] .drawer-title,
+.menubar-mobile-drawer[data-laf="aero-glass"] .drawer-title,
+.ui-bottom-sheet[data-laf="aero-glass"] .drawer-title,
+[data-laf="win11"] .drawer-title,
+.menubar-mobile-drawer[data-laf="win11"] .drawer-title,
+.ui-bottom-sheet[data-laf="win11"] .drawer-title,
+[data-laf="win11-2"] .drawer-title,
+.menubar-mobile-drawer[data-laf="win11-2"] .drawer-title,
+.ui-bottom-sheet[data-laf="win11-2"] .drawer-title {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="aqua-frosted"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="aqua-frosted"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="aqua-frosted"] .drawer-close-btn,
+[data-laf="fluent-acrylic"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="fluent-acrylic"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="fluent-acrylic"] .drawer-close-btn,
+[data-laf="cupertino-touch"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="cupertino-touch"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="cupertino-touch"] .drawer-close-btn,
+[data-laf="one-touch"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="one-touch"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="one-touch"] .drawer-close-btn,
+[data-laf="material-tonal"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="material-tonal"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="material-tonal"] .drawer-close-btn,
+[data-laf="aero-glass"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="aero-glass"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="aero-glass"] .drawer-close-btn,
+[data-laf="win11"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="win11"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="win11"] .drawer-close-btn,
+[data-laf="win11-2"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="win11-2"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="win11-2"] .drawer-close-btn {
+    color: #334155 !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+    border-radius: 50% !important;
+    opacity: 0.9 !important;
+}
+
+[data-laf="win11-2"] {
+    --window-bg: rgba(255, 255, 255, 0.7);
+    --titlebar-bg: transparent;
+    --border-color: rgba(0,0,0,0.1);
+}
+
+[data-laf="win11-2"] .window {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    border-radius: 12px;
+}
+
+[data-laf="win11-2"] .titlebar {
+    background: rgba(255, 255, 255, 0.4) !important;
+    color: #222222 !important;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+[data-laf="win11-2"] .winBtn {
+    color: #222222 !important;
+    background: transparent !important;
+}
+
+[data-laf="win11-2"] .winBtn:hover {
+    background: rgba(0,0,0,0.08) !important;
+}
+
+[data-laf="win11-2"] .winBtn.close:hover {
+    background: #e81123 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="win11-2"] #taskbar {
+    position: absolute !important;
+    bottom: 10px !important;
+    left: 50% !important;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 20px;
+    width: 95% !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    z-index: 9999;
+}
+
+[data-laf="win11-2"] .ui-dock-widget.pos-bottom-right,
+[data-laf="win11-2"] .ui-dock-widget.pos-bottom-left,
+[data-laf="win11-2"] .ui-dock-widget.pos-bottom-center,
+[data-laf="win11-2"] .ui-float-button-wrap.pos-bottom-right {
+    bottom: 75px !important;
+}
+
+[data-laf="win11-2"] .taskButton, [data-laf="win11-2"] .taskStart {
+    border-radius: 10px;
+    background: transparent !important;
+    border: none !important;
+}
+
+[data-laf="win11-2"] .taskButton:hover, [data-laf="win11-2"] .taskStart:hover {
+    background: rgba(255,255,255,0.8) !important;
+}

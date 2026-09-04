@@ -1,0 +1,208 @@
+/* DesktopEngine V2.0 - Look and Feel: workbench-boing */
+
+[data-laf="retro-3d"] .ui-context-menu,
+[data-laf="steel-metal"] .ui-context-menu,
+[data-laf="ocean-metal"] .ui-context-menu,
+[data-laf="yellow-tab"] .ui-context-menu,
+[data-laf="modena-soft"] .ui-context-menu,
+[data-laf="nimbus-vector"] .ui-context-menu,
+[data-laf="luna-blue"] .ui-context-menu,
+[data-laf="workbench-boing"] .ui-context-menu,
+[data-laf="warp-enterprise"] .ui-context-menu,
+[data-laf="platinum-classic"] .ui-context-menu {
+    background: #d4d0c8 !important;
+    color: #000000 !important;
+    border: 2px outset #ffffff !important;
+    border-radius: 0px !important;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.35) !important;
+    padding: 2px !important;
+}
+
+[data-laf="retro-3d"] .ui-context-menu .menuOption,
+[data-laf="steel-metal"] .ui-context-menu .menuOption,
+[data-laf="ocean-metal"] .ui-context-menu .menuOption,
+[data-laf="yellow-tab"] .ui-context-menu .menuOption,
+[data-laf="modena-soft"] .ui-context-menu .menuOption,
+[data-laf="nimbus-vector"] .ui-context-menu .menuOption,
+[data-laf="luna-blue"] .ui-context-menu .menuOption,
+[data-laf="workbench-boing"] .ui-context-menu .menuOption,
+[data-laf="warp-enterprise"] .ui-context-menu .menuOption,
+[data-laf="platinum-classic"] .ui-context-menu .menuOption {
+    color: #000000 !important;
+    border-radius: 0px;
+}
+
+[data-laf="retro-3d"] .ui-context-menu .menuOption:hover,
+[data-laf="steel-metal"] .ui-context-menu .menuOption:hover,
+[data-laf="ocean-metal"] .ui-context-menu .menuOption:hover,
+[data-laf="luna-blue"] .ui-context-menu .menuOption:hover,
+[data-laf="workbench-boing"] .ui-context-menu .menuOption:hover,
+[data-laf="warp-enterprise"] .ui-context-menu .menuOption:hover,
+[data-laf="platinum-classic"] .ui-context-menu .menuOption:hover {
+    background: #0a246a !important;
+    color: #ffffff !important;
+}
+
+[data-laf="workbench-boing"] .window {
+    border: 2px solid #0055aa;
+    border-radius: 0;
+    box-shadow: 3px 3px 0 #000000;
+    background: #aaaaaa;
+}
+
+[data-laf="workbench-boing"] .titlebar {
+    height: 22px;
+    background: #0055aa !important;
+    color: #ff8800 !important;
+    font-family: 'Topaz', monospace, sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 0 4px;
+}
+
+[data-laf="workbench-boing"] .titleText {
+    color: #ff8800 !important;
+}
+
+[data-laf="workbench-boing"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="workbench-boing"] .winBtn {
+    width: 16px;
+    height: 16px;
+    background: #aaaaaa;
+    border: 1px solid #000000;
+    color: #0055aa !important;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="workbench-boing"] .winBtn:hover {
+    background: #ffffff;
+}
+
+[data-laf="workbench-boing"] #menubar,
+[data-laf="workbench-boing"] .ui-menubar,
+[data-laf="workbench-boing"] #taskbar {
+    background: #0055aa !important;
+    color: #ff8800 !important;
+    border-color: #000000 !important;
+    font-family: 'Topaz', monospace;
+    font-weight: bold;
+}
+
+[data-laf="workbench-boing"] .menubar-item,
+[data-laf="workbench-boing"] .clock {
+    color: #ff8800 !important;
+}
+
+[data-laf="workbench-boing"] .taskStart,
+[data-laf="workbench-boing"] .taskButton {
+    background: #aaaaaa !important;
+    border: 1px solid #000000 !important;
+    color: #0055aa !important;
+    font-weight: bold;
+    border-radius: 0;
+    height: 24px;
+}
+
+[data-laf="workbench-boing"] .taskButton.active {
+    background: #ff8800 !important;
+    color: #000000 !important;
+}
+
+[data-laf="retro-3d"] .menubar-mobile-drawer,
+[data-laf="retro-3d"] .ui-bottom-sheet,
+[data-laf="steel-metal"] .menubar-mobile-drawer,
+[data-laf="steel-metal"] .ui-bottom-sheet,
+[data-laf="ocean-metal"] .menubar-mobile-drawer,
+[data-laf="ocean-metal"] .ui-bottom-sheet,
+[data-laf="yellow-tab"] .menubar-mobile-drawer,
+[data-laf="yellow-tab"] .ui-bottom-sheet,
+[data-laf="modena-soft"] .menubar-mobile-drawer,
+[data-laf="modena-soft"] .ui-bottom-sheet,
+[data-laf="nimbus-vector"] .menubar-mobile-drawer,
+[data-laf="nimbus-vector"] .ui-bottom-sheet,
+[data-laf="luna-blue"] .menubar-mobile-drawer,
+[data-laf="luna-blue"] .ui-bottom-sheet,
+[data-laf="workbench-boing"] .menubar-mobile-drawer,
+[data-laf="workbench-boing"] .ui-bottom-sheet,
+[data-laf="warp-enterprise"] .menubar-mobile-drawer,
+[data-laf="warp-enterprise"] .ui-bottom-sheet,
+[data-laf="platinum-classic"] .menubar-mobile-drawer,
+[data-laf="platinum-classic"] .ui-bottom-sheet {
+    background: #c0c0c0 !important;
+    color: #000000 !important;
+    border-radius: 0 !important;
+    font-family: 'Tahoma', 'MS Sans Serif', sans-serif !important;
+}
+
+[data-laf="retro-3d"] .menubar-mobile-drawer,
+[data-laf="steel-metal"] .menubar-mobile-drawer,
+[data-laf="ocean-metal"] .menubar-mobile-drawer,
+[data-laf="yellow-tab"] .menubar-mobile-drawer,
+[data-laf="modena-soft"] .menubar-mobile-drawer,
+[data-laf="nimbus-vector"] .menubar-mobile-drawer,
+[data-laf="luna-blue"] .menubar-mobile-drawer,
+[data-laf="workbench-boing"] .menubar-mobile-drawer,
+[data-laf="warp-enterprise"] .menubar-mobile-drawer,
+[data-laf="platinum-classic"] .menubar-mobile-drawer {
+    border-right: 3px outset #ffffff !important;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-laf="retro-3d"] .ui-bottom-sheet,
+[data-laf="steel-metal"] .ui-bottom-sheet,
+[data-laf="ocean-metal"] .ui-bottom-sheet,
+[data-laf="yellow-tab"] .ui-bottom-sheet,
+[data-laf="modena-soft"] .ui-bottom-sheet,
+[data-laf="nimbus-vector"] .ui-bottom-sheet,
+[data-laf="luna-blue"] .ui-bottom-sheet,
+[data-laf="workbench-boing"] .ui-bottom-sheet,
+[data-laf="warp-enterprise"] .ui-bottom-sheet,
+[data-laf="platinum-classic"] .ui-bottom-sheet {
+    border-top: 3px outset #ffffff !important;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-laf="workbench-boing"] .drawer-header,
+.menubar-mobile-drawer[data-laf="workbench-boing"] .drawer-header,
+.ui-bottom-sheet[data-laf="workbench-boing"] .drawer-header {
+    background: #0055aa !important;
+    color: #ff8800 !important;
+    border-bottom: 2px solid #ffffff !important;
+    font-weight: bold !important;
+}
+
+[data-laf="workbench-boing"] .drawer-title,
+.menubar-mobile-drawer[data-laf="workbench-boing"] .drawer-title,
+.ui-bottom-sheet[data-laf="workbench-boing"] .drawer-title {
+    color: #ff8800 !important;
+    font-family: monospace, sans-serif !important;
+    font-weight: bold !important;
+}
+
+[data-laf="workbench-boing"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="workbench-boing"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="workbench-boing"] .drawer-close-btn {
+    background: #ff8800 !important;
+    color: #0055aa !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 0 !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
+}
+
+[data-laf="workbench-boing"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"] {
+    --menu-bg: #d4d0c8 !important;
+    --menu-text: #000000 !important;
+}

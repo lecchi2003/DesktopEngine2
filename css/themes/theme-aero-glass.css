@@ -1,0 +1,404 @@
+/* DesktopEngine V2.0 - Look and Feel: aero-glass */
+
+[data-laf="cupertino-touch"] .ui-context-menu,
+[data-laf="aqua-frosted"] .ui-context-menu,
+[data-laf="fluent-acrylic"] .ui-context-menu,
+[data-laf="one-touch"] .ui-context-menu,
+[data-laf="material-tonal"] .ui-context-menu,
+[data-laf="aero-glass"] .ui-context-menu {
+    background: var(--menu-bg) !important;
+    border: 1px solid var(--win-border) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
+    color: var(--menu-text) !important;
+}
+
+[data-laf="cupertino-touch"] .ui-context-menu .menuOption,
+[data-laf="aqua-frosted"] .ui-context-menu .menuOption,
+[data-laf="fluent-acrylic"] .ui-context-menu .menuOption,
+[data-laf="one-touch"] .ui-context-menu .menuOption,
+[data-laf="material-tonal"] .ui-context-menu .menuOption,
+[data-laf="aero-glass"] .ui-context-menu .menuOption {
+    color: var(--menu-text) !important;
+    border-radius: 8px;
+}
+
+[data-laf="cupertino-touch"] .ui-context-menu .menuOption:hover,
+[data-laf="aqua-frosted"] .ui-context-menu .menuOption:hover,
+[data-laf="fluent-acrylic"] .ui-context-menu .menuOption:hover,
+[data-laf="one-touch"] .ui-context-menu .menuOption:hover,
+[data-laf="material-tonal"] .ui-context-menu .menuOption:hover,
+[data-laf="aero-glass"] .ui-context-menu .menuOption:hover {
+    background: var(--menu-hover) !important;
+    color: var(--menu-text) !important;
+}
+
+:root,
+[data-laf="default"],
+[data-laf="steel-metal"],
+[data-laf="ocean-metal"],
+[data-laf="nimbus-vector"],
+[data-laf="modena-soft"],
+[data-laf="yellow-tab"],
+[data-laf="retro-3d"],
+[data-laf="luna-blue"],
+[data-laf="aero-glass"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"],
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"],
+[data-laf="neumorphism"],
+[data-laf="material-tonal"],
+[data-laf="one-touch"],
+[data-laf="flat-tiles"],
+[data-laf="pantheon-pure"],
+[data-laf="greybird-lite"],
+[data-laf="aubergine-orange"],
+[data-laf="aqua-frosted"],
+[data-laf="fluent-acrylic"],
+[data-laf="spatial-glass"],
+[data-laf="cupertino-touch"],
+[data-laf="flatlaf-light"],
+[data-laf="comic-doodle"] {
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --menu-text: #111827;
+    --input-bg: #ffffff;
+    --input-border: #9ca3af;
+    --input-text: #111827;
+}
+
+[data-laf="steel-metal"] .statusbar,
+[data-laf="ocean-metal"] .statusbar,
+[data-laf="nimbus-vector"] .statusbar,
+[data-laf="modena-soft"] .statusbar,
+[data-laf="yellow-tab"] .statusbar,
+[data-laf="retro-3d"] .statusbar,
+[data-laf="luna-blue"] .statusbar,
+[data-laf="aero-glass"] .statusbar,
+[data-laf="platinum-classic"] .statusbar,
+[data-laf="warp-enterprise"] .statusbar,
+[data-laf="motif-panel"] .statusbar,
+[data-laf="adwaita-slate"] .statusbar,
+[data-laf="breeze-plasma"] .statusbar {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.15) !important;
+    color: #111827 !important;
+}
+
+[data-laf="aero-glass"] .window {
+    border-radius: 8px 8px 0 0;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    background: rgba(220, 235, 252, 0.85);
+    backdrop-filter: blur(16px);
+}
+
+[data-laf="aero-glass"] .titlebar {
+    height: 32px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(200, 225, 255, 0.3) 50%, rgba(160, 200, 245, 0.4) 100%) !important;
+    color: #1e395b !important;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 600;
+}
+
+[data-laf="aero-glass"] .titleText {
+    color: #1e395b !important;
+}
+
+[data-laf="aero-glass"] .winButtons {
+    align-items: center;
+}
+
+[data-laf="aero-glass"] .winBtn {
+    width: 36px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 0 0 4px 4px;
+    color: #1e395b !important;
+    font-size: 12px;
+    margin: 0 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="aero-glass"] .winBtn:hover {
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+[data-laf="aero-glass"] .winBtn.close:hover {
+    background: #e81123 !important;
+    color: #ffffff !important;
+    border-color: #ff6666;
+}
+
+[data-laf="aero-glass"] #menubar,
+[data-laf="aero-glass"] .ui-menubar {
+    background: rgba(220, 235, 252, 0.88) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6) !important;
+    color: #1e395b !important;
+}
+
+[data-laf="aero-glass"] .menubar-item {
+    color: #1e395b !important;
+}
+
+[data-laf="aero-glass"] .menubar-item:hover,
+[data-laf="aero-glass"] .menubar-item.active {
+    background: rgba(255, 255, 255, 0.6) !important;
+    color: #002244 !important;
+}
+
+[data-laf="aero-glass"] #taskbar {
+    background: linear-gradient(180deg, rgba(20, 45, 80, 0.88) 0%, rgba(10, 20, 40, 0.95) 100%) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+    height: 40px;
+    flex: 0 0 40px;
+}
+
+[data-laf="aero-glass"] .taskStart {
+    background: radial-gradient(circle at 50% 30%, #5dade2 0%, #2471a3 60%, #154360 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.7) !important;
+    border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    padding: 0 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(93, 173, 226, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+[data-laf="aero-glass"] .taskStart:hover {
+    box-shadow: 0 0 18px rgba(93, 173, 226, 1), inset 0 1px 4px rgba(255, 255, 255, 0.9) !important;
+    transform: scale(1.06);
+}
+
+[data-laf="aero-glass"] .taskStart .task-start-label {
+    display: none !important;
+}
+
+[data-laf="aero-glass"] .taskStart .task-start-icon {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="aero-glass"] .taskShowDesktop {
+    width: 14px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 2px !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    transition: background 0.2s ease;
+}
+
+[data-laf="aero-glass"] .taskShowDesktop:hover {
+    background: rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6) !important;
+}
+
+[data-laf="aero-glass"] .taskButton {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 4px;
+    color: #ffffff !important;
+    height: 32px;
+    font-size: 12px;
+}
+
+[data-laf="aero-glass"] .taskButton.active {
+    background: rgba(255, 255, 255, 0.35) !important;
+    border-color: rgba(93, 173, 226, 0.8) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(93, 173, 226, 0.7) !important;
+    font-weight: 600;
+}
+
+[data-laf="aero-glass"] .clock {
+    color: #ffffff !important;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}
+
+[data-laf="aero-glass"] .dropdown,
+[data-laf="aero-glass"] .ui-start-menu,
+[data-laf="aero-glass"] .ui-context-menu {
+    background: rgba(240, 248, 255, 0.95) !important;
+    color: #1e395b !important;
+    border: 1px solid rgba(93, 173, 226, 0.6) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-laf="aero-glass"] .menuOption {
+    color: #1e395b !important;
+}
+
+[data-laf="aero-glass"] .menuOption:hover {
+    background: #3399ff !important;
+    color: #ffffff !important;
+}
+
+[data-laf="aqua-frosted"] .menubar-mobile-drawer,
+[data-laf="aqua-frosted"] .ui-bottom-sheet,
+[data-laf="spatial-glass"] .menubar-mobile-drawer,
+[data-laf="spatial-glass"] .ui-bottom-sheet,
+[data-laf="fluent-acrylic"] .menubar-mobile-drawer,
+[data-laf="fluent-acrylic"] .ui-bottom-sheet,
+[data-laf="cupertino-touch"] .menubar-mobile-drawer,
+[data-laf="cupertino-touch"] .ui-bottom-sheet,
+[data-laf="one-touch"] .menubar-mobile-drawer,
+[data-laf="one-touch"] .ui-bottom-sheet,
+[data-laf="material-tonal"] .menubar-mobile-drawer,
+[data-laf="material-tonal"] .ui-bottom-sheet,
+[data-laf="aero-glass"] .menubar-mobile-drawer,
+[data-laf="aero-glass"] .ui-bottom-sheet,
+[data-laf="win11"] .menubar-mobile-drawer,
+[data-laf="win11"] .ui-bottom-sheet,
+[data-laf="win11-2"] .menubar-mobile-drawer,
+[data-laf="win11-2"] .ui-bottom-sheet {
+    backdrop-filter: blur(28px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+}
+
+[data-laf="aqua-frosted"] .drawer-header,
+.menubar-mobile-drawer[data-laf="aqua-frosted"] .drawer-header,
+.ui-bottom-sheet[data-laf="aqua-frosted"] .drawer-header,
+[data-laf="fluent-acrylic"] .drawer-header,
+.menubar-mobile-drawer[data-laf="fluent-acrylic"] .drawer-header,
+.ui-bottom-sheet[data-laf="fluent-acrylic"] .drawer-header,
+[data-laf="cupertino-touch"] .drawer-header,
+.menubar-mobile-drawer[data-laf="cupertino-touch"] .drawer-header,
+.ui-bottom-sheet[data-laf="cupertino-touch"] .drawer-header,
+[data-laf="one-touch"] .drawer-header,
+.menubar-mobile-drawer[data-laf="one-touch"] .drawer-header,
+.ui-bottom-sheet[data-laf="one-touch"] .drawer-header,
+[data-laf="material-tonal"] .drawer-header,
+.menubar-mobile-drawer[data-laf="material-tonal"] .drawer-header,
+.ui-bottom-sheet[data-laf="material-tonal"] .drawer-header,
+[data-laf="aero-glass"] .drawer-header,
+.menubar-mobile-drawer[data-laf="aero-glass"] .drawer-header,
+.ui-bottom-sheet[data-laf="aero-glass"] .drawer-header,
+[data-laf="win11"] .drawer-header,
+.menubar-mobile-drawer[data-laf="win11"] .drawer-header,
+.ui-bottom-sheet[data-laf="win11"] .drawer-header,
+[data-laf="win11-2"] .drawer-header,
+.menubar-mobile-drawer[data-laf="win11-2"] .drawer-header,
+.ui-bottom-sheet[data-laf="win11-2"] .drawer-header {
+    background: rgba(0, 0, 0, 0.04) !important;
+    color: #0f172a !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-laf="aqua-frosted"] .drawer-title,
+.menubar-mobile-drawer[data-laf="aqua-frosted"] .drawer-title,
+.ui-bottom-sheet[data-laf="aqua-frosted"] .drawer-title,
+[data-laf="fluent-acrylic"] .drawer-title,
+.menubar-mobile-drawer[data-laf="fluent-acrylic"] .drawer-title,
+.ui-bottom-sheet[data-laf="fluent-acrylic"] .drawer-title,
+[data-laf="cupertino-touch"] .drawer-title,
+.menubar-mobile-drawer[data-laf="cupertino-touch"] .drawer-title,
+.ui-bottom-sheet[data-laf="cupertino-touch"] .drawer-title,
+[data-laf="one-touch"] .drawer-title,
+.menubar-mobile-drawer[data-laf="one-touch"] .drawer-title,
+.ui-bottom-sheet[data-laf="one-touch"] .drawer-title,
+[data-laf="material-tonal"] .drawer-title,
+.menubar-mobile-drawer[data-laf="material-tonal"] .drawer-title,
+.ui-bottom-sheet[data-laf="material-tonal"] .drawer-title,
+[data-laf="aero-glass"] .drawer-title,
+.menubar-mobile-drawer[data-laf="aero-glass"] .drawer-title,
+.ui-bottom-sheet[data-laf="aero-glass"] .drawer-title,
+[data-laf="win11"] .drawer-title,
+.menubar-mobile-drawer[data-laf="win11"] .drawer-title,
+.ui-bottom-sheet[data-laf="win11"] .drawer-title,
+[data-laf="win11-2"] .drawer-title,
+.menubar-mobile-drawer[data-laf="win11-2"] .drawer-title,
+.ui-bottom-sheet[data-laf="win11-2"] .drawer-title {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="aqua-frosted"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="aqua-frosted"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="aqua-frosted"] .drawer-close-btn,
+[data-laf="fluent-acrylic"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="fluent-acrylic"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="fluent-acrylic"] .drawer-close-btn,
+[data-laf="cupertino-touch"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="cupertino-touch"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="cupertino-touch"] .drawer-close-btn,
+[data-laf="one-touch"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="one-touch"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="one-touch"] .drawer-close-btn,
+[data-laf="material-tonal"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="material-tonal"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="material-tonal"] .drawer-close-btn,
+[data-laf="aero-glass"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="aero-glass"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="aero-glass"] .drawer-close-btn,
+[data-laf="win11"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="win11"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="win11"] .drawer-close-btn,
+[data-laf="win11-2"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="win11-2"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="win11-2"] .drawer-close-btn {
+    color: #334155 !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+    border-radius: 50% !important;
+    opacity: 0.9 !important;
+}
+
+[data-laf="aero-glass"] .taskShowDesktop,
+[data-laf="aero-glass"] .taskShowDesktop {
+    width: 14px !important;
+    min-width: 14px !important;
+    max-width: 14px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    margin-left: 4px !important;
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    border-radius: 2px !important;
+    cursor: pointer !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    transition: background 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+[data-laf="aero-glass"] .taskShowDesktop:hover,
+[data-laf="aero-glass"] .taskShowDesktop:hover {
+    background: rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.85) !important;
+}
+
+[data-laf="aero-glass"] .taskShowDesktop .task-show-desktop-icon,
+[data-laf="aero-glass"] .taskShowDesktop .task-show-desktop-icon {
+    display: none !important;
+}
+
+[data-laf="aero-glass"] {
+    --menu-bg: rgba(240, 248, 255, 0.95) !important;
+    --menu-text: #1e395b !important;
+}

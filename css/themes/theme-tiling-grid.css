@@ -1,0 +1,265 @@
+/* DesktopEngine V2.0 - Look and Feel: tiling-grid */
+
+[data-laf="next-dark"] .ui-context-menu,
+[data-laf="caspian-dark"] .ui-context-menu,
+[data-laf="x11-box"] .ui-context-menu,
+[data-laf="e-fusion"] .ui-context-menu,
+[data-laf="cosmic-teal"] .ui-context-menu,
+[data-laf="tiling-grid"] .ui-context-menu {
+    background: #1e2430 !important;
+    border: 1px solid #3a475a !important;
+    color: #f1f5f9 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-laf="next-dark"] .ui-context-menu .menuOption,
+[data-laf="caspian-dark"] .ui-context-menu .menuOption,
+[data-laf="x11-box"] .ui-context-menu .menuOption,
+[data-laf="e-fusion"] .ui-context-menu .menuOption,
+[data-laf="cosmic-teal"] .ui-context-menu .menuOption,
+[data-laf="tiling-grid"] .ui-context-menu .menuOption {
+    color: #f1f5f9 !important;
+}
+
+[data-laf="next-dark"] .ui-context-menu .menuOption:hover,
+[data-laf="caspian-dark"] .ui-context-menu .menuOption:hover,
+[data-laf="x11-box"] .ui-context-menu .menuOption:hover,
+[data-laf="e-fusion"] .ui-context-menu .menuOption:hover,
+[data-laf="cosmic-teal"] .ui-context-menu .menuOption:hover,
+[data-laf="tiling-grid"] .ui-context-menu .menuOption:hover {
+    background: #2563eb !important;
+    color: #ffffff !important;
+}
+
+[data-laf="tiling-grid"] .window {
+    border-radius: 0px !important;
+    border: 2px solid #4c7899 !important;
+    background: #0f141c !important;
+    color: #cdd6f4 !important;
+    box-shadow: none !important;
+    font-family: 'DejaVu Sans Mono', 'Consolas', monospace !important;
+}
+
+[data-laf="tiling-grid"] .windowBody label,
+[data-laf="tiling-grid"] .windowBody span,
+[data-laf="tiling-grid"] .windowBody p,
+[data-laf="tiling-grid"] .windowBody h1,
+[data-laf="tiling-grid"] .windowBody h2,
+[data-laf="tiling-grid"] .windowBody h3,
+[data-laf="tiling-grid"] .windowBody h4,
+[data-laf="tiling-grid"] .windowBody li,
+[data-laf="tiling-grid"] .windowBody td,
+[data-laf="tiling-grid"] .windowBody th,
+[data-laf="tiling-grid"] .windowBody strong {
+    color: #cdd6f4 !important;
+}
+
+[data-laf="tiling-grid"] .ui-card,
+[data-laf="tiling-grid"] .card {
+    background: #181825 !important;
+    border: 1px solid #4c7899 !important;
+    color: #cdd6f4 !important;
+}
+
+[data-laf="tiling-grid"] input,
+[data-laf="tiling-grid"] select,
+[data-laf="tiling-grid"] textarea {
+    background: #181825 !important;
+    border: 1px solid #4c7899 !important;
+    color: #cdd6f4 !important;
+}
+
+[data-laf="tiling-grid"] .window.active {
+    border-color: #2e9ef4 !important;
+}
+
+[data-laf="tiling-grid"] .titlebar {
+    background: #285577 !important;
+    border-bottom: none !important;
+    color: #ffffff !important;
+    height: 28px !important;
+    padding: 0 8px !important;
+    border-radius: 0px !important;
+    font-family: 'DejaVu Sans Mono', 'Consolas', monospace;
+    font-size: 12px;
+}
+
+[data-laf="tiling-grid"] .titleText {
+    font-weight: normal;
+    font-size: 11.5px;
+    letter-spacing: 0.5px;
+}
+
+[data-laf="tiling-grid"] .winBtn {
+    width: 20px;
+    height: 20px;
+    border-radius: 0px;
+    background: transparent;
+    color: #ffffff;
+    font-size: 11px;
+}
+
+[data-laf="tiling-grid"] .winBtn:hover {
+    background: #2e9ef4;
+    color: #000000;
+}
+
+[data-laf="tiling-grid"] .winBtn.close:hover {
+    background: #900000;
+    color: #ffffff;
+}
+
+[data-laf="tiling-grid"] .windowBody {
+    background: #0f141c;
+    color: #ffffff;
+}
+
+[data-laf="tiling-grid"] .ui-btn,
+[data-laf="tiling-grid"] .ui-button,
+[data-laf="tiling-grid"] .btn,
+[data-laf="tiling-grid"] .ui-card,
+[data-laf="tiling-grid"] .card,
+[data-laf="tiling-grid"] input,
+[data-laf="tiling-grid"] select,
+[data-laf="tiling-grid"] textarea,
+[data-laf="tiling-grid"] .taskButton,
+[data-laf="tiling-grid"] .taskStart {
+    border-radius: 0px !important;
+}
+
+[data-laf="tiling-grid"] #menubar,
+[data-laf="tiling-grid"] .ui-menubar {
+    background: #1e1e1e;
+    border-bottom: 2px solid #285577;
+    color: #ffffff;
+    font-family: monospace;
+}
+
+[data-laf="tiling-grid"] .menubar-item {
+    color: #ffffff !important;
+}
+
+[data-laf="tiling-grid"] #taskbar {
+    background: #000000;
+    border-top: 1px solid #4c7899;
+}
+
+[data-laf="tiling-grid"] .taskStart,
+[data-laf="tiling-grid"] .taskShowDesktop,
+[data-laf="tiling-grid"] .taskButton {
+    background: #222222;
+    color: #888888;
+    border: 1px solid #333333;
+    font-family: monospace;
+}
+
+[data-laf="tiling-grid"] .taskStart.active,
+[data-laf="tiling-grid"] .taskShowDesktop:active,
+[data-laf="tiling-grid"] .taskButton.active {
+    background: #285577;
+    color: #ffffff;
+    border-color: #2e9ef4;
+    font-weight: bold;
+}
+
+[data-laf="flatlaf-dark"] .menubar-mobile-drawer,
+[data-laf="flatlaf-dark"] .ui-bottom-sheet,
+[data-laf="caspian-dark"] .menubar-mobile-drawer,
+[data-laf="caspian-dark"] .ui-bottom-sheet,
+[data-laf="next-dark"] .menubar-mobile-drawer,
+[data-laf="next-dark"] .ui-bottom-sheet,
+[data-laf="cosmic-teal"] .menubar-mobile-drawer,
+[data-laf="cosmic-teal"] .ui-bottom-sheet,
+[data-laf="tiling-grid"] .menubar-mobile-drawer,
+[data-laf="tiling-grid"] .ui-bottom-sheet,
+[data-laf="e-fusion"] .menubar-mobile-drawer,
+[data-laf="e-fusion"] .ui-bottom-sheet,
+[data-laf="x11-box"] .menubar-mobile-drawer,
+[data-laf="x11-box"] .ui-bottom-sheet {
+    background: #1e2430 !important;
+    color: #f1f5f9 !important;
+    border-color: #3a475a !important;
+}
+
+[data-laf="flatlaf-dark"] .drawer-header,
+.menubar-mobile-drawer[data-laf="flatlaf-dark"] .drawer-header,
+.ui-bottom-sheet[data-laf="flatlaf-dark"] .drawer-header,
+[data-laf="caspian-dark"] .drawer-header,
+.menubar-mobile-drawer[data-laf="caspian-dark"] .drawer-header,
+.ui-bottom-sheet[data-laf="caspian-dark"] .drawer-header,
+[data-laf="next-dark"] .drawer-header,
+.menubar-mobile-drawer[data-laf="next-dark"] .drawer-header,
+.ui-bottom-sheet[data-laf="next-dark"] .drawer-header,
+[data-laf="cosmic-teal"] .drawer-header,
+.menubar-mobile-drawer[data-laf="cosmic-teal"] .drawer-header,
+.ui-bottom-sheet[data-laf="cosmic-teal"] .drawer-header,
+[data-laf="tiling-grid"] .drawer-header,
+.menubar-mobile-drawer[data-laf="tiling-grid"] .drawer-header,
+.ui-bottom-sheet[data-laf="tiling-grid"] .drawer-header,
+[data-laf="e-fusion"] .drawer-header,
+.menubar-mobile-drawer[data-laf="e-fusion"] .drawer-header,
+.ui-bottom-sheet[data-laf="e-fusion"] .drawer-header,
+[data-laf="x11-box"] .drawer-header,
+.menubar-mobile-drawer[data-laf="x11-box"] .drawer-header,
+.ui-bottom-sheet[data-laf="x11-box"] .drawer-header {
+    background: #141a22 !important;
+    color: #f1f5f9 !important;
+    border-bottom: 1px solid #3a475a !important;
+}
+
+[data-laf="flatlaf-dark"] .drawer-title,
+.menubar-mobile-drawer[data-laf="flatlaf-dark"] .drawer-title,
+.ui-bottom-sheet[data-laf="flatlaf-dark"] .drawer-title,
+[data-laf="caspian-dark"] .drawer-title,
+.menubar-mobile-drawer[data-laf="caspian-dark"] .drawer-title,
+.ui-bottom-sheet[data-laf="caspian-dark"] .drawer-title,
+[data-laf="next-dark"] .drawer-title,
+.menubar-mobile-drawer[data-laf="next-dark"] .drawer-title,
+.ui-bottom-sheet[data-laf="next-dark"] .drawer-title,
+[data-laf="cosmic-teal"] .drawer-title,
+.menubar-mobile-drawer[data-laf="cosmic-teal"] .drawer-title,
+.ui-bottom-sheet[data-laf="cosmic-teal"] .drawer-title,
+[data-laf="tiling-grid"] .drawer-title,
+.menubar-mobile-drawer[data-laf="tiling-grid"] .drawer-title,
+.ui-bottom-sheet[data-laf="tiling-grid"] .drawer-title,
+[data-laf="e-fusion"] .drawer-title,
+.menubar-mobile-drawer[data-laf="e-fusion"] .drawer-title,
+.ui-bottom-sheet[data-laf="e-fusion"] .drawer-title,
+[data-laf="x11-box"] .drawer-title,
+.menubar-mobile-drawer[data-laf="x11-box"] .drawer-title,
+.ui-bottom-sheet[data-laf="x11-box"] .drawer-title {
+    color: #f1f5f9 !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="flatlaf-dark"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="flatlaf-dark"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="flatlaf-dark"] .drawer-close-btn,
+[data-laf="caspian-dark"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="caspian-dark"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="caspian-dark"] .drawer-close-btn,
+[data-laf="next-dark"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="next-dark"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="next-dark"] .drawer-close-btn,
+[data-laf="cosmic-teal"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="cosmic-teal"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="cosmic-teal"] .drawer-close-btn,
+[data-laf="tiling-grid"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="tiling-grid"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="tiling-grid"] .drawer-close-btn,
+[data-laf="e-fusion"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="e-fusion"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="e-fusion"] .drawer-close-btn,
+[data-laf="x11-box"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="x11-box"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="x11-box"] .drawer-close-btn {
+    color: #94a3b8 !important;
+    background: transparent !important;
+    border: none !important;
+    opacity: 0.9 !important;
+}
+
+[data-laf="tiling-grid"] {
+    --menu-bg: #1e2430 !important;
+    --menu-text: #f1f5f9 !important;
+}

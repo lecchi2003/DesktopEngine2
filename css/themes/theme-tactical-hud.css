@@ -1,0 +1,280 @@
+/* DesktopEngine V2.0 - Look and Feel: tactical-hud */
+
+[data-laf="tactical-hud"] .ui-context-menu {
+    background: rgba(18, 14, 8, 0.98) !important;
+    border: 1px solid #ff9900 !important;
+    box-shadow: 0 0 20px rgba(255, 153, 0, 0.4) !important;
+    font-family: 'Consolas', monospace !important;
+    color: #ffaa00 !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="tactical-hud"] .ui-context-menu .menuOption {
+    color: #ffaa00 !important;
+}
+
+[data-laf="tactical-hud"] .ui-context-menu .menuOption:hover {
+    background: #ff9900 !important;
+    color: #000000 !important;
+}
+
+[data-laf="tactical-hud"] .ui-context-menu .menuSep {
+    background: #ff9900 !important;
+    opacity: 0.35;
+}
+
+[data-laf="flatlaf-dark"],
+[data-laf="cyberpunk-neon"],
+[data-laf="tactical-hud"],
+[data-laf="caspian-dark"],
+[data-laf="next-dark"],
+[data-laf="x11-box"],
+[data-laf="e-fusion"],
+[data-laf="turbo-tui"],
+[data-laf="cosmic-teal"] {
+    --text-primary: #f1f5f9;
+    --bg-primary: #1e2430;
+    --bg-secondary: #141a22;
+    --menu-bg: #1e2430;
+    --menu-hover: #3a475a;
+    --text-secondary: #94a3b8;
+    --menu-text: #f1f5f9;
+    --input-bg: rgba(20, 25, 35, 0.95);
+    --input-border: rgba(255, 255, 255, 0.2);
+    --input-text: #f1f5f9;
+}
+
+[data-laf="tactical-hud"] .statusbar {
+    background: rgba(18, 14, 8, 0.98) !important;
+    border-top: 1px solid #ff9900 !important;
+    color: #ffaa00 !important;
+    font-family: 'Consolas', monospace !important;
+}
+
+[data-laf="tactical-hud"] .ui-dock-widget {
+    background: rgba(18, 14, 8, 0.98) !important;
+    border: 1px solid #ff9900 !important;
+    box-shadow: 0 0 16px rgba(255, 153, 0, 0.25) !important;
+    color: #ffaa00 !important;
+}
+
+[data-laf="tactical-hud"] .ui-dock-widget .ui-dock-header {
+    background: rgba(255, 153, 0, 0.15) !important;
+    color: #ffcc00 !important;
+    border-bottom: 1px solid #ff9900 !important;
+}
+
+[data-laf="tactical-hud"] .ui-dock-widget .ui-dock-body {
+    background: rgba(18, 14, 8, 0.95) !important;
+    color: #ffaa00 !important;
+}
+
+[data-laf="tactical-hud"] .ui-dock-widget .ui-dock-text-item {
+    background: rgba(255, 153, 0, 0.08) !important;
+    border-color: rgba(255, 153, 0, 0.3) !important;
+    color: #ffaa00 !important;
+}
+
+[data-laf="tactical-hud"] .window {
+    background: rgba(18, 14, 8, 0.96) !important;
+    border: 1px solid #ff9900 !important;
+    box-shadow: 0 0 24px rgba(255, 153, 0, 0.28) !important;
+    color: #ffaa00 !important;
+    font-family: 'Consolas', 'Courier New', monospace !important;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+
+[data-laf="tactical-hud"] .titlebar {
+    background: rgba(255, 153, 0, 0.15) !important;
+    border-bottom: 1px solid #ff9900 !important;
+    color: #ffb700 !important;
+    height: 38px;
+    padding: 0 14px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
+[data-laf="tactical-hud"] .titleText {
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #ffcc00;
+    text-shadow: 0 0 8px #ff9900;
+}
+
+[data-laf="tactical-hud"] .winBtn {
+    background: rgba(255, 153, 0, 0.1);
+    border: 1px solid #ff9900;
+    color: #ffaa00;
+    border-radius: 0px;
+    width: 26px;
+    height: 26px;
+}
+
+[data-laf="tactical-hud"] .winBtn:hover {
+    background: #ff9900;
+    color: #000000;
+    box-shadow: 0 0 10px #ff9900;
+}
+
+[data-laf="tactical-hud"] .windowBody {
+    background: transparent;
+    color: #ffaa00;
+}
+
+[data-laf="tactical-hud"] .ui-card,
+[data-laf="tactical-hud"] .card {
+    background: rgba(255, 153, 0, 0.05);
+    border: 1px solid rgba(255, 153, 0, 0.3);
+    color: #ffaa00;
+}
+
+[data-laf="tactical-hud"] .ui-btn,
+[data-laf="tactical-hud"] .ui-button,
+[data-laf="tactical-hud"] .btn {
+    background: rgba(255, 153, 0, 0.15);
+    border: 1px solid #ff9900;
+    color: #ffbb00;
+    font-family: 'Consolas', monospace;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+[data-laf="tactical-hud"] .ui-btn:hover,
+[data-laf="tactical-hud"] .ui-button:hover {
+    background: #ff9900;
+    color: #000000;
+    box-shadow: 0 0 12px #ff9900;
+}
+
+[data-laf="tactical-hud"] input,
+[data-laf="tactical-hud"] select,
+[data-laf="tactical-hud"] textarea {
+    background: rgba(10, 8, 4, 0.9) !important;
+    border: 1px solid #ff9900 !important;
+    color: #ffcc00 !important;
+    font-family: monospace !important;
+}
+
+[data-laf="tactical-hud"] #menubar,
+[data-laf="tactical-hud"] .ui-menubar {
+    background: rgba(18, 14, 8, 0.96);
+    border-bottom: 2px solid #ff9900;
+    color: #ffaa00;
+    font-family: monospace;
+}
+
+[data-laf="tactical-hud"] .menubar-item {
+    color: #ffaa00 !important;
+}
+
+[data-laf="tactical-hud"] .menubar-item:hover,
+[data-laf="tactical-hud"] .menubar-item.active {
+    background: rgba(255, 153, 0, 0.2) !important;
+    color: #ffcc00 !important;
+}
+
+[data-laf="tactical-hud"] #taskbar {
+    background: rgba(18, 14, 8, 0.96);
+    border-top: 2px solid #ff9900;
+}
+
+[data-laf="tactical-hud"] .taskStart,
+[data-laf="tactical-hud"] .taskShowDesktop,
+[data-laf="tactical-hud"] .taskButton {
+    background: rgba(255, 153, 0, 0.1) !important;
+    border: 1px solid #ff9900 !important;
+    color: #ffaa00 !important;
+    font-family: monospace;
+}
+
+[data-laf="tactical-hud"] .taskStart:hover,
+[data-laf="tactical-hud"] .taskShowDesktop:hover,
+[data-laf="tactical-hud"] .taskButton:hover {
+    background: rgba(255, 153, 0, 0.25) !important;
+    color: #ffcc00 !important;
+}
+
+[data-laf="tactical-hud"] .taskStart.active,
+[data-laf="tactical-hud"] .taskShowDesktop:active,
+[data-laf="tactical-hud"] .taskButton.active {
+    background: #ff9900 !important;
+    color: #000000 !important;
+    font-weight: bold;
+    box-shadow: 0 0 15px #ff9900 !important;
+}
+
+[data-laf="tactical-hud"] .clock {
+    color: #ff9900 !important;
+    font-family: monospace;
+    font-weight: bold;
+    text-shadow: 0 0 8px #ff9900;
+}
+
+[data-laf="tactical-hud"] .menubar-mobile-drawer,
+.menubar-mobile-drawer[data-laf="tactical-hud"] {
+    background: rgba(18, 14, 8, 0.98) !important;
+    color: #ff9900 !important;
+    border-right: 2px solid #ff9900 !important;
+    box-shadow: 6px 0 30px rgba(255, 153, 0, 0.35) !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="tactical-hud"] .ui-bottom-sheet,
+.ui-bottom-sheet[data-laf="tactical-hud"] {
+    background: rgba(18, 14, 8, 0.98) !important;
+    color: #ff9900 !important;
+    border-top: 2px solid #ff9900 !important;
+    box-shadow: 0 -6px 30px rgba(255, 153, 0, 0.35) !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="tactical-hud"] .bottom-sheet-handle {
+    background: #ff9900 !important;
+    box-shadow: 0 0 10px #ff9900 !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="tactical-hud"] .drawer-header {
+    background: rgba(255, 153, 0, 0.12) !important;
+    border-bottom: 1px solid #ff9900 !important;
+    color: #ff9900 !important;
+    text-transform: uppercase !important;
+}
+
+[data-laf="tactical-hud"] .drawer-title,
+.menubar-mobile-drawer[data-laf="tactical-hud"] .drawer-title,
+.ui-bottom-sheet[data-laf="tactical-hud"] .drawer-title {
+    color: #ff9900 !important;
+    font-weight: bold !important;
+    font-family: 'Courier New', monospace !important;
+    text-shadow: 0 0 6px rgba(255, 153, 0, 0.6) !important;
+}
+
+[data-laf="tactical-hud"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="tactical-hud"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="tactical-hud"] .drawer-close-btn {
+    color: #ff9900 !important;
+    border: 1px solid #ff9900 !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    opacity: 1 !important;
+}
+
+[data-laf="tactical-hud"] .drawer-option:hover,
+[data-laf="tactical-hud"] .drawer-option:active,
+[data-laf="tactical-hud"] .bottom-sheet-option:hover,
+[data-laf="tactical-hud"] .bottom-sheet-option:active {
+    background: rgba(255, 153, 0, 0.22) !important;
+    color: #ffffff !important;
+    border-left: 2px solid #ff9900 !important;
+}
+
+[data-laf="tactical-hud"] .bottom-sheet-cancel-btn {
+    background: rgba(255, 153, 0, 0.15) !important;
+    border: 1px solid #ff9900 !important;
+    color: #ff9900 !important;
+    border-radius: 0 !important;
+    text-transform: uppercase !important;
+}

@@ -61,17 +61,17 @@ class MetricCounterWidget extends BaseComponent {
 Framework.defineComponent('MetricCounter', MetricCounterWidget);
 
 export default {
-    title: "Showcase: Framework Híbrido & ElementBuilder",
+    title: "Showcase: Framework Híbrido V2.0 (Signals + ElementBuilder)",
     icon: "⚡",
-    width: 780,
-    height: 560,
+    width: 820,
+    height: 620,
     minWidth: 420,
     minHeight: 380,
-    status: "Framework Híbrido Ativo • Zero-instance: this",
+    status: "Framework V2.0 Ativo • Signals Nativos • CSS Modular",
 
     // Estado reativo da Janela
     state: {
-        projetoNome: "Desktop Engine V1.5",
+        projetoNome: "Desktop Engine V2.0",
         categoria: "Framework Web",
         ativo: true,
         notificacoes: true,
@@ -90,7 +90,7 @@ export default {
             ctx.instance.setStatus("Salvo com sucesso!");
         }],
         resetar: [async (ctx) => {
-            ctx.state.projetoNome = "Desktop Engine V1.5";
+            ctx.state.projetoNome = "Desktop Engine V2.0";
             ctx.state.categoria = "Framework Web";
             ctx.state.metaVendas = 250;
             ctx.state.volume = 75;
@@ -109,17 +109,38 @@ export default {
             .children([
                 // Cabeçalho de Destaque da Funcionalidade
                 UI.card({
-                    title: "🚀 Nova Experiência de Desenvolvimento Front-end",
+                    title: "🚀 DesktopEngine V2.0 - The Next-Gen Architecture",
                     children: [
-                        UI.p("Esta tela demonstra os novos pilares do DesktopEngine: **API Programática Fluente (`ElementBuilder.js`)**, **Contexto Reativo Implícito** (sem passar `instance: this`), **Extensibilidade com `BaseComponent`** e a **Adaptação Mobile Desktop-First**."),
+                        UI.p("Esta tela demonstra os pilares da V2.0: **Signals Nativos (TC39/Preact pattern)**, **API Fluente (`ElementBuilder.js`)**, **CSS Modular Sob Demanda** e **Desktop-First Touch**."),
                         UI.row([
-                            UI.badge("Zero boilerplate", "success"),
-                            UI.badge("Reatividade Nativa", "primary"),
+                            UI.badge("Signals Atômicos", "success"),
+                            UI.badge("CSS Modular (~45KB)", "primary"),
                             UI.badge("Desktop-First Touch", "info"),
-                            UI.badge("Componentes Estendíveis", "warning")
+                            UI.badge("Zero instance: this", "warning")
                         ]).style({ gap: '8px', marginTop: '6px' })
                     ]
                 }),
+
+                // Demonstração Atômica de Signals
+                UI.card("⚡ Demonstração de Reatividade Atômica (Signals Nativos)", [
+                    UI.p("Modificações em Signals atualizam cirurgicamente apenas o nó de texto correspondente no DOM, sem tocar no restante da janela e sem re-render:"),
+                    UI.row([
+                        UI.col([
+                            UI.label("Valor do Signal em Tempo Real:"),
+                            UI.div().children([
+                                UI.span("Meta Atual: ").style({ opacity: "0.8" }),
+                                UI.span().text(this.signals.metaVendas).style({ color: "#10b981", fontSize: "24px", fontWeight: "bold" })
+                            ])
+                        ]),
+                        UI.col([
+                            UI.label("Ações no Signal:"),
+                            UI.row([
+                                UI.button("➕ Adicionar 10", () => { this.signals.metaVendas.value += 10; }).class("ui-btn-primary"),
+                                UI.button("➖ Reduzir 10", () => { this.signals.metaVendas.value = Math.max(0, this.signals.metaVendas.value - 10); }).class("ui-btn-secondary")
+                            ]).style({ gap: '8px', marginTop: '4px' })
+                        ])
+                    ])
+                ]),
 
                 // Grid com Formulário Fluente e Widgets
                 UI.grid(2, [
@@ -171,7 +192,7 @@ export default {
                         UI.hr().style({ margin: '14px 0', opacity: '0.2' }),
 
                         UI.div().text("Visualização em Dispositivos Móveis:").style({ fontWeight: '600', fontSize: '13px', marginBottom: '6px' }),
-                        UI.p("O DesktopEngine mantém a experiência autêntica de janelas de desktop mesmo em telas touch móveis, com alvos de toque amplos e rolagem adaptada:"),
+                        UI.p("O DesktopEngine mantém a experiência autêntica de janelas de desktop mesmo em telas touch móveis:"),
                         UI.button("📱 / 🖥️ Alternar Modo Mobile/Desktop", "alternarModoMobile")
                             .class('ui-btn ui-btn-info')
                             .style({ width: '100%', marginTop: '6px' })

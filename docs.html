@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Documentação Completa - DesktopEngine V1.5</title>
+    <title>Documentação Completa - DesktopEngine V2.0</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -284,7 +284,7 @@
 <body>
 
     <div class="navbar">
-        <div>DesktopEngine V1.5</div>
+        <div>DesktopEngine V2.0</div>
         <div class="badge">Documentação de Referência Completa</div>
     </div>
 
@@ -297,7 +297,10 @@
             <a href="#init">Inicialização do Desktop</a>
             <a href="#telas">Criando Telas (Windows)</a>
             <a href="#element-builder">Abordagem Híbrida &amp; ElementBuilder</a>
-            <a href="#contexto-reativo">Reatividade Implícita (Sem instance: this)</a>
+            <a href="#signals-reatividade">⚡ Signals Nativos (Fine-Grained)</a>
+            <a href="#contexto-reativo">Reatividade Implícita (Sem)</a>
+            <a href="#css-modular">🎨 CSS Modular &amp; Temas Sob Demanda</a>
+            <a href="#ui-modular">📦 Arquitetura Modular de UI (ui/)</a>
             <a href="#extensibilidade">Extensibilidade (BaseComponent &amp; Plugins)</a>
             <a href="#arquitetura-telas">Modularização &amp; Lazy Loading</a>
             <a href="#estado-reativo">Reatividade com Proxies</a>
@@ -354,7 +357,7 @@
 
         <!-- Main Content -->
         <main class="content">
-            <h1 id="intro">DesktopEngine V1.5 - Manual de Referência</h1>
+            <h1 id="intro">DesktopEngine V2.0 - Manual de Referência</h1>
             <p class="lead">O <strong>DesktopEngine</strong> é um micro-framework em Vanilla JavaScript voltado para
                 criar interfaces do tipo "Desktop in Browser" (janelas flutuantes, arrastáveis e redimensionáveis).
                 Totalmente sem passos de compilação (zero Webpack, zero Node em runtime) e alimentado por reatividade
@@ -608,9 +611,9 @@ const MinhaJanela = {
 
     view() {
         return createElement("div", "p-3 flex-col gap-2", [
-            Input({ label: "Nome de Usuário", bind: "usuario", instance: this }),
-            Button({ text: "Salvar Dados", onClick: "salvar", instance: this }),
-            Button({ text: "Abrir Modal Local", onClick: "abrirModal", instance: this, variant: "secondary" })
+            Input({ label: "Nome de Usuário", bind: "usuario" }),
+            Button({ text: "Salvar Dados", onClick: "salvar" }),
+            Button({ text: "Abrir Modal Local", onClick: "abrirModal" variant: "secondary" })
         ]);
     }
 };
@@ -669,18 +672,109 @@ const TelaFluente = {
             </div>
 
             <!-- SEÇÃO: CONTEXTO REATIVO IMPLÍCITO -->
-            <h2 id="contexto-reativo">🧬 Contexto Reativo Implícito (Zero-instance: this)</h2>
-            <p>Nas versões anteriores do framework, para que os componentes vinculassem seu estado reativo (<code>bind: "nome"</code>) ou disparassem actions da janela, o desenvolvedor precisava repassar explicitamente o parâmetro <code>{ instance: this }</code> para cada elemento.</p>
+            
+            <!-- SEÇÃO: SIGNALS NATIVOS -->
+            <h2 id="signals-reatividade">⚡ Signals Nativos (Fine-Grained Reactivity)</h2>
+            <p>Na <strong>Versão 2.0</strong>, o DesktopEngine introduz um motor atômico de reatividade pura inspirado na especificação TC39 e em bibliotecas modernas como Preact e Solid Signals, sem nenhuma dependência externa ou etapa de build.</p>
+
+            <div class="alert alert-tip">
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>Por que Signals?</strong>
+                    <ul style="margin: 4px 0 0 0; padding-left: 18px;">
+                        <li><strong>Zero Re-renders de Janela:</strong> Ao alterar <code>this.signals.contador.value++</code>, apenas o nó TextNode exato no DOM é atualizado, sem chamar <code>view()</code> novamente e sem substituir contêineres DOM.</li>
+                        <li><strong>Preservação Absoluta de Foco:</strong> Elimina definitivamente qualquer perda de foco ou salto de cursor durante a digitação em formulários.</li>
+                        <li><strong>Performance Cirúrgica:</strong> Custo O(1) de atualização atômica de nós.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-box">
+                <pre><code>import { signal, computed, effect, createStore } from './core.js';
+import { UI } from './ElementBuilder.js';
+
+// 1. Primitivas Básicas:
+const count = signal(10);
+const double = computed(() => count.value * 2);
+
+effect(() => {
+    console.log(`Contador atual: ${count.value}, Dobro: ${double.value}`);
+});
+
+count.value = 15; // Dispara o effect e reavalia o computed automaticamente!
+
+// 2. Uso Direto no ElementBuilder e em Janelas:
+export default {
+    title: "Contador com Signals",
+    state: { contador: 100 },
+    view() {
+        return UI.card("Demonstração de Signals Nativos", [
+            UI.p(["Valor Atual: ", UI.span().text(this.signals.contador).style({ color: "#10b981", fontSize: "20px" })]),
+            UI.row([
+                UI.button("+10").click(() => this.signals.contador.value += 10),
+                UI.button("-10").click(() => this.signals.contador.value -= 10)
+            ])
+        ]).build();
+    }
+};</code></pre>
+            </div>
+
+            <!-- SEÇÃO: CSS MODULAR -->
+            <h2 id="css-modular">🎨 Arquitetura Modular de CSS &amp; Temas Sob Demanda</h2>
+            <p>Na V2.0, o monólito <code>style.css</code> (~370 KB) foi quebrado em uma estrutura modular de alta performance:</p>
+
+            <div class="code-box">
+                <pre><code>css/
+├── core.css           # (~43 KB) Window Manager, Taskbar, Dock, Desktop e Mobile
+├── components.css     # (~81 KB) Widgets e componentes de interface
+└── themes/            # Mais de 40 temas desacoplados (~5 KB a 15 KB cada)
+    ├── theme-win11.css
+    ├── theme-aqua-frosted.css
+    ├── theme-fluent-acrylic.css
+    ├── theme-cyberpunk-neon.css
+    └── ...</code></pre>
+            </div>
+
+            <p>O carregamento inicial baixa apenas a estrutura e o tema ativo (reduzindo a transferência inicial para <strong>~45 KB</strong>):</p>
+            <div class="code-box">
+                <pre><code>&lt;!-- No cabeçalho HTML --&gt;
+&lt;link rel="stylesheet" href="./css/core.css"&gt;
+&lt;link rel="stylesheet" href="./css/components.css"&gt;
+&lt;link rel="stylesheet" id="desktop-theme-stylesheet" href="./css/themes/theme-win11.css"&gt;</code></pre>
+            </div>
+
+            <p>A troca de temas via <code>Desktop.setLookAndFeel(nome)</code> realiza o <strong>lazy loading</strong> assíncrono do arquivo CSS correspondente em tempo real:</p>
+            <div class="code-box">
+                <pre><code>// O arquivo css/themes/theme-cyberpunk-neon.css é baixado dinamicamente sob demanda:
+Desktop.setLookAndFeel("cyberpunk-neon");</code></pre>
+            </div>
+
+            <!-- SEÇÃO: UI MODULAR -->
+            <h2 id="ui-modular">📦 Arquitetura Modular de UI (ui/)</h2>
+            <p>O arquivo <code>ui.js</code> foi dividido em submódulos especializados por domínio dentro do diretório <code>ui/</code>:</p>
+            <ul style="padding-left: 20px; line-height: 1.8;">
+                <li><code>ui/core-dom.js</code>: Primitivas (<code>createElement</code>, <code>applyCommonProps</code>, <code>resolveInstance</code>, <code>printElement</code>).</li>
+                <li><code>ui/layout.js</code>: Estrutura (<code>Row</code>, <code>Col</code>, <code>Grid</code>, <code>Card</code>, <code>Splitter</code>).</li>
+                <li><code>ui/forms.js</code>: Formulários e inputs com suporte a Signals (<code>Input</code>, <code>Textarea</code>, <code>Button</code>, <code>Select</code>, <code>Checkbox</code>, <code>Toggle</code>, <code>Slider</code>, <code>RadioGroup</code>, <code>Autocomplete</code>, <code>Stepper</code>).</li>
+                <li><code>ui/data.js</code>: Visualização de coleções (<code>Table</code>, <code>Tabs</code>, <code>TreeView</code>, <code>DataGrid</code>, <code>DraggableList</code>, <code>Accordion</code>).</li>
+                <li><code>ui/navigation.js</code>: Barras e menus (<code>ContextMenu</code>, <code>MenuBar</code>, <code>ActionToolbar</code>, <code>StartMenu</code>, <code>Drawer</code>, <code>Breadcrumbs</code>, <code>DockWidget</code>, <code>FloatButton</code>, <code>Shortcut</code>).</li>
+                <li><code>ui/feedback.js</code>: Notificações (<code>Modal</code>, <code>Toast</code>, <code>Alert</code>, <code>Spinner</code>, <code>Tooltip</code>, <code>Badge</code>, <code>ProgressBar</code>, <code>Skeleton</code>).</li>
+                <li><code>ui/media.js</code>: Mídia (<code>WebView</code>, <code>Avatar</code>, <code>Carousel</code>).</li>
+            </ul>
+            <p>O arquivo <code>ui.js</code> na raiz atua como <strong>Barrel Export</strong> unificado, mantendo 100% de compatibilidade retroativa para todos os imports existentes.</p>
+
+            <h2 id="contexto-reativo">🧬 Contexto Reativo Implícito (Zero-)</h2>
+            <p>Nas versões anteriores do framework, para que os componentes vinculassem seu estado reativo (<code>bind: "nome"</code>) ou disparassem actions da janela, o desenvolvedor precisava repassar explicitamente o parâmetro <code>{ }</code> para cada elemento.</p>
 
             <p>A partir desta versão, o <strong>DesktopEngine</strong> introduz o <code>UIContext</code> no core:</p>
             <ul>
                 <li>Durante as fases de <code>render()</code>, <code>update()</code>, <code>runAction()</code> e hooks de ciclo de vida (<code>onMount</code>, etc.), a instância da janela é registrada em um contexto implícito de execução.</li>
                 <li>Todos os componentes (<code>Input</code>, <code>Select</code>, <code>Checkbox</code>, <code>Toggle</code>, <code>Textarea</code>, <code>Slider</code>, <code>Autocomplete</code>, <code>RadioGroup</code>, <code>Button</code>, etc.) resolvem a janela ativa de forma automática.</li>
-                <li><strong>Compatibilidade Retroativa Total:</strong> Códigos legados que ainda passem <code>{ instance: this }</code> continuam funcionando 100% sem alterações.</li>
+                <li><strong>Compatibilidade Retroativa Total:</strong> Códigos legados que ainda passem <code>{ }</code> continuam funcionando 100% sem alterações.</li>
             </ul>
 
             <div class="code-box">
-                <pre><code>// ✅ Abordagem Moderna Recomendada (Sem instance: this):
+                <pre><code>// ✅ Abordagem Moderna Recomendada (Sem):
 view() {
     return UI.div().children([
         UI.input("Nome", "nome"),                          // Automaticamente vinculado ao state.nome
@@ -692,8 +786,8 @@ view() {
 // ⚠️ Abordagem Legada (Ainda suportada para retrocompatibilidade):
 view() {
     return createElement("div", "", [
-        Input({ label: "Nome", bind: "nome", instance: this }),
-        Button({ text: "Salvar", onClick: "salvarAction", instance: this })
+        Input({ label: "Nome", bind: "nome" }),
+        Button({ text: "Salvar", onClick: "salvarAction" })
     ]);
 }</code></pre>
             </div>
@@ -790,7 +884,7 @@ const PostItScreen = {
     state: { texto: "" },
     view() {
         return createElement("div", "p-2", [
-            Input({ bind: "texto", instance: this, placeholder: "Digite sua nota..." })
+            Input({ bind: "texto" placeholder: "Digite sua nota..." })
         ]);
     }
 };
@@ -819,8 +913,8 @@ export default {
         return Card({
             title: "Novo Usuário",
             children: [
-                Input({ label: "Nome", bind: "nome", instance: this }),
-                Button({ text: "Salvar", onClick: "salvar", instance: this, variant: "primary" })
+                Input({ label: "Nome", bind: "nome" }),
+                Button({ text: "Salvar", onClick: "salvar" variant: "primary" })
             ]
         });
     }
@@ -903,7 +997,7 @@ Desktop.open(Framework.createWindow(ClientesScreen, "crud_clientes", Desktop));<
             title: "Recursos em Uso",
             children: [
                 ProgressBar({ value: this.state.cpu, max: 100 }),
-                Button({ text: "Limpar", onClick: "limpar", instance: this.instance })
+                Button({ text: "Limpar", onClick: "limpar".instance })
             ]
         });
     }
@@ -949,7 +1043,7 @@ Desktop.open(Framework.createWindow(CalculadoraScreen, "calc_win", Desktop));</c
             <!-- SEÇÃO 4: ESTADO REATIVO -->
             <h2 id="estado-reativo">Reatividade com Proxies (Sem Virtual DOM)</h2>
             <p>O DesktopEngine utiliza <strong>Proxies Nativos</strong> (no arquivo <code>core.js</code>). Quando você
-                associa um componente com <code>bind: "chave"</code> e <code>instance: this</code>, ele se conecta
+                associa um componente com <code>bind: "chave"</code> e <code></code>, ele se conecta
                 diretamente ao <code>state</code> da janela:</p>
             <ul>
                 <li><strong>Leitura Automática:</strong> O componente busca <code>instance.state[bind]</code> e exibe o
@@ -1283,8 +1377,7 @@ state: { abaAtiva: "dados" },
 
 // Na view():
 Tabs({
-    activeTabBind: "abaAtiva",
-    instance: this,
+    activeTabBind: "abaAtiva"
     tabs: [
         { id: "dados", label: "Dados Gerais", view: function() {
             return createElement("div", "p-3", ["Formulário de dados..."]);
@@ -1354,7 +1447,7 @@ Tabs({
             </table>
 
             <div class="code-box">
-                <pre><code>Input({ label: "E-mail Corporativo", bind: "email", type: "email", placeholder: "usuario@empresa.com", instance: this })</code></pre>
+                <pre><code>Input({ label: "E-mail Corporativo", bind: "email", type: "email", placeholder: "usuario@empresa.com" })</code></pre>
             </div>
 
             <h3>Textarea</h3>
@@ -1402,15 +1495,14 @@ Tabs({
             </table>
 
             <div class="code-box">
-                <pre><code>Textarea({ label: "Observações", bind: "obs", rows: 4, instance: this })</code></pre>
+                <pre><code>Textarea({ label: "Observações", bind: "obs", rows: 4 })</code></pre>
             </div>
 
             <h3>Select</h3>
             <div class="code-box">
                 <pre><code>Select({
     label: "Departamento",
-    bind: "departamento",
-    instance: this,
+    bind: "departamento"
     options: [
         { label: "Tecnologia", value: "TI" },
         { label: "Recursos Humanos", value: "RH" },
@@ -1460,7 +1552,7 @@ Tabs({
             </table>
 
             <div class="code-box">
-                <pre><code>Button({ text: "Confirmar Operação", onClick: "executarAcao", variant: "primary", instance: this })</code></pre>
+                <pre><code>Button({ text: "Confirmar Operação", onClick: "executarAcao", variant: "primary" })</code></pre>
             </div>
 
             <!-- SEÇÃO: CHECKBOX E TOGGLE -->
@@ -1470,8 +1562,8 @@ Tabs({
 
 // Ambos conectam valores booleanos ao state:
 Row({ children: [
-    Checkbox({ label: "Lembrar meu acesso", bind: "lembrar", instance: this }),
-    Toggle({ label: "Modo Noturno", bind: "darkTheme", instance: this })
+    Checkbox({ label: "Lembrar meu acesso", bind: "lembrar" }),
+    Toggle({ label: "Modo Noturno", bind: "darkTheme" })
 ]})</code></pre>
             </div>
 
@@ -1487,8 +1579,7 @@ Slider({
     bind: "opacidade",
     min: 0,
     max: 100,
-    step: 5,
-    instance: this
+    step: 5
 })</code></pre>
             </div>
 
@@ -1501,7 +1592,6 @@ RadioGroup({
     label: "Tipo de Pessoa",
     bind: "tipoPessoa",
     layout: "horizontal", // "horizontal" ou "vertical"
-    instance: this,
     options: [
         { label: "Pessoa Física (CPF)", value: "PF" },
         { label: "Pessoa Jurídica (CNPJ)", value: "PJ" }
@@ -1526,8 +1616,7 @@ Autocomplete({
     bind: "paisesSelecionados",
     multiple: true, // Cria chips removíveis interativos
     placeholder: "Digite para filtrar e selecione...",
-    options: ["Brasil", "Alemanha", "Estados Unidos", "França", "Japão", "Itália"],
-    instance: this
+    options: ["Brasil", "Alemanha", "Estados Unidos", "França", "Japão", "Itália"]
 })</code></pre>
             </div>
 
@@ -1644,8 +1733,7 @@ state: {
 // 2. Na view():
 DataGrid({
     bindData: "usuarios",
-    itemsPerPage: 3,
-    instance: this,
+    itemsPerPage: 3
     columns: [
         { key: "id", label: "ID", sortable: true },
         { key: "nome", label: "Colaborador", sortable: true, filterable: true },
@@ -1686,8 +1774,7 @@ TreeView({
 
 // Vinculado a uma lista no state
 DraggableList({
-    bindItems: "minhasTarefas",
-    instance: this,
+    bindItems: "minhasTarefas"
     onReorder: (novaLista) => console.log("Nova ordem:", novaLista)
 })</code></pre>
             </div>
@@ -1698,7 +1785,6 @@ DraggableList({
 
 WebView({
     bindUrl: "urlAtual", // Atualiza o iframe dinamicamente com o state
-    instance: this,
     height: "400px"
 })</code></pre>
             </div>
@@ -1744,7 +1830,6 @@ Col({ children: [
                 <pre><code>import { Accordion, createElement } from './ui.js';
 
 Accordion({
-    instance: this,
     items: [
         { title: "Opções de Segurança", content: "Configurações de firewall e portas..." },
         { title: "Personalização Visual", content: () => createElement("p", "", ["Retorno dinâmico via função!"]) }
@@ -1807,8 +1892,7 @@ view() {
     return createElement("div", "", [
         Drawer({
             bind: "menuAberto",
-            side: "left",
-            instance: this,
+            side: "left"
             content: [
                 createElement("h3", "", ["Menu de Atalhos"]),
                 Button({ text: "Configurações Rápidas", onClick: "abrirConfig" })
@@ -1820,7 +1904,7 @@ view() {
             </div>
 
             <h2 id="modal">Modal (Diálogos Modais Integrados ao Look and Feel)</h2>
-            <p>Diálogos de confirmação ou formulários de foco bloqueante. O <code>Modal</code> adota nativamente a mesma arquitetura de janelas (<strong>.window</strong>, <strong>.titlebar</strong> com botões de controle e <strong>.windowBody</strong>), herdando 100% da estética, bordas, sombras e botões do <strong>Look and Feel ativo</strong>. Suporta modo <strong>Local</strong> (bloqueando a janela atual via <code>this.openModal</code> ou <code>instance: this</code>) e modo <strong>Global</strong> (bloqueando todo o Desktop via <code>Desktop.openModal</code> ou <code>global: true</code>).</p>
+            <p>Diálogos de confirmação ou formulários de foco bloqueante. O <code>Modal</code> adota nativamente a mesma arquitetura de janelas (<strong>.window</strong>, <strong>.titlebar</strong> com botões de controle e <strong>.windowBody</strong>), herdando 100% da estética, bordas, sombras e botões do <strong>Look and Feel ativo</strong>. Suporta modo <strong>Local</strong> (bloqueando a janela atual via <code>this.openModal</code> ou <code></code>) e modo <strong>Global</strong> (bloqueando todo o Desktop via <code>Desktop.openModal</code> ou <code>global: true</code>).</p>
 
             <div class="code-box">
                 <pre><code>import { Modal, Button, createElement } from './ui.js';
@@ -2350,8 +2434,7 @@ const scImg = Shortcut({
 const scScreen = Shortcut({
     label: 'Relatórios',
     icon: '📊',
-    action: 'openReports',   // chama instance.runAction('openReports')
-    instance: this           // a Screen atual
+    action: 'openReports',   // chama instance.runAction('openReports')           // a Screen atual
 });
 
 // Manipulação pela API
@@ -2779,7 +2862,7 @@ const usuarioSelecionado = await this.openDialog({
     view() {
         return createElement("div", "flex-col", [
             createElement("p", "", ["Escolha o usuário para vincular:"]),
-            Select({ bind: "selecionado", options: this.state.lista, instance: this }),
+            Select({ bind: "selecionado", options: this.state.lista }),
             Row({
                 style: "justify-content: flex-end; gap: 8px; margin-top: auto;",
                 children: [
@@ -3447,8 +3530,7 @@ document.getElementById("desktop").addEventListener("contextmenu", (e) => {
 
 // 3. Declarativo em qualquer Componente do Framework (Card, DataGrid, Button, etc.)
 const gridEl = DataGrid({
-    bindData: "clientes",
-    instance: this,
+    bindData: "clientes"
     columns: [ ... ],
     contextMenu: [
         { label: "Exportar para CSV", action: () => exportar() },
@@ -3482,8 +3564,8 @@ const TelaA = {
     },
     view() {
         return createElement("div", "", [
-            Input({ bind: "mensagem", instance: this }),
-            Button({ text: "Enviar", onClick: "enviar", instance: this })
+            Input({ bind: "mensagem" }),
+            Button({ text: "Enviar", onClick: "enviar" })
         ]);
     }
 };
@@ -3552,7 +3634,7 @@ Desktop.toggleMobileMode();      // Alterna entre Desktop e Mobile instantaneame
             </div>
 
             <br><br>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V1.5 &copy; 2026 -
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V2.0 &copy; 2026 -
                 O micro-framework corporativo definitivo em Vanilla JS.</p>
         </main>
     </div>

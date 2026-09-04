@@ -1,0 +1,767 @@
+/* DesktopEngine V2.0 - Look and Feel: comic-doodle */
+
+:root,
+[data-laf="default"],
+[data-laf="steel-metal"],
+[data-laf="ocean-metal"],
+[data-laf="nimbus-vector"],
+[data-laf="modena-soft"],
+[data-laf="yellow-tab"],
+[data-laf="retro-3d"],
+[data-laf="luna-blue"],
+[data-laf="aero-glass"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"],
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"],
+[data-laf="neumorphism"],
+[data-laf="material-tonal"],
+[data-laf="one-touch"],
+[data-laf="flat-tiles"],
+[data-laf="pantheon-pure"],
+[data-laf="greybird-lite"],
+[data-laf="aubergine-orange"],
+[data-laf="aqua-frosted"],
+[data-laf="fluent-acrylic"],
+[data-laf="spatial-glass"],
+[data-laf="cupertino-touch"],
+[data-laf="flatlaf-light"],
+[data-laf="comic-doodle"] {
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --menu-text: #111827;
+    --input-bg: #ffffff;
+    --input-border: #9ca3af;
+    --input-text: #111827;
+}
+
+[data-laf="comic-doodle"] .menubar-mobile-drawer,
+.menubar-mobile-drawer[data-laf="comic-doodle"] {
+    background: #ffffff !important;
+    border-right: 2.5px solid #18181b !important;
+    box-shadow: 6px 0 0px #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    color: #18181b !important;
+}
+
+[data-laf="comic-doodle"] .ui-bottom-sheet,
+.ui-bottom-sheet[data-laf="comic-doodle"] {
+    background: #ffffff !important;
+    border-top: 2.5px solid #18181b !important;
+    border-left: 2.5px solid #18181b !important;
+    border-right: 2.5px solid #18181b !important;
+    border-radius: 18px 18px 0 0 !important;
+    box-shadow: 0 -6px 0px #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    color: #18181b !important;
+}
+
+[data-laf="comic-doodle"] .bottom-sheet-handle,
+[data-laf="comic-doodle"] .ui-bottom-sheet .bottom-sheet-handle {
+    background: #18181b !important;
+    height: 6px !important;
+    border-radius: 99px !important;
+}
+
+[data-laf="comic-doodle"] .menubar-mobile-drawer .drawer-header,
+[data-laf="comic-doodle"] .ui-bottom-sheet .drawer-header {
+    background: #cce3fd !important;
+    border-bottom: 2.5px solid #18181b !important;
+    color: #18181b !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="comic-doodle"] .drawer-title,
+.menubar-mobile-drawer[data-laf="comic-doodle"] .drawer-title,
+.ui-bottom-sheet[data-laf="comic-doodle"] .drawer-title {
+    color: #18181b !important;
+    font-weight: 800 !important;
+}
+
+[data-laf="comic-doodle"] .drawer-close-btn {
+    background: #fecaca !important;
+    border: 2px solid #18181b !important;
+    border-radius: 8px !important;
+    box-shadow: 2px 2px 0px #18181b !important;
+    color: #18181b !important;
+    font-weight: 700 !important;
+    padding: 2px 8px !important;
+}
+
+[data-laf="comic-doodle"] .drawer-category-group {
+    border-bottom: 2px dashed #18181b !important;
+}
+
+[data-laf="comic-doodle"] .drawer-cat-header {
+    color: #18181b !important;
+    font-weight: 700 !important;
+    transition: all 0.15s ease !important;
+}
+
+[data-laf="comic-doodle"] .drawer-cat-header:hover,
+[data-laf="comic-doodle"] .drawer-cat-header:active,
+[data-laf="comic-doodle"] .drawer-cat-header.expanded {
+    background: #fed199 !important;
+    color: #18181b !important;
+}
+
+[data-laf="comic-doodle"] .drawer-item-list,
+[data-laf="comic-doodle"] .bottom-sheet-sub-list {
+    background: #f8fafc !important;
+    border-left: 2.5px solid #18181b !important;
+    margin: 4px 10px !important;
+    border-radius: 0 10px 10px 0 !important;
+}
+
+[data-laf="comic-doodle"] .drawer-option,
+[data-laf="comic-doodle"] .bottom-sheet-option {
+    border: 2px solid transparent !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    color: #18181b !important;
+    transition: all 0.15s ease !important;
+}
+
+[data-laf="comic-doodle"] .drawer-option:hover,
+[data-laf="comic-doodle"] .drawer-option:active,
+[data-laf="comic-doodle"] .bottom-sheet-option:hover,
+[data-laf="comic-doodle"] .bottom-sheet-option:active {
+    background: #bbf7d0 !important;
+    border: 2px solid #18181b !important;
+    box-shadow: 2px 2px 0px #18181b !important;
+    transform: translate(-1px, -1px);
+    color: #18181b !important;
+}
+
+[data-laf="comic-doodle"] .bottom-sheet-cancel-btn {
+    background: #fecaca !important;
+    border: 2px solid #18181b !important;
+    border-radius: 10px !important;
+    box-shadow: 3px 3px 0px #18181b !important;
+    color: #18181b !important;
+    font-weight: 700 !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    transition: all 0.15s ease !important;
+}
+
+[data-laf="comic-doodle"] .bottom-sheet-cancel-btn:active {
+    box-shadow: 1px 1px 0px #18181b !important;
+    transform: translate(2px, 2px);
+}
+
+[data-laf="comic-doodle"] .drawer-sep,
+[data-laf="comic-doodle"] .bottom-sheet-sep {
+    height: 2px !important;
+    background: #18181b !important;
+}
+
+[data-laf="comic-doodle"] {
+    --win-bg: #ffffff;
+    --win-border: #18181b;
+    --text-primary: #18181b;
+    --text-secondary: #4b5563;
+    --menu-bg: #ffffff;
+    --menu-text: #18181b;
+    --menu-hover: #cce3fd;
+    --input-bg: #ffffff;
+    --input-border: #18181b;
+    --input-text: #18181b;
+    --btn-primary: #cce3fd;
+    --btn-text: #18181b;
+    font-family: 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif !important;
+}
+
+[data-laf="comic-doodle"] #desktop {
+    background-color: #f3f8fe !important;
+    background-image: 
+        radial-gradient(#bdd7f7 1.5px, transparent 1.5px),
+        radial-gradient(#bdd7f7 1.5px, #f3f8fe 1.5px) !important;
+    background-size: 30px 30px !important;
+    background-position: 0 0, 15px 15px !important;
+}
+
+[data-laf="comic-doodle"] .window {
+    background: #ffffff !important;
+    border: 2.5px solid #18181b !important;
+    border-radius: 16px !important;
+    box-shadow: 6px 6px 0px #18181b !important;
+    overflow: hidden !important;
+    font-family: 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif !important;
+}
+
+[data-laf="comic-doodle"] .window.active {
+    box-shadow: 8px 8px 0px #18181b !important;
+}
+
+[data-laf="comic-doodle"] .window.maximized {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+[data-laf="comic-doodle"] .titlebar {
+    height: 38px !important;
+    background: #cce3fd !important;
+    border-bottom: 2.5px solid #18181b !important;
+    padding: 0 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif !important;
+    user-select: none;
+}
+
+[data-laf="comic-doodle"] .titleText {
+    font-family: 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #18181b !important;
+    letter-spacing: 0.4px;
+    margin-left: 4px;
+}
+
+[data-laf="comic-doodle"] .winButtons {
+    order: -1 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-right: 12px !important;
+    height: 100%;
+}
+
+[data-laf="comic-doodle"] .winBtn {
+    width: 13px !important;
+    height: 13px !important;
+    border-radius: 50% !important;
+    border: 1.5px solid #18181b !important;
+    box-shadow: 1px 1px 0px #18181b !important;
+    font-size: 0 !important;
+    position: relative !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+[data-laf="comic-doodle"] .winBtn:hover {
+    transform: scale(1.15) !important;
+}
+
+[data-laf="comic-doodle"] .winBtn.close {
+    background: #f8b4c4 !important;
+    order: 1 !important;
+}
+
+[data-laf="comic-doodle"] .winButtons:hover .winBtn.close::after {
+    content: "×";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: 'Comic Neue', cursive, sans-serif;
+    font-weight: 900;
+    color: #18181b;
+    margin-top: -1px;
+}
+
+[data-laf="comic-doodle"] .winBtn.minimize {
+    background: #fed199 !important;
+    order: 2 !important;
+}
+
+[data-laf="comic-doodle"] .winButtons:hover .winBtn.minimize::after {
+    content: "−";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: 'Comic Neue', cursive, sans-serif;
+    font-weight: 900;
+    color: #18181b;
+    margin-top: -1px;
+}
+
+[data-laf="comic-doodle"] .winBtn.maximize {
+    background: #a8e6cf !important;
+    order: 3 !important;
+}
+
+[data-laf="comic-doodle"] .winButtons:hover .winBtn.maximize::after {
+    content: "+";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: 'Comic Neue', cursive, sans-serif;
+    font-weight: 900;
+    color: #18181b;
+    margin-top: -1px;
+}
+
+[data-laf="comic-doodle"] .windowBody {
+    background: #ffffff !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif !important;
+    font-size: 14px;
+}
+
+[data-laf="comic-doodle"] .statusbar {
+    background: #f0f6ff !important;
+    border-top: 2px solid #18181b !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 4px 12px !important;
+}
+
+[data-laf="comic-doodle"] #menubar,
+[data-laf="comic-doodle"] .ui-menubar {
+    background: #cce3fd !important;
+    border-bottom: 2.5px solid #18181b !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 700 !important;
+    box-shadow: 0 3px 0px rgba(24, 24, 27, 0.05) !important;
+}
+
+[data-laf="comic-doodle"] .menubar-item {
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    padding: 5px 12px !important;
+    transition: all 0.15s ease !important;
+}
+
+[data-laf="comic-doodle"] .menubar-item:hover,
+[data-laf="comic-doodle"] .menubar-item.active {
+    background: #ffffff !important;
+    border: 1.5px solid #18181b !important;
+    box-shadow: 2px 2px 0px #18181b !important;
+    transform: translate(-1px, -1px);
+}
+
+[data-laf="comic-doodle"] #taskbar {
+    background: #ffffff !important;
+    border-top: 2.5px solid #18181b !important;
+    box-shadow: 0 -4px 0px rgba(24, 24, 27, 0.06) !important;
+    height: 44px !important;
+    flex: 0 0 44px !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    padding: 0 8px !important;
+    gap: 8px !important;
+    align-items: center !important;
+}
+
+[data-laf="comic-doodle"] #app[data-taskbar="top"] #taskbar {
+    border-bottom: 2.5px solid #18181b !important;
+    border-top: none !important;
+    box-shadow: 0 4px 0px rgba(24, 24, 27, 0.06) !important;
+}
+
+[data-laf="comic-doodle"] #app[data-taskbar="left"] #taskbar {
+    border-right: 2.5px solid #18181b !important;
+    border-top: none !important;
+    width: 72px !important;
+    flex: 0 0 72px !important;
+    box-shadow: 4px 0 0px rgba(24, 24, 27, 0.06) !important;
+}
+
+[data-laf="comic-doodle"] #app[data-taskbar="right"] #taskbar {
+    border-left: 2.5px solid #18181b !important;
+    border-top: none !important;
+    width: 72px !important;
+    flex: 0 0 72px !important;
+    box-shadow: -4px 0 0px rgba(24, 24, 27, 0.06) !important;
+}
+
+[data-laf="comic-doodle"] .taskWindows,
+[data-laf="comic-doodle"] #taskWindows,
+[data-laf="comic-doodle"] #app[data-taskbar="bottom"] .taskWindows,
+[data-laf="comic-doodle"] #app[data-taskbar="top"] .taskWindows {
+    height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 0 2px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+[data-laf="comic-doodle"] #app[data-taskbar="left"] .taskWindows,
+[data-laf="comic-doodle"] #app[data-taskbar="right"] .taskWindows {
+    width: 100% !important;
+    height: auto !important;
+    gap: 8px !important;
+    padding: 4px 0 !important;
+    align-items: center !important;
+}
+
+[data-laf="comic-doodle"] .taskStart {
+    background: #cce3fd !important;
+    border: 2px solid #18181b !important;
+    border-radius: 10px !important;
+    box-shadow: 2px 2px 0px #18181b !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    height: 32px !important;
+    padding: 0 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    transition: all 0.15s ease !important;
+}
+
+[data-laf="comic-doodle"] .taskStart:hover {
+    background: #b7d8fd !important;
+    box-shadow: 3px 3px 0px #18181b !important;
+    transform: translate(-1px, -1px);
+}
+
+[data-laf="comic-doodle"] .taskStart:active,
+[data-laf="comic-doodle"] .taskStart.active {
+    box-shadow: 1px 1px 0px #18181b !important;
+    transform: translate(1px, 1px) !important;
+    background: #a2cbfa !important;
+}
+
+[data-laf="comic-doodle"] .taskButton {
+    background: #f0f6ff !important;
+    border: 2px solid #18181b !important;
+    border-radius: 10px !important;
+    box-shadow: 2px 2px 0px #18181b !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    height: 32px !important;
+    line-height: 28px !important;
+    padding: 0 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    transition: all 0.15s ease !important;
+}
+
+[data-laf="comic-doodle"] .taskButton:hover {
+    background: #cce3fd !important;
+    box-shadow: 3px 3px 0px #18181b !important;
+    transform: translate(-1px, -1px);
+}
+
+[data-laf="comic-doodle"] .taskButton.active {
+    background: #cce3fd !important;
+    font-weight: 700 !important;
+    box-shadow: 1px 1px 0px #18181b !important;
+    transform: translate(1px, 1px) !important;
+    border-color: #18181b !important;
+}
+
+[data-laf="comic-doodle"] .taskShowDesktop {
+    background: #fed199 !important;
+    border: 2px solid #18181b !important;
+    border-radius: 10px !important;
+    box-shadow: 2px 2px 0px #18181b !important;
+    color: #18181b !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    padding: 0 8px !important;
+    transition: all 0.15s ease !important;
+}
+
+[data-laf="comic-doodle"] .taskShowDesktop:hover {
+    background: #fec077 !important;
+    box-shadow: 3px 3px 0px #18181b !important;
+    transform: translate(-1px, -1px);
+}
+
+[data-laf="comic-doodle"] .clock {
+    background: #f0f6ff !important;
+    border: 2px solid #18181b !important;
+    border-radius: 10px !important;
+    box-shadow: 2px 2px 0px #18181b !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 4px 12px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+[data-laf="comic-doodle"] .dropdown,
+[data-laf="comic-doodle"] .ui-start-menu,
+[data-laf="comic-doodle"] .ui-context-menu {
+    background: #ffffff !important;
+    border: 2.5px solid #18181b !important;
+    border-radius: 14px !important;
+    box-shadow: 5px 5px 0px #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    padding: 6px !important;
+}
+
+[data-laf="comic-doodle"] .ui-start-menu .start-header,
+[data-laf="comic-doodle"] .ui-start-menu-header {
+    background: #cce3fd !important;
+    border-bottom: 2px solid #18181b !important;
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="comic-doodle"] .menuOption,
+[data-laf="comic-doodle"] .ui-start-menu-item {
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+    padding: 6px 10px !important;
+    border: 1.5px solid transparent !important;
+    transition: all 0.12s ease !important;
+}
+
+[data-laf="comic-doodle"] .menuOption:hover,
+[data-laf="comic-doodle"] .ui-start-menu-item:hover {
+    background: #cce3fd !important;
+    color: #18181b !important;
+    border-color: #18181b !important;
+    box-shadow: 2px 2px 0px #18181b !important;
+    transform: translate(-1px, -1px);
+}
+
+[data-laf="comic-doodle"] .menuSep,
+[data-laf="comic-doodle"] .ui-start-menu-sep {
+    border-bottom: 2px dashed #18181b !important;
+    margin: 6px 4px !important;
+}
+
+[data-laf="comic-doodle"] .ui-dock-widget {
+    background: #ffffff !important;
+    border: 2.5px solid #18181b !important;
+    border-radius: 14px 14px 0 0 !important;
+    box-shadow: 5px -5px 0px #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+}
+
+[data-laf="comic-doodle"] .ui-dock-widget .ui-dock-header {
+    background: #cce3fd !important;
+    border-bottom: 2px solid #18181b !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+}
+
+[data-laf="comic-doodle"] .ui-dock-widget .ui-dock-body {
+    background: #ffffff !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+}
+
+[data-laf="comic-doodle"] .ui-dock-widget .ui-dock-text-item {
+    background: #f0f6ff !important;
+    border: 1.5px solid #18181b !important;
+    border-radius: 8px !important;
+    box-shadow: 2px 2px 0px #18181b !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+}
+
+[data-laf="comic-doodle"] .ui-btn,
+[data-laf="comic-doodle"] .ui-button,
+[data-laf="comic-doodle"] .btn {
+    background: #cce3fd !important;
+    border: 2px solid #18181b !important;
+    border-radius: 10px !important;
+    box-shadow: 3px 3px 0px #18181b !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    text-align: center !important;
+}
+
+[data-laf="comic-doodle"] .ui-btn:hover,
+[data-laf="comic-doodle"] .ui-button:hover,
+[data-laf="comic-doodle"] .btn:hover {
+    background: #b7d8fd !important;
+    box-shadow: 4px 4px 0px #18181b !important;
+    transform: translate(-1px, -1px);
+}
+
+[data-laf="comic-doodle"] .ui-btn:active,
+[data-laf="comic-doodle"] .ui-button:active,
+[data-laf="comic-doodle"] .btn:active {
+    box-shadow: 1px 1px 0px #18181b !important;
+    transform: translate(2px, 2px) !important;
+    background: #a2cbfa !important;
+}
+
+[data-laf="comic-doodle"] .ui-btn-primary,
+[data-laf="comic-doodle"] .btn-primary {
+    background: #cce3fd !important;
+}
+
+[data-laf="comic-doodle"] .ui-btn-success,
+[data-laf="comic-doodle"] .btn-success {
+    background: #a8e6cf !important;
+}
+
+[data-laf="comic-doodle"] .ui-btn-danger,
+[data-laf="comic-doodle"] .btn-danger {
+    background: #f8b4c4 !important;
+}
+
+[data-laf="comic-doodle"] .ui-btn-warning,
+[data-laf="comic-doodle"] .btn-warning {
+    background: #fed199 !important;
+}
+
+[data-laf="comic-doodle"] .ui-btn-info,
+[data-laf="comic-doodle"] .btn-info {
+    background: #d0f0fd !important;
+}
+
+[data-laf="comic-doodle"] .ui-btn-secondary,
+[data-laf="comic-doodle"] .btn-secondary {
+    background: #f0f6ff !important;
+}
+
+[data-laf="comic-doodle"] .ui-card,
+[data-laf="comic-doodle"] .card {
+    background: #ffffff !important;
+    border: 2px solid #18181b !important;
+    border-radius: 12px !important;
+    box-shadow: 4px 4px 0px #18181b !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+}
+
+[data-laf="comic-doodle"] .ui-card-title {
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 700 !important;
+    color: #18181b !important;
+    font-size: 15px !important;
+}
+
+[data-laf="comic-doodle"] input,
+[data-laf="comic-doodle"] textarea,
+[data-laf="comic-doodle"] select,
+[data-laf="comic-doodle"] .filter-input,
+[data-laf="comic-doodle"] .ui-autocomplete-input {
+    background: #ffffff !important;
+    border: 2px solid #18181b !important;
+    border-radius: 10px !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+    box-shadow: inset 1px 1px 0px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-laf="comic-doodle"] input:focus,
+[data-laf="comic-doodle"] textarea:focus,
+[data-laf="comic-doodle"] select:focus,
+[data-laf="comic-doodle"] .filter-input:focus,
+[data-laf="comic-doodle"] .ui-autocomplete-input:focus {
+    outline: none !important;
+    box-shadow: 2px 2px 0px #18181b, 0 0 0 2px #cce3fd !important;
+}
+
+[data-laf="comic-doodle"] .ui-table,
+[data-laf="comic-doodle"] .ui-datagrid {
+    border: 2px solid #18181b !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+}
+
+[data-laf="comic-doodle"] .ui-table th,
+[data-laf="comic-doodle"] .ui-datagrid th {
+    background: #cce3fd !important;
+    color: #18181b !important;
+    border-bottom: 2px solid #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="comic-doodle"] .ui-table td,
+[data-laf="comic-doodle"] .ui-datagrid td {
+    color: #18181b !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+}
+
+[data-laf="comic-doodle"] .ui-table tr:hover,
+[data-laf="comic-doodle"] .ui-datagrid tr:hover {
+    background: #f0f6ff !important;
+}
+
+[data-laf="comic-doodle"] .ui-badge,
+[data-laf="comic-doodle"] .badge,
+[data-laf="comic-doodle"] .tag,
+[data-laf="comic-doodle"] .ui-chip {
+    border: 1.5px solid #18181b !important;
+    border-radius: 8px !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 700 !important;
+    box-shadow: 1px 1px 0px #18181b !important;
+}
+
+[data-laf="comic-doodle"] .ui-accordion {
+    border: 2px solid #18181b !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+[data-laf="comic-doodle"] .ui-accordion-header {
+    background: #f0f6ff !important;
+    border-bottom: 1.5px solid #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 700 !important;
+    color: #18181b !important;
+}
+
+[data-laf="comic-doodle"] .ui-accordion-header:hover {
+    background: #cce3fd !important;
+}
+
+[data-laf="comic-doodle"] .ui-modal-dialog {
+    border: 2.5px solid #18181b !important;
+    border-radius: 16px !important;
+    box-shadow: 6px 6px 0px #18181b !important;
+    background: #ffffff !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+}
+
+[data-laf="comic-doodle"] .ui-tab-btn {
+    border: 2px solid #18181b !important;
+    border-bottom: none !important;
+    border-radius: 8px 8px 0 0 !important;
+    background: #f0f6ff !important;
+    color: #18181b !important;
+    font-family: 'Comic Neue', cursive, sans-serif !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="comic-doodle"] .ui-tab-btn.active {
+    background: #cce3fd !important;
+}

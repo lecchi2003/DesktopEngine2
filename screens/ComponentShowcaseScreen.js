@@ -64,7 +64,7 @@ export default {
     view() {
         return createElement("div", "", [
             Drawer({
-                bind: "menuLateral", side: "left", instance: this, content: [
+                bind: "menuLateral", side: "left" content: [
                     createElement("h3", "", ["Menu do Showcase"]),
                     createElement("p", "", ["Este é um painel off-canvas integrado ao state."])
                 ]
@@ -85,9 +85,9 @@ export default {
                     }),
                     Row({
                         style: "gap: 8px;", children: [
-                            Button({ text: "Modal Local", onClick: "abrirModalLocal", instance: this }),
-                            Button({ text: "Modal Global", onClick: "abrirModalGlobal", instance: this, variant: "danger" }),
-                            Button({ text: "Abrir Drawer Esq.", onClick: "toggleDrawer", instance: this })
+                            Button({ text: "Modal Local", onClick: "abrirModalLocal" }),
+                            Button({ text: "Modal Global", onClick: "abrirModalGlobal" variant: "danger" }),
+                            Button({ text: "Abrir Drawer Esq.", onClick: "toggleDrawer" })
                         ]
                     })
                 ]
@@ -104,8 +104,7 @@ export default {
                                 title: "Formulários & Temas do Sistema", children: [
                                     Select({
                                         label: "Look and Feel do Sistema",
-                                        bind: "laf",
-                                        instance: this,
+                                        bind: "laf"
                                         options: (() => {
                                             const all = Desktop.getAvailableLookAndFeels ? Desktop.getAvailableLookAndFeels() : [];
                                             const categories = {};
@@ -126,8 +125,8 @@ export default {
                                             Toast({ message: `LaF alterado: ${val}`, type: "info" });
                                         }
                                     }),
-                                    Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100, instance: this }),
-                                    Autocomplete({ label: "Países de Atuação", bind: "pais", multiple: true, options: ["Brasil", "Estados Unidos", "Alemanha", "França", "Itália", "Japão"], instance: this })
+                                    Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100 }),
+                                    Autocomplete({ label: "Países de Atuação", bind: "pais", multiple: true, options: ["Brasil", "Estados Unidos", "Alemanha", "França", "Itália", "Japão"] })
                                 ]
                             }),
 
@@ -191,8 +190,7 @@ export default {
 
                             Card({
                                 title: "Seções Dinâmicas", children: [
-                                    Accordion({
-                                        instance: this, items: [
+                                    Accordion({ items: [
                                             { title: "Mais Opções", content: "Aqui poderiam existir sub-configurações." },
                                             { title: "Ajuda do Sistema", content: "Entre em contato com o suporte para mais informações." }
                                         ]
@@ -207,11 +205,11 @@ export default {
             createElement("br", "", []),
             Row({
                 style: "justify-content: space-between;", children: [
-                    Button({ text: "Passo Anterior", onClick: "prevStep", instance: this }),
+                    Button({ text: "Passo Anterior", onClick: "prevStep" }),
                     Row({
                         style: "gap: 8px;", children: [
-                            Button({ text: "Avançar Passo", onClick: "nextStep", instance: this }),
-                            Button({ text: "Concluir Setup", onClick: "salvarTudo", instance: this, variant: "primary" })
+                            Button({ text: "Avançar Passo", onClick: "nextStep" }),
+                            Button({ text: "Concluir Setup", onClick: "salvarTudo" variant: "primary" })
                         ]
                     })
                 ]

@@ -48,8 +48,145 @@ export const EventBus = {
     }
 };
 
-// Inicializa o EventBus
-EventBus.init();
+// Inicializa o EventBus se estiver no navegador
+if (typeof window !== 'undefined') {
+    EventBus.init();
+}
+
+// --- Signals Engine (Atômico, Fine-Grained, Zero Deps) ---
+const SIGNAL_MARKER = Symbol.for('DesktopEngine.Signal');
+
+let currentListener = null;
+const listenerStack = [];
+
+export function isSignal(obj) {
+    if (!obj || (typeof obj !== 'object' && typeof obj !== 'function')) return false;
+    return !!(obj[SIGNAL_MARKER] || (typeof obj.peek === 'function' && typeof obj.subscribe === 'function' && 'value' in obj));
+}
+
+export function signal(initialValue) {
+    let _value = initialValue;
+    const subscribers = new Set();
+
+    const sig = {
+        [SIGNAL_MARKER]: true,
+        get value() {
+            if (currentListener) {
+                subscribers.add(currentListener);
+            }
+            return _value;
+        },
+        set value(newValue) {
+            if (_value === newValue) return;
+            _value = newValue;
+            // Notifica os assinantes registrados
+            const list = Array.from(subscribers);
+            for (const sub of list) {
+                try { sub(_value); } catch (err) { console.error("Erro no subscriber do Signal:", err); }
+            }
+        },
+        peek() {
+            return _value;
+        },
+        subscribe(callback) {
+            subscribers.add(callback);
+            try { callback(_value); } catch (err) { console.error("Erro ao executar callback de subscribe:", err); }
+            return () => subscribers.delete(callback);
+        },
+        toString() {
+            return String(this.value);
+        },
+        valueOf() {
+            return this.value;
+        }
+    };
+
+    return sig;
+}
+
+export function effect(fn) {
+    let cleanup = null;
+
+    const run = () => {
+        if (typeof cleanup === 'function') {
+            try { cleanup(); } catch (e) { console.error("Erro no cleanup de effect:", e); }
+            cleanup = null;
+        }
+        listenerStack.push(run);
+        currentListener = run;
+        try {
+            cleanup = fn();
+        } finally {
+            listenerStack.pop();
+            currentListener = listenerStack[listenerStack.length - 1] || null;
+        }
+    };
+
+    run();
+
+    return () => {
+        if (typeof cleanup === 'function') {
+            try { cleanup(); } catch (e) {}
+        }
+    };
+}
+
+export function computed(fn) {
+    const computedSignal = signal(undefined);
+    effect(() => {
+        computedSignal.value = fn();
+    });
+    return {
+        [SIGNAL_MARKER]: true,
+        get value() {
+            return computedSignal.value;
+        },
+        peek() {
+            return computedSignal.peek();
+        },
+        subscribe(cb) {
+            return computedSignal.subscribe(cb);
+        },
+        toString() {
+            return String(this.value);
+        },
+        valueOf() {
+            return this.value;
+        }
+    };
+}
+
+export function createStore(initialObj = {}) {
+    const signals = {};
+    for (const key of Object.keys(initialObj)) {
+        signals[key] = signal(initialObj[key]);
+    }
+    return new Proxy(initialObj, {
+        get(target, prop) {
+            if (prop === '$signals') return signals;
+            if (prop === '$getSignal') return (key) => {
+                if (!signals[key]) signals[key] = signal(target[key]);
+                return signals[key];
+            };
+            if (!signals[prop] && typeof prop === 'string') {
+                signals[prop] = signal(target[prop]);
+            }
+            if (signals[prop]) {
+                return signals[prop].value;
+            }
+            return target[prop];
+        },
+        set(target, prop, val) {
+            target[prop] = val;
+            if (!signals[prop]) {
+                signals[prop] = signal(val);
+            } else {
+                signals[prop].value = val;
+            }
+            return true;
+        }
+    });
+}
 
 // --- Contexto Reativo Implícito ---
 // Permite que componentes UI acessem a janela atual sem exigir 'instance: this' do desenvolvedor
@@ -181,12 +318,19 @@ export const Framework = {
     },
     createWindow(config, instanceId, desktopManager) {
         let isSilentStateUpdate = false;
+        const _signalsMap = {};
 
         // Objeto de estado reativo via Proxy
         let state = new Proxy({ ...config.state }, {
+            get(target, prop) {
+                return target[prop];
+            },
             set(target, prop, value) {
                 const oldValue = target[prop];
                 target[prop] = value;
+                if (_signalsMap[prop] && _signalsMap[prop].peek() !== value) {
+                    _signalsMap[prop].value = value;
+                }
                 if (instance.update && !isSilentStateUpdate && instance.el) {
                     instance.update(prop, value, oldValue);
                 }
@@ -194,16 +338,40 @@ export const Framework = {
             }
         });
 
+        // Proxy de signals para acesso fino e direto: this.signals.nomeDaPropriedade
+        const signalsProxy = new Proxy(_signalsMap, {
+            get(target, prop) {
+                if (typeof prop === 'symbol') return target[prop];
+                if (!target[prop]) {
+                    target[prop] = signal(state[prop]);
+                    target[prop].subscribe((newVal) => {
+                        if (state[prop] !== newVal) {
+                            state[prop] = newVal;
+                        }
+                    });
+                }
+                return target[prop];
+            }
+        });
+
         const instance = {
             id: instanceId,
             state,
+            signals: signalsProxy,
             config,
             el: null, // Elemento raiz (conteúdo da janela)
             windowEl: null, // Elemento físico da janela (container)
+
+            $signal(prop, initialValue = undefined) {
+                return this.signals[prop];
+            },
             
             _setSilentState(prop, value) {
                 isSilentStateUpdate = true;
                 this.state[prop] = value;
+                if (_signalsMap[prop] && _signalsMap[prop].peek() !== value) {
+                    _signalsMap[prop].value = value;
+                }
                 isSilentStateUpdate = false;
 
                 // Sincroniza outros campos da mesma janela vinculados à mesma propriedade sem recriar o DOM

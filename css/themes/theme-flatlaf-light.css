@@ -1,0 +1,180 @@
+/* DesktopEngine V2.0 - Look and Feel: flatlaf-light */
+
+[data-laf="adwaita-slate"] .ui-context-menu,
+[data-laf="breeze-plasma"] .ui-context-menu,
+[data-laf="flatlaf-light"] .ui-context-menu, [data-laf="flatlaf-dark"] .ui-context-menu {
+    background: var(--menu-bg) !important;
+    color: var(--menu-text) !important;
+    border: 1px solid var(--menu-border) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+    border-radius: 6px !important;
+}
+
+:root,
+[data-laf="default"],
+[data-laf="steel-metal"],
+[data-laf="ocean-metal"],
+[data-laf="nimbus-vector"],
+[data-laf="modena-soft"],
+[data-laf="yellow-tab"],
+[data-laf="retro-3d"],
+[data-laf="luna-blue"],
+[data-laf="aero-glass"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"],
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"],
+[data-laf="neumorphism"],
+[data-laf="material-tonal"],
+[data-laf="one-touch"],
+[data-laf="flat-tiles"],
+[data-laf="pantheon-pure"],
+[data-laf="greybird-lite"],
+[data-laf="aubergine-orange"],
+[data-laf="aqua-frosted"],
+[data-laf="fluent-acrylic"],
+[data-laf="spatial-glass"],
+[data-laf="cupertino-touch"],
+[data-laf="flatlaf-light"],
+[data-laf="comic-doodle"] {
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --menu-text: #111827;
+    --input-bg: #ffffff;
+    --input-border: #9ca3af;
+    --input-text: #111827;
+}
+
+[data-laf="flatlaf-light"] .window, [data-laf="flatlaf-dark"] .window {
+    border: 1px solid var(--win-border);
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+[data-laf="flatlaf-light"] .titlebar, [data-laf="flatlaf-dark"] .titlebar {
+    height: 30px;
+    background: transparent;
+    border-bottom: 1px solid var(--win-border);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+[data-laf="flatlaf-light"] .titleText, [data-laf="flatlaf-dark"] .titleText {
+    color: var(--text-primary);
+}
+
+[data-laf="flatlaf-light"] .winBtn, [data-laf="flatlaf-dark"] .winBtn {
+    width: 36px;
+    height: 100%;
+    font-size: 12px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    transition: background 0.15s ease;
+}
+
+[data-laf="flatlaf-light"] .winBtn:hover, [data-laf="flatlaf-dark"] .winBtn:hover {
+    background: color-mix(in srgb, var(--text-primary) 12%, transparent);
+}
+
+[data-laf="flatlaf-light"] .winBtn.close:hover, [data-laf="flatlaf-dark"] .winBtn.close:hover {
+    background: #e81123 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="flatlaf-light"] #menubar, [data-laf="flatlaf-dark"] #menubar,
+[data-laf="flatlaf-light"] .ui-menubar, [data-laf="flatlaf-dark"] .ui-menubar,
+[data-laf="flatlaf-light"] #taskbar, [data-laf="flatlaf-dark"] #taskbar {
+    background: var(--bg-secondary) !important;
+    border-color: var(--win-border) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-laf="flatlaf-light"] .menubar-item, [data-laf="flatlaf-dark"] .menubar-item,
+[data-laf="flatlaf-light"] .taskButton, [data-laf="flatlaf-dark"] .taskButton,
+[data-laf="flatlaf-light"] .taskStart, [data-laf="flatlaf-dark"] .taskStart,
+[data-laf="flatlaf-light"] .clock, [data-laf="flatlaf-dark"] .clock {
+    color: var(--text-primary) !important;
+}
+
+[data-laf="flatlaf-light"] .taskButton, [data-laf="flatlaf-dark"] .taskButton {
+    border-radius: 3px;
+}
+
+[data-laf="flatlaf-light"] .taskButton.active, [data-laf="flatlaf-dark"] .taskButton.active {
+    background: var(--btn-primary) !important;
+    color: var(--btn-primary-text) !important;
+}
+
+[data-laf="adwaita-slate"] .drawer-header,
+.menubar-mobile-drawer[data-laf="adwaita-slate"] .drawer-header,
+.ui-bottom-sheet[data-laf="adwaita-slate"] .drawer-header,
+[data-laf="breeze-plasma"] .drawer-header,
+.menubar-mobile-drawer[data-laf="breeze-plasma"] .drawer-header,
+.ui-bottom-sheet[data-laf="breeze-plasma"] .drawer-header,
+[data-laf="flatlaf-light"] .drawer-header,
+.menubar-mobile-drawer[data-laf="flatlaf-light"] .drawer-header,
+.ui-bottom-sheet[data-laf="flatlaf-light"] .drawer-header,
+[data-laf="pantheon-pure"] .drawer-header,
+.menubar-mobile-drawer[data-laf="pantheon-pure"] .drawer-header,
+.ui-bottom-sheet[data-laf="pantheon-pure"] .drawer-header,
+[data-laf="greybird-lite"] .drawer-header,
+.menubar-mobile-drawer[data-laf="greybird-lite"] .drawer-header,
+.ui-bottom-sheet[data-laf="greybird-lite"] .drawer-header,
+[data-laf="default"] .drawer-header,
+.menubar-mobile-drawer[data-laf="default"] .drawer-header,
+.ui-bottom-sheet[data-laf="default"] .drawer-header {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-laf="adwaita-slate"] .drawer-title,
+.menubar-mobile-drawer[data-laf="adwaita-slate"] .drawer-title,
+.ui-bottom-sheet[data-laf="adwaita-slate"] .drawer-title,
+[data-laf="breeze-plasma"] .drawer-title,
+.menubar-mobile-drawer[data-laf="breeze-plasma"] .drawer-title,
+.ui-bottom-sheet[data-laf="breeze-plasma"] .drawer-title,
+[data-laf="flatlaf-light"] .drawer-title,
+.menubar-mobile-drawer[data-laf="flatlaf-light"] .drawer-title,
+.ui-bottom-sheet[data-laf="flatlaf-light"] .drawer-title,
+[data-laf="pantheon-pure"] .drawer-title,
+.menubar-mobile-drawer[data-laf="pantheon-pure"] .drawer-title,
+.ui-bottom-sheet[data-laf="pantheon-pure"] .drawer-title,
+[data-laf="greybird-lite"] .drawer-title,
+.menubar-mobile-drawer[data-laf="greybird-lite"] .drawer-title,
+.ui-bottom-sheet[data-laf="greybird-lite"] .drawer-title,
+[data-laf="default"] .drawer-title,
+.menubar-mobile-drawer[data-laf="default"] .drawer-title,
+.ui-bottom-sheet[data-laf="default"] .drawer-title {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+[data-laf="adwaita-slate"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="adwaita-slate"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="adwaita-slate"] .drawer-close-btn,
+[data-laf="breeze-plasma"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="breeze-plasma"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="breeze-plasma"] .drawer-close-btn,
+[data-laf="flatlaf-light"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="flatlaf-light"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="flatlaf-light"] .drawer-close-btn,
+[data-laf="pantheon-pure"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="pantheon-pure"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="pantheon-pure"] .drawer-close-btn,
+[data-laf="greybird-lite"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="greybird-lite"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="greybird-lite"] .drawer-close-btn,
+[data-laf="default"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="default"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="default"] .drawer-close-btn {
+    color: #475569 !important;
+    background: transparent !important;
+    border: none !important;
+    opacity: 0.9 !important;
+}

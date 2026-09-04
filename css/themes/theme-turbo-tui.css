@@ -1,0 +1,286 @@
+/* DesktopEngine V2.0 - Look and Feel: turbo-tui */
+
+[data-laf="turbo-tui"] .ui-context-menu {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 4px 4px 0px #000000 !important;
+    font-family: 'Consolas', monospace !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="turbo-tui"] .ui-context-menu .menuOption {
+    color: #000000 !important;
+    font-weight: bold;
+}
+
+[data-laf="turbo-tui"] .ui-context-menu .menuOption:hover {
+    background: #000000 !important;
+    color: #00ffcc !important;
+}
+
+[data-laf="turbo-tui"] .ui-context-menu .menuSep {
+    background: #ffffff !important;
+    height: 1px;
+}
+
+[data-laf="flatlaf-dark"],
+[data-laf="cyberpunk-neon"],
+[data-laf="tactical-hud"],
+[data-laf="caspian-dark"],
+[data-laf="next-dark"],
+[data-laf="x11-box"],
+[data-laf="e-fusion"],
+[data-laf="turbo-tui"],
+[data-laf="cosmic-teal"] {
+    --text-primary: #f1f5f9;
+    --bg-primary: #1e2430;
+    --bg-secondary: #141a22;
+    --menu-bg: #1e2430;
+    --menu-hover: #3a475a;
+    --text-secondary: #94a3b8;
+    --menu-text: #f1f5f9;
+    --input-bg: rgba(20, 25, 35, 0.95);
+    --input-border: rgba(255, 255, 255, 0.2);
+    --input-text: #f1f5f9;
+}
+
+[data-laf="turbo-tui"] .statusbar {
+    background: #00aaaa !important;
+    border-top: 2px solid #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Consolas', monospace !important;
+    font-weight: bold !important;
+}
+
+[data-laf="turbo-tui"] .ui-dock-widget {
+    background: #0000a8 !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 4px 4px 0px #000000 !important;
+    color: #ffffff !important;
+    font-family: 'Consolas', monospace !important;
+}
+
+[data-laf="turbo-tui"] .ui-dock-widget .ui-dock-header {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    font-weight: bold !important;
+}
+
+[data-laf="turbo-tui"] .ui-dock-widget .ui-dock-text-item {
+    background: #000080 !important;
+    border-color: #ffffff !important;
+    color: #ffff55 !important;
+}
+
+[data-laf="turbo-tui"] .window {
+    border: 2px solid #ffffff;
+    border-radius: 0;
+    box-shadow: 8px 8px 0px #000000;
+    background: #0000a8 !important;
+    color: #ffffff !important;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+[data-laf="turbo-tui"] .titlebar {
+    height: 24px;
+    background: #00aaaa !important;
+    color: #000000 !important;
+    font-weight: bold;
+    font-family: monospace;
+    border-bottom: 2px solid #ffffff;
+    padding: 0 4px;
+}
+
+[data-laf="turbo-tui"] .titleText {
+    text-align: center;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+[data-laf="turbo-tui"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="turbo-tui"] .winBtn {
+    width: 20px;
+    height: 20px;
+    background: #00aaaa;
+    border: 1px solid #000000;
+    color: #000000 !important;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="turbo-tui"] .winBtn:hover {
+    background: #ffffff;
+}
+
+[data-laf="turbo-tui"] .windowBody {
+    background: #0000a8 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="turbo-tui"] #menubar,
+[data-laf="turbo-tui"] .ui-menubar {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    font-family: 'Consolas', monospace;
+    font-weight: bold;
+    font-size: 13px;
+    border-bottom: 2px solid #ffffff !important;
+}
+
+[data-laf="turbo-tui"] .menubar-item {
+    color: #000000 !important;
+}
+
+[data-laf="turbo-tui"] .menubar-item:hover,
+[data-laf="turbo-tui"] .menubar-item.active {
+    background: #000000 !important;
+    color: #00aaaa !important;
+}
+
+[data-laf="turbo-tui"] #taskbar {
+    background: #0000a8 !important;
+    color: #ffffff !important;
+    border-top: 2px solid #ffffff !important;
+    font-family: 'Consolas', monospace;
+    height: 32px;
+    flex: 0 0 32px;
+}
+
+[data-laf="turbo-tui"] .taskStart,
+[data-laf="turbo-tui"] .taskButton {
+    background: #00aaaa !important;
+    border: 1px solid #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Consolas', monospace;
+    font-weight: bold;
+    border-radius: 0;
+    font-size: 12px;
+    height: 26px;
+}
+
+[data-laf="turbo-tui"] .taskButton.active {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 900;
+}
+
+[data-laf="turbo-tui"] .clock {
+    background: #000000;
+    color: #00ff00 !important;
+    border: 1px solid #00ff00;
+    font-family: 'Consolas', monospace;
+    padding: 2px 8px;
+}
+
+[data-laf="turbo-tui"] .dropdown,
+[data-laf="turbo-tui"] .ui-start-menu,
+[data-laf="turbo-tui"] .ui-context-menu {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 4px 4px 0px #000000 !important;
+    font-family: 'Consolas', monospace;
+}
+
+[data-laf="turbo-tui"] .menuOption {
+    color: #000000 !important;
+}
+
+[data-laf="turbo-tui"] .menuOption:hover {
+    background: #000000 !important;
+    color: #00ffcc !important;
+}
+
+[data-laf="turbo-tui"] .menubar-mobile-drawer,
+.menubar-mobile-drawer[data-laf="turbo-tui"] {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    border-right: 3px solid #ffffff !important;
+    box-shadow: 6px 0 0px #000000 !important;
+    font-family: Consolas, 'Courier New', monospace !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="turbo-tui"] .ui-bottom-sheet,
+.ui-bottom-sheet[data-laf="turbo-tui"] {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    border-top: 3px solid #ffffff !important;
+    box-shadow: 0 -6px 0px #000000 !important;
+    font-family: Consolas, 'Courier New', monospace !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="turbo-tui"] .bottom-sheet-handle {
+    background: #ffffff !important;
+    height: 6px !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="turbo-tui"] .drawer-header {
+    background: #0000aa !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid #ffffff !important;
+    font-weight: bold !important;
+}
+
+[data-laf="turbo-tui"] .drawer-title,
+.menubar-mobile-drawer[data-laf="turbo-tui"] .drawer-title,
+.ui-bottom-sheet[data-laf="turbo-tui"] .drawer-title {
+    color: #ffffff !important;
+    font-weight: bold !important;
+}
+
+[data-laf="turbo-tui"] .drawer-close-btn,
+.menubar-mobile-drawer[data-laf="turbo-tui"] .drawer-close-btn,
+.ui-bottom-sheet[data-laf="turbo-tui"] .drawer-close-btn {
+    color: #ffffff !important;
+    background: #aa0000 !important;
+    border: 1px solid #ffffff !important;
+    border-radius: 0 !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
+}
+
+[data-laf="turbo-tui"] .drawer-option,
+[data-laf="turbo-tui"] .bottom-sheet-option {
+    border-radius: 0 !important;
+    color: #000000 !important;
+    font-weight: bold !important;
+}
+
+[data-laf="turbo-tui"] .drawer-option:hover,
+[data-laf="turbo-tui"] .drawer-option:active,
+[data-laf="turbo-tui"] .bottom-sheet-option:hover,
+[data-laf="turbo-tui"] .bottom-sheet-option:active {
+    background: #0000aa !important;
+    color: #ffffff !important;
+}
+
+[data-laf="turbo-tui"] .bottom-sheet-cancel-btn {
+    background: #aaaaaa !important;
+    border: 2px solid #ffffff !important;
+    color: #000000 !important;
+    border-radius: 0 !important;
+    font-weight: bold !important;
+}
+
+[data-laf="turbo-tui"] .taskShowDesktop,
+[data-laf="turbo-tui"] .taskShowDesktop {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    border: 1px solid #ffffff !important;
+    border-radius: 0 !important;
+    font-family: 'Courier New', monospace !important;
+    font-weight: bold !important;
+    height: 22px !important;
+}

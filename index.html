@@ -4,15 +4,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <title>Desktop Engine V1.5 - Ultimate Showcase</title>
-    <link rel="stylesheet" href="./style.css?v=21">
+    <title>Desktop Engine V2.0 - Ultimate Showcase</title>
+    <!-- DesktopEngine V2.0: CSS Modular & Temas Sob Demanda -->
+    <link rel="stylesheet" href="./css/core.css?v=2">
+    <link rel="stylesheet" href="./css/components.css?v=2">
+    <link rel="stylesheet" id="desktop-theme-stylesheet" href="./css/themes/theme-win11.css?v=2">
 </head>
 
 <body>
     <div id="app"></div>
 
     <script type="module">
-        import { Framework, EventBus } from './core.js?v=2';
+        import { Framework, EventBus, signal, computed, effect, createStore } from './core.js?v=2';
         import { Desktop } from './desktop.js?v=2';
         import {
             MenuBar, StartMenu, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
@@ -1320,7 +1323,7 @@
                 }
             ],
             content: [
-                "✨ Desktop Engine V1.5 inicializado com sucesso.",
+                "🚀 Desktop Engine V2.0 inicializado com sucesso (Signals + CSS Modular).",
                 "📡 Conexão com EventBus estabelecida.",
                 "🔔 Sistema pronto para receber eventos em tempo real."
             ],

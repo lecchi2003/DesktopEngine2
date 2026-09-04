@@ -1,6 +1,6 @@
 // ElementBuilder.js
 // Autor: Gildasio Lecchi Cravo
-import { UIContext, Framework } from './core.js?v=2';
+import { UIContext, Framework, isSignal, effect } from './core.js?v=2';
 import * as UIComponents from './ui.js?v=2';
 
 /**
@@ -105,15 +105,40 @@ export class ElementBuilder {
         return this;
     }
 
-    /** Define o texto do elemento */
-    text(txt) {
-        this.el.textContent = txt !== undefined && txt !== null ? String(txt) : '';
+    /** Define o texto do elemento (suporta string, número ou Signal reativo atômico) */
+    text(txtOrSignal) {
+        if (isSignal(txtOrSignal)) {
+            this.el.textContent = '';
+            const textNode = document.createTextNode(txtOrSignal.value !== undefined ? String(txtOrSignal.value) : '');
+            this.el.appendChild(textNode);
+            effect(() => {
+                textNode.textContent = txtOrSignal.value !== undefined ? String(txtOrSignal.value) : '';
+            });
+            return this;
+        }
+        this.el.textContent = txtOrSignal !== undefined && txtOrSignal !== null ? String(txtOrSignal) : '';
         return this;
     }
 
     /** Define o HTML interno */
     html(markup) {
         this.el.innerHTML = markup !== undefined && markup !== null ? String(markup) : '';
+        return this;
+    }
+
+    /** Exibe ou oculta o elemento condicionalmente (suporta Signal booleano ou função) */
+    showIf(conditionOrSignal) {
+        if (isSignal(conditionOrSignal)) {
+            effect(() => {
+                this.el.style.display = conditionOrSignal.value ? '' : 'none';
+            });
+        } else if (typeof conditionOrSignal === 'function') {
+            effect(() => {
+                this.el.style.display = conditionOrSignal() ? '' : 'none';
+            });
+        } else {
+            this.el.style.display = conditionOrSignal ? '' : 'none';
+        }
         return this;
     }
 
@@ -150,8 +175,31 @@ export class ElementBuilder {
         return this;
     }
 
-    /** Liga o valor do elemento ao state da janela (Two-Way Data Binding) */
-    bind(stateKey) {
+    /** Liga o valor do elemento a um Signal ou ao state da janela (Two-Way Data Binding) */
+    bind(signalOrStateKey) {
+        if (isSignal(signalOrStateKey)) {
+            const sig = signalOrStateKey;
+            if (this.el.type === 'checkbox') {
+                effect(() => {
+                    this.el.checked = !!sig.value;
+                });
+                this.el.addEventListener('change', (e) => {
+                    sig.value = e.target.checked;
+                });
+            } else if ('value' in this.el) {
+                effect(() => {
+                    if (this.el !== document.activeElement) {
+                        this.el.value = sig.value !== undefined ? sig.value : '';
+                    }
+                });
+                this.el.addEventListener('input', (e) => {
+                    sig.value = e.target.value;
+                });
+            }
+            return this;
+        }
+
+        const stateKey = signalOrStateKey;
         this.data('bind', stateKey);
         const inst = UIContext.getCurrent();
         if (inst && inst.state) {
@@ -185,13 +233,19 @@ export class ElementBuilder {
         return this;
     }
 
-    /** Anexa nós filhos (aceita Strings, Números, HTMLElement, ElementBuilder, Arrays ou falsy) */
+    /** Anexa nós filhos (aceita Strings, Números, Signals, HTMLElement, ElementBuilder, Arrays ou falsy) */
     children(...children) {
         const flat = children.flat(Infinity);
         flat.forEach(child => {
             if (child === null || child === undefined || child === false) return;
 
-            if (child instanceof ElementBuilder) {
+            if (isSignal(child)) {
+                const textNode = document.createTextNode(child.value !== undefined ? String(child.value) : '');
+                this.el.appendChild(textNode);
+                effect(() => {
+                    textNode.textContent = child.value !== undefined ? String(child.value) : '';
+                });
+            } else if (child instanceof ElementBuilder) {
                 this.el.appendChild(child.build());
             } else if (child instanceof Node) {
                 this.el.appendChild(child);

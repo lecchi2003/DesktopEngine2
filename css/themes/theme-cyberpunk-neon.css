@@ -1,0 +1,334 @@
+/* DesktopEngine V2.0 - Look and Feel: cyberpunk-neon */
+
+[data-laf="cyberpunk-neon"] .ui-context-menu {
+    background: rgba(10, 14, 23, 0.98) !important;
+    border: 1px solid #00ffcc !important;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.4) !important;
+    font-family: 'Orbitron', monospace !important;
+    color: #00ffcc !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-context-menu .menuOption {
+    color: #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-context-menu .menuOption:hover {
+    background: #00ffcc !important;
+    color: #000000 !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-context-menu .menuSep {
+    background: #00ffcc !important;
+    opacity: 0.35;
+}
+
+[data-laf="flatlaf-dark"],
+[data-laf="cyberpunk-neon"],
+[data-laf="tactical-hud"],
+[data-laf="caspian-dark"],
+[data-laf="next-dark"],
+[data-laf="x11-box"],
+[data-laf="e-fusion"],
+[data-laf="turbo-tui"],
+[data-laf="cosmic-teal"] {
+    --text-primary: #f1f5f9;
+    --bg-primary: #1e2430;
+    --bg-secondary: #141a22;
+    --menu-bg: #1e2430;
+    --menu-hover: #3a475a;
+    --text-secondary: #94a3b8;
+    --menu-text: #f1f5f9;
+    --input-bg: rgba(20, 25, 35, 0.95);
+    --input-border: rgba(255, 255, 255, 0.2);
+    --input-text: #f1f5f9;
+}
+
+[data-laf="cyberpunk-neon"] .statusbar {
+    background: rgba(10, 14, 23, 0.98) !important;
+    border-top: 1px solid #00ffcc !important;
+    color: #00ffcc !important;
+    font-family: 'Orbitron', monospace !important;
+    font-size: 11px !important;
+    letter-spacing: 1px !important;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.2) inset !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-dock-widget {
+    background: rgba(10, 14, 23, 0.98) !important;
+    border: 1px solid #00ffcc !important;
+    box-shadow: 0 0 18px rgba(0, 255, 204, 0.35) !important;
+    color: #00ffcc !important;
+    font-family: 'Orbitron', monospace !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-dock-widget .ui-dock-header {
+    background: rgba(0, 255, 204, 0.15) !important;
+    color: #00ffcc !important;
+    border-bottom: 1px solid #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-dock-widget .ui-dock-body {
+    background: rgba(10, 14, 23, 0.95) !important;
+    color: #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-dock-widget .ui-dock-text-item {
+    background: rgba(0, 255, 204, 0.08) !important;
+    border-color: rgba(0, 255, 204, 0.3) !important;
+    color: #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .window {
+    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+    border: 1px solid #00ffcc;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.3), inset 0 0 10px rgba(0, 255, 204, 0.1);
+    background: rgba(10, 14, 23, 0.95);
+}
+
+[data-laf="cyberpunk-neon"] .titlebar {
+    height: 34px;
+    background: linear-gradient(90deg, #ff0055 0%, #7928ca 50%, #00ffcc 100%) !important;
+    color: #ffffff !important;
+    font-family: 'Orbitron', monospace, sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 11px;
+    padding: 0 6px;
+}
+
+[data-laf="cyberpunk-neon"] .titleText {
+    color: #ffffff !important;
+    text-shadow: 0 0 8px #00ffcc;
+}
+
+[data-laf="cyberpunk-neon"] .winButtons {
+    align-items: center;
+    gap: 4px;
+}
+
+[data-laf="cyberpunk-neon"] .winBtn {
+    width: 28px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #00ffcc;
+    color: #00ffcc !important;
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+[data-laf="cyberpunk-neon"] .winBtn:hover {
+    background: #00ffcc !important;
+    color: #000000 !important;
+    box-shadow: 0 0 10px #00ffcc;
+}
+
+[data-laf="cyberpunk-neon"] .winBtn.close:hover {
+    background: #ff0055 !important;
+    border-color: #ff0055 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px #ff0055;
+}
+
+[data-laf="cyberpunk-neon"] #menubar,
+[data-laf="cyberpunk-neon"] .ui-menubar {
+    background: rgba(10, 14, 23, 0.95) !important;
+    color: #00ffcc !important;
+    border-bottom: 2px solid #00ffcc !important;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+    font-family: 'Orbitron', monospace;
+    letter-spacing: 1px;
+    font-size: 12px;
+}
+
+[data-laf="cyberpunk-neon"] .menubar-item {
+    color: #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .menubar-item:hover,
+[data-laf="cyberpunk-neon"] .menubar-item.active {
+    background: rgba(0, 255, 204, 0.15) !important;
+    color: #ff0055 !important;
+    text-shadow: 0 0 8px #ff0055;
+}
+
+[data-laf="cyberpunk-neon"] #taskbar {
+    background: rgba(10, 14, 23, 0.95) !important;
+    color: #00ffcc !important;
+    border-top: 2px solid #00ffcc !important;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+    font-family: 'Orbitron', monospace;
+    height: 38px;
+    flex: 0 0 38px;
+}
+
+[data-laf="cyberpunk-neon"] .taskStart {
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    background: linear-gradient(90deg, #ff0055, #7928ca) !important;
+    border: 1px solid #ff0055 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    height: 30px;
+    letter-spacing: 1px;
+}
+
+[data-laf="cyberpunk-neon"] .taskStart,
+[data-laf="cyberpunk-neon"] .taskShowDesktop,
+[data-laf="cyberpunk-neon"] .taskButton {
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    background: rgba(0, 255, 204, 0.1) !important;
+    border: 1px solid #00ffcc !important;
+    color: #00ffcc !important;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    height: 30px;
+}
+
+[data-laf="cyberpunk-neon"] .taskStart.active,
+[data-laf="cyberpunk-neon"] .taskShowDesktop:active,
+[data-laf="cyberpunk-neon"] .taskButton.active {
+    background: #00ffcc !important;
+    color: #000000 !important;
+    font-weight: bold;
+    box-shadow: 0 0 15px #00ffcc;
+}
+
+[data-laf="cyberpunk-neon"] .clock {
+    color: #ff0055 !important;
+    text-shadow: 0 0 10px #ff0055;
+    font-family: 'Orbitron', monospace;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+[data-laf="cyberpunk-neon"] .dropdown,
+[data-laf="cyberpunk-neon"] .ui-start-menu,
+[data-laf="cyberpunk-neon"] .ui-context-menu {
+    background: rgba(10, 14, 23, 0.98) !important;
+    border: 1px solid #00ffcc !important;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.4) !important;
+    font-family: 'Orbitron', monospace;
+    color: #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .menuOption {
+    color: #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .menuOption:hover {
+    background: #00ffcc !important;
+    color: #000000 !important;
+}
+
+[data-laf="cyberpunk-neon"] .menubar-mobile-drawer,
+.menubar-mobile-drawer[data-laf="cyberpunk-neon"] {
+    background: rgba(10, 14, 23, 0.98) !important;
+    color: #00ffcc !important;
+    border-right: 2px solid #00ffcc !important;
+    box-shadow: 6px 0 30px rgba(0, 255, 204, 0.35) !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-bottom-sheet,
+.ui-bottom-sheet[data-laf="cyberpunk-neon"] {
+    background: rgba(10, 14, 23, 0.98) !important;
+    color: #00ffcc !important;
+    border-top: 2px solid #00ffcc !important;
+    box-shadow: 0 -6px 30px rgba(0, 255, 204, 0.35) !important;
+    font-family: 'Courier New', monospace, sans-serif !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="cyberpunk-neon"] .bottom-sheet-handle {
+    background: #00ffcc !important;
+    box-shadow: 0 0 10px #00ffcc !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="cyberpunk-neon"] .drawer-header {
+    background: rgba(0, 255, 204, 0.12) !important;
+    border-bottom: 1px solid #00ffcc !important;
+    color: #ff007f !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+}
+
+[data-laf="cyberpunk-neon"] .drawer-title,
+.menubar-mobile-drawer[data-laf="cyberpunk-neon"] .drawer-title,
+.ui-bottom-sheet[data-laf="cyberpunk-neon"] .drawer-title {
+    color: #ff007f !important;
+    font-weight: bold !important;
+}
+
+[data-laf="cyberpunk-neon"] .drawer-close-btn {
+    color: #ff007f !important;
+    border: 1px solid #ff007f !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="cyberpunk-neon"] .drawer-category-group {
+    border-bottom: 1px solid rgba(0, 255, 204, 0.25) !important;
+}
+
+[data-laf="cyberpunk-neon"] .drawer-cat-header {
+    color: #00ffcc !important;
+    text-transform: uppercase !important;
+}
+
+[data-laf="cyberpunk-neon"] .drawer-cat-header:hover,
+[data-laf="cyberpunk-neon"] .drawer-cat-header:active,
+[data-laf="cyberpunk-neon"] .drawer-cat-header.expanded {
+    background: rgba(0, 255, 204, 0.15) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 8px #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .drawer-option,
+[data-laf="cyberpunk-neon"] .bottom-sheet-option {
+    color: #00ffcc !important;
+    border-radius: 0 !important;
+    border-left: 2px solid transparent !important;
+}
+
+[data-laf="cyberpunk-neon"] .drawer-option:hover,
+[data-laf="cyberpunk-neon"] .drawer-option:active,
+[data-laf="cyberpunk-neon"] .bottom-sheet-option:hover,
+[data-laf="cyberpunk-neon"] .bottom-sheet-option:active {
+    background: rgba(0, 255, 204, 0.2) !important;
+    color: #ffffff !important;
+    border-left: 2px solid #00ffcc !important;
+    text-shadow: 0 0 8px #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .bottom-sheet-cancel-btn {
+    background: rgba(255, 0, 127, 0.15) !important;
+    border: 1px solid #ff007f !important;
+    color: #ff007f !important;
+    text-shadow: 0 0 8px #ff007f !important;
+    border-radius: 0 !important;
+    text-transform: uppercase !important;
+}
+
+[data-laf="cyberpunk-neon"] .drawer-sep,
+[data-laf="cyberpunk-neon"] .bottom-sheet-sep {
+    background: rgba(0, 255, 204, 0.3) !important;
+}
+
+[data-laf="cyberpunk-neon"] .taskShowDesktop,
+[data-laf="cyberpunk-neon"] .taskShowDesktop {
+    background: rgba(0, 255, 204, 0.08) !important;
+    color: #00ffcc !important;
+    border: 1px solid #00ffcc !important;
+    border-radius: 0 !important;
+    font-family: monospace !important;
+    height: 24px !important;
+    box-shadow: 0 0 6px rgba(0, 255, 204, 0.3) !important;
+}
