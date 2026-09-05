@@ -63,170 +63,170 @@
                     { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
                 ]
             },
-                "separator",
-                {
-                    label: "Módulos",
-                    items: [
-                        { label: "Hub de Arquiteturas", screen: "hub_arquiteturas" },
-                        "separator",
-                        { label: "📊 Relatórios em Background (Workers)", screen: "background_reports" },
-                        { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
-                        { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
-                        { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
-                        { label: "Editor de Documentos (Window MenuBar)", screen: "editor" },
-                        { label: "Painel de Controle (Lazy)", screen: "dashboard" },
-                        { label: "Listagem Avançada (DataGrid) (Lazy)", screen: "datagrid" },
-                        { label: "Navegador Web (Window MenuBar)", screen: "browser" },
-                        { label: "Formulários e Cadastros", screen: "forms" },
-                        { label: "Gerenciador de Tarefas", screen: "tasks" },
-                        { label: "Showcase de Componentes", screen: "showcase" }
-                    ]
-                },
-                "separator",
-                {
-                    label: "Exibir",
-                    items: [
-                        { label: "Organizar Janelas em Grade", action: () => Desktop.arrangeWindows() },
-                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
-                    ]
-                },
-                "separator",
-                {
-                    label: "Sistema",
-                    items: [
-                        {
-                            label: "Preferências",
-                            items: [
-                                {
-                                    label: "📱 Modo Responsivo",
-                                    items: [
-                                        { label: "📱 Forçar Modo Mobile (Empilhado)", action: () => Desktop.setMobileMode("mobile") },
-                                        { label: "🖥️ Forçar Modo Desktop (Flutuante)", action: () => Desktop.setMobileMode("desktop") },
-                                        { label: "🔄 Detecção Automática (Viewport)", action: () => Desktop.setMobileMode("auto") }
-                                    ]
-                                },
-                                {
-                                    label: "📌 Posição da Barra de Tarefas",
-                                    items: [
-                                        { label: "⬇️ Rodapé (Padrão)", action: () => Desktop.setTaskbarPosition("bottom") },
-                                        { label: "⬆️ Topo", action: () => Desktop.setTaskbarPosition("top") },
-                                        { label: "⬅️ Esquerda", action: () => Desktop.setTaskbarPosition("left") },
-                                        { label: "➡️ Direita", action: () => Desktop.setTaskbarPosition("right") }
-                                    ]
-                                },
-                                {
-                                    label: "🧭 Exibição do MenuBar",
-                                    items: [
-                                        { label: "🪟 Barra Separada (Global)", action: () => Desktop.setMenuBarMode("separate") },
-                                        { label: "🔘 Integrado ao Menu Iniciar", action: () => Desktop.setMenuBarMode("startmenu") },
-                                        "separator",
-                                        { label: "⬆️ Posicionar no Topo", action: () => Desktop.setMenuBarPosition("top") },
-                                        { label: "⬇️ Posicionar no Rodapé", action: () => Desktop.setMenuBarPosition("bottom") },
-                                        { label: "⬅️ Posicionar na Esquerda", action: () => Desktop.setMenuBarPosition("left") },
-                                        { label: "➡️ Posicionar na Direita", action: () => Desktop.setMenuBarPosition("right") }
-                                    ]
-                                },
-                                {
-                                    label: "Look and Feel (Aparência do SO)",
-                                    items: [
-                                        {
-                                            label: "📱 & 💻 Modernos & Translúcidos",
-                                            items: [
-                                                { label: "✨ Padrão (DesktopEngine)", action: () => Desktop.setLookAndFeel("default") },
-                                                { label: "🍎 Aqua Frosted (Vidro Fosco)", action: () => Desktop.setLookAndFeel("aqua-frosted") },
-                                                { label: "🪟 Fluent Acrylic (Acrílico)", action: () => Desktop.setLookAndFeel("fluent-acrylic") },
-                                                { label: "🤖 Material Tonal (Dynamic)", action: () => Desktop.setLookAndFeel("material-tonal") },
-                                                { label: "🍏 Cupertino Touch (Fluid)", action: () => Desktop.setLookAndFeel("cupertino-touch") },
-                                                { label: "🌌 One Touch (Curvas)", action: () => Desktop.setLookAndFeel("one-touch") },
-                                                { label: "🔲 Flat Tiles (Modern UI)", action: () => Desktop.setLookAndFeel("flat-tiles") }
-                                            ]
-                                        },
-                                        {
-                                            label: "🥽 & 🫧 Espacial & Tátil",
-                                            items: [
-                                                { label: "🥽 Spatial Glass (Imersivo)", action: () => Desktop.setLookAndFeel("spatial-glass") },
-                                                { label: "🫧 Neumorphism (Soft UI)", action: () => Desktop.setLookAndFeel("neumorphism") },
-                                                { label: "⚡ Tactical HUD (Cyberdeck)", action: () => Desktop.setLookAndFeel("tactical-hud") }
-                                            ]
-                                        },
-                                        {
-                                            label: "☕ Ecossistema Swing & Java",
-                                            items: [
-                                                { label: "☕ Steel Metal (Classic Swing)", action: () => Desktop.setLookAndFeel("steel-metal") },
-                                                { label: "🌊 Ocean Metal (Steel Blue)", action: () => Desktop.setLookAndFeel("ocean-metal") },
-                                                { label: "✨ Nimbus Vector (Vibrant)", action: () => Desktop.setLookAndFeel("nimbus-vector") },
-                                                { label: "🎨 Modern IDE (Studio Dark/Light)", action: () => Desktop.setLookAndFeel("flatlaf-ide") },
-                                                { label: "🌿 Modena Soft (Enterprise)", action: () => Desktop.setLookAndFeel("modena-soft") },
-                                                { label: "🔷 Caspian Slate (Dark Blue)", action: () => Desktop.setLookAndFeel("caspian-dark") }
-                                            ]
-                                        },
-                                        {
-                                            label: "🕹️ Clássicos & Retro 3D",
-                                            items: [
-                                                { label: "🟡 Yellow Tab (Media OS)", action: () => Desktop.setLookAndFeel("yellow-tab") },
-                        { label: "🪟 Modern Glass (Centro)", action: () => Desktop.setLookAndFeel("win11") },
-                        { label: "🪟 Modern Glass 2 (Flutuante)", action: () => Desktop.setLookAndFeel("win11-2") },
-                                                { label: "🕹️ Retro 3D (Chanfrado)", action: () => Desktop.setLookAndFeel("retro-3d") },
-                                                { label: "🔵 Luna Classic (Azul & Verde)", action: () => Desktop.setLookAndFeel("luna-blue") },
-                                                { label: "🪟 Aero Glass (Translúcido)", action: () => Desktop.setLookAndFeel("aero-glass") },
-                                                { label: "⬛ Dark Slate Cube (Workstation)", action: () => Desktop.setLookAndFeel("next-dark") },
-                                                { label: "💾 Workbench Retro (Topaz)", action: () => Desktop.setLookAndFeel("workbench-boing") },
-                                                { label: "🍏 Platinum Classic (Monocromático)", action: () => Desktop.setLookAndFeel("platinum-classic") },
-                                                { label: "💿 Brushed Metal (Classic)", action: () => Desktop.setLookAndFeel("brushed-metal") },
-                                                { label: "💿 Brushed Metal 2 (Sophisticated)", action: () => Desktop.setLookAndFeel("brushed-metal-2") },
-                                                { label: "🟦 Warp Enterprise (Cobalt)", action: () => Desktop.setLookAndFeel("warp-enterprise") }
-                                            ]
-                                        },
-                                        {
-                                            label: "🐧 Desktops Unix & Abertos",
-                                            items: [
-                                                { label: "🟠 Aubergine Orange (Humanist)", action: () => Desktop.setLookAndFeel("aubergine-orange") },
-                                                { label: "🕊️ Pantheon Pure (Light Minimal)", action: () => Desktop.setLookAndFeel("pantheon-pure") },
-                                                { label: "🚀 Cosmic Teal (Modern Desktop)", action: () => Desktop.setLookAndFeel("cosmic-teal") },
-                                                { label: "🪟 Tiling Grid (Minimal Tiling)", action: () => Desktop.setLookAndFeel("tiling-grid") },
-                                                { label: "🐭 Greybird Lite (Lightweight)", action: () => Desktop.setLookAndFeel("greybird-lite") },
-                                                { label: "🌌 Fusion Neon (Compositor)", action: () => Desktop.setLookAndFeel("e-fusion") },
-                                                { label: "⬛ X11 Dark Box (NeXT-Style)", action: () => Desktop.setLookAndFeel("x11-box") },
-                                                { label: "🟣 Motif Panel (UNIX CDE)", action: () => Desktop.setLookAndFeel("motif-panel") },
-                                                { label: "🐧 Adwaita Slate (Clean Flat)", action: () => Desktop.setLookAndFeel("adwaita-slate") },
-                                                { label: "⚙️ Breeze Plasma (Glass Glow)", action: () => Desktop.setLookAndFeel("breeze-plasma") }
-                                            ]
-                                        },
-                                        {
-                                            label: "💻 Console & Sci-Fi",
-                                            items: [
-                                                { label: "📟 DOS TUI (Text Console)", action: () => Desktop.setLookAndFeel("turbo-tui") },
-                                                { label: "⚡ Cyber Neon (Matrix HUD)", action: () => Desktop.setLookAndFeel("cyberpunk-neon") }
-                                            ]
-                                        },
-                                        {
-                                            label: "🎨 Ilustração & Cartoon",
-                                            items: [
-                                                { label: "✏️ Comic Doodle (Pastel Sketch)", action: () => Desktop.setLookAndFeel("comic-doodle") }
-                                            ]
-                                        }
-                                    ]
-                                },
-                            ]
-                        },
-                        "separator",
-                        { label: "Sobre (Lazy Load)", screen: "sobre" }
-                    ]
-                }
-            ];
+            "separator",
+            {
+                label: "Módulos",
+                items: [
+                    { label: "Hub de Arquiteturas", screen: "hub_arquiteturas" },
+                    "separator",
+                    { label: "📊 Relatórios em Background (Workers)", screen: "background_reports" },
+                    { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
+                    { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
+                    { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
+                    { label: "Editor de Documentos (Window MenuBar)", screen: "editor" },
+                    { label: "Painel de Controle (Lazy)", screen: "dashboard" },
+                    { label: "Listagem Avançada (DataGrid) (Lazy)", screen: "datagrid" },
+                    { label: "Navegador Web (Window MenuBar)", screen: "browser" },
+                    { label: "Formulários e Cadastros", screen: "forms" },
+                    { label: "Gerenciador de Tarefas", screen: "tasks" },
+                    { label: "Showcase de Componentes", screen: "showcase" }
+                ]
+            },
+            "separator",
+            {
+                label: "Exibir",
+                items: [
+                    { label: "Organizar Janelas em Grade", action: () => Desktop.arrangeWindows() },
+                    { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
+                ]
+            },
+            "separator",
+            {
+                label: "Sistema",
+                items: [
+                    {
+                        label: "Preferências",
+                        items: [
+                            {
+                                label: "📱 Modo Responsivo",
+                                items: [
+                                    { label: "📱 Forçar Modo Mobile (Empilhado)", action: () => Desktop.setMobileMode("mobile") },
+                                    { label: "🖥️ Forçar Modo Desktop (Flutuante)", action: () => Desktop.setMobileMode("desktop") },
+                                    { label: "🔄 Detecção Automática (Viewport)", action: () => Desktop.setMobileMode("auto") }
+                                ]
+                            },
+                            {
+                                label: "📌 Posição da Barra de Tarefas",
+                                items: [
+                                    { label: "⬇️ Rodapé (Padrão)", action: () => Desktop.setTaskbarPosition("bottom") },
+                                    { label: "⬆️ Topo", action: () => Desktop.setTaskbarPosition("top") },
+                                    { label: "⬅️ Esquerda", action: () => Desktop.setTaskbarPosition("left") },
+                                    { label: "➡️ Direita", action: () => Desktop.setTaskbarPosition("right") }
+                                ]
+                            },
+                            {
+                                label: "🧭 Exibição do MenuBar",
+                                items: [
+                                    { label: "🪟 Barra Separada (Global)", action: () => Desktop.setMenuBarMode("separate") },
+                                    { label: "🔘 Integrado ao Menu Iniciar", action: () => Desktop.setMenuBarMode("startmenu") },
+                                    "separator",
+                                    { label: "⬆️ Posicionar no Topo", action: () => Desktop.setMenuBarPosition("top") },
+                                    { label: "⬇️ Posicionar no Rodapé", action: () => Desktop.setMenuBarPosition("bottom") },
+                                    { label: "⬅️ Posicionar na Esquerda", action: () => Desktop.setMenuBarPosition("left") },
+                                    { label: "➡️ Posicionar na Direita", action: () => Desktop.setMenuBarPosition("right") }
+                                ]
+                            },
+                            {
+                                label: "Look and Feel (Aparência do SO)",
+                                items: [
+                                    {
+                                        label: "📱 & 💻 Modernos & Translúcidos",
+                                        items: [
+                                            { label: "✨ Padrão (DesktopEngine)", action: () => Desktop.setLookAndFeel("default") },
+                                            { label: "🍎 Aqua Frosted (Vidro Fosco)", action: () => Desktop.setLookAndFeel("aqua-frosted") },
+                                            { label: "🪟 Fluent Acrylic (Acrílico)", action: () => Desktop.setLookAndFeel("fluent-acrylic") },
+                                            { label: "🤖 Material Tonal (Dynamic)", action: () => Desktop.setLookAndFeel("material-tonal") },
+                                            { label: "🍏 Cupertino Touch (Fluid)", action: () => Desktop.setLookAndFeel("cupertino-touch") },
+                                            { label: "🌌 One Touch (Curvas)", action: () => Desktop.setLookAndFeel("one-touch") },
+                                            { label: "🔲 Flat Tiles (Modern UI)", action: () => Desktop.setLookAndFeel("flat-tiles") }
+                                        ]
+                                    },
+                                    {
+                                        label: "🥽 & 🫧 Espacial & Tátil",
+                                        items: [
+                                            { label: "🥽 Spatial Glass (Imersivo)", action: () => Desktop.setLookAndFeel("spatial-glass") },
+                                            { label: "🫧 Neumorphism (Soft UI)", action: () => Desktop.setLookAndFeel("neumorphism") },
+                                            { label: "⚡ Tactical HUD (Cyberdeck)", action: () => Desktop.setLookAndFeel("tactical-hud") }
+                                        ]
+                                    },
+                                    {
+                                        label: "☕ Ecossistema Swing & Java",
+                                        items: [
+                                            { label: "☕ Steel Metal (Classic Swing)", action: () => Desktop.setLookAndFeel("steel-metal") },
+                                            { label: "🌊 Ocean Metal (Steel Blue)", action: () => Desktop.setLookAndFeel("ocean-metal") },
+                                            { label: "✨ Nimbus Vector (Vibrant)", action: () => Desktop.setLookAndFeel("nimbus-vector") },
+                                            { label: "🎨 Modern IDE (Studio Dark/Light)", action: () => Desktop.setLookAndFeel("flatlaf-ide") },
+                                            { label: "🌿 Modena Soft (Enterprise)", action: () => Desktop.setLookAndFeel("modena-soft") },
+                                            { label: "🔷 Caspian Slate (Dark Blue)", action: () => Desktop.setLookAndFeel("caspian-dark") }
+                                        ]
+                                    },
+                                    {
+                                        label: "🕹️ Clássicos & Retro 3D",
+                                        items: [
+                                            { label: "🟡 Yellow Tab (Media OS)", action: () => Desktop.setLookAndFeel("yellow-tab") },
+                                            { label: "🪟 Modern Glass (Centro)", action: () => Desktop.setLookAndFeel("win11") },
+                                            { label: "🪟 Modern Glass 2 (Flutuante)", action: () => Desktop.setLookAndFeel("win11-2") },
+                                            { label: "🕹️ Retro 3D (Chanfrado)", action: () => Desktop.setLookAndFeel("retro-3d") },
+                                            { label: "🔵 Luna Classic (Azul & Verde)", action: () => Desktop.setLookAndFeel("luna-blue") },
+                                            { label: "🪟 Aero Glass (Translúcido)", action: () => Desktop.setLookAndFeel("aero-glass") },
+                                            { label: "⬛ Dark Slate Cube (Workstation)", action: () => Desktop.setLookAndFeel("next-dark") },
+                                            { label: "💾 Workbench Retro (Topaz)", action: () => Desktop.setLookAndFeel("workbench-boing") },
+                                            { label: "🍏 Platinum Classic (Monocromático)", action: () => Desktop.setLookAndFeel("platinum-classic") },
+                                            { label: "💿 Brushed Metal (Classic)", action: () => Desktop.setLookAndFeel("brushed-metal") },
+                                            { label: "💿 Brushed Metal 2 (Sophisticated)", action: () => Desktop.setLookAndFeel("brushed-metal-2") },
+                                            { label: "🟦 Warp Enterprise (Cobalt)", action: () => Desktop.setLookAndFeel("warp-enterprise") }
+                                        ]
+                                    },
+                                    {
+                                        label: "🐧 Desktops Unix & Abertos",
+                                        items: [
+                                            { label: "🟠 Aubergine Orange (Humanist)", action: () => Desktop.setLookAndFeel("aubergine-orange") },
+                                            { label: "🕊️ Pantheon Pure (Light Minimal)", action: () => Desktop.setLookAndFeel("pantheon-pure") },
+                                            { label: "🚀 Cosmic Teal (Modern Desktop)", action: () => Desktop.setLookAndFeel("cosmic-teal") },
+                                            { label: "🪟 Tiling Grid (Minimal Tiling)", action: () => Desktop.setLookAndFeel("tiling-grid") },
+                                            { label: "🐭 Greybird Lite (Lightweight)", action: () => Desktop.setLookAndFeel("greybird-lite") },
+                                            { label: "🌌 Fusion Neon (Compositor)", action: () => Desktop.setLookAndFeel("e-fusion") },
+                                            { label: "⬛ X11 Dark Box (NeXT-Style)", action: () => Desktop.setLookAndFeel("x11-box") },
+                                            { label: "🟣 Motif Panel (UNIX CDE)", action: () => Desktop.setLookAndFeel("motif-panel") },
+                                            { label: "🐧 Adwaita Slate (Clean Flat)", action: () => Desktop.setLookAndFeel("adwaita-slate") },
+                                            { label: "⚙️ Breeze Plasma (Glass Glow)", action: () => Desktop.setLookAndFeel("breeze-plasma") }
+                                        ]
+                                    },
+                                    {
+                                        label: "💻 Console & Sci-Fi",
+                                        items: [
+                                            { label: "📟 DOS TUI (Text Console)", action: () => Desktop.setLookAndFeel("turbo-tui") },
+                                            { label: "⚡ Cyber Neon (Matrix HUD)", action: () => Desktop.setLookAndFeel("cyberpunk-neon") }
+                                        ]
+                                    },
+                                    {
+                                        label: "🎨 Ilustração & Cartoon",
+                                        items: [
+                                            { label: "✏️ Comic Doodle (Pastel Sketch)", action: () => Desktop.setLookAndFeel("comic-doodle") }
+                                        ]
+                                    }
+                                ]
+                            },
+                        ]
+                    },
+                    "separator",
+                    { label: "Sobre (Lazy Load)", screen: "sobre" }
+                ]
+            }
+        ];
 
-            // Instancia o Menu Iniciar
-            StartMenu({
-                buttonId: "startBtn",
-                menus: globalSystemMenus
-            });
+        // Instancia o Menu Iniciar
+        StartMenu({
+            buttonId: "startBtn",
+            menus: globalSystemMenus
+        });
 
-            // Instancia a Barra de Menus Global
-            MenuBar({
-                containerId: "menubar",
-                position: "none",
-                menus: globalSystemMenus
-            });
+        // Instancia a Barra de Menus Global
+        MenuBar({
+            containerId: "menubar",
+            position: "none",
+            menus: globalSystemMenus
+        });
 
         Desktop.setContextMenu([
             { label: "Hub de Arquiteturas de Telas", action: () => Desktop.openScreen("hub_arquiteturas") },
