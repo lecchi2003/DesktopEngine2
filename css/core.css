@@ -1762,7 +1762,7 @@ textarea:focus,
     border: 1px solid var(--win-border);
     border-radius: 6px;
     overflow: hidden;
-    background: var(--win-bg);
+    background: var(--bg-primary, var(--win-bg));
 }
 
 .ui-table,
@@ -5065,9 +5065,9 @@ select option {
 }
 
 .ui-float-dial-label {
-    background: var(--win-bg, rgba(15, 23, 42, 0.95));
-    border: 1px solid var(--win-border, rgba(255, 255, 255, 0.15));
-    color: var(--text-primary, #ffffff);
+    background: var(--menu-bg, var(--win-bg, rgba(15, 23, 42, 0.95)));
+    border: 1px solid var(--menu-border, var(--win-border, rgba(255, 255, 255, 0.15)));
+    color: var(--menu-text, var(--text-primary, #ffffff));
     padding: 4px 10px;
     border-radius: 6px;
     font-size: 12px;
