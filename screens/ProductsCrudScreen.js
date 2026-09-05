@@ -661,7 +661,7 @@ export default {
                     columns: columns,
                     data: this.state.products
                 })
-            ], { style: "flex: 1; overflow: auto; padding: 8px;" })
+            ], { style: "flex: 1; overflow-y: auto; background: var(--bg-primary, #fff); border-radius: 8px; border: 1px solid var(--win-border);" })
         ]);
     }
 };

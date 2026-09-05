@@ -3,6 +3,7 @@
 import { createElement, applyCommonProps, resolveInstance } from './core-dom.js';
 import { Desktop } from '../desktop.js?v=2';
 import { EventBus, UIContext } from '../core.js?v=2';
+import { safeSetHTML } from './sanitize.js';
 
 
 export function ContextMenu({ x, y, items = [] }) {
@@ -902,22 +903,30 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
         bar.appendChild(item);
     });
 
-    document.addEventListener("mousedown", e => {
+    // [UI-003] Listener de documento com cleanup via _de_cleanup[]
+    // Evita leak progressivo quando múltiplas janelas com MenuBar são abertas/fechadas
+    const _onMenubarOutsideClick = (e) => {
         if (!bar.contains(e.target)) {
             bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
             isMenuOpen = false;
         }
-    });
+    };
+    document.addEventListener("mousedown", _onMenubarOutsideClick);
+    if (!bar._de_cleanup) bar._de_cleanup = [];
+    bar._de_cleanup.push(() => document.removeEventListener("mousedown", _onMenubarOutsideClick));
 
     if (isGlobalBar) {
-        EventBus.on("menubar:positionchange", (pos) => {
+        const _onPositionChange = (pos) => {
             bar.dataset.position = pos;
             if (pos === "none") {
                 bar.style.display = "none";
             } else {
                 bar.style.display = "";
             }
-        });
+        };
+        EventBus.on("menubar:positionchange", _onPositionChange);
+        // [UI-003] Registrar cleanup do EventBus.on para remover quando janela fechar
+        bar._de_cleanup.push(() => EventBus.off("menubar:positionchange", _onPositionChange));
     }
 
     return bar;
@@ -1267,7 +1276,8 @@ export function Drawer({ bind, side = "right", content, instance, targetContaine
         if (e.target === overlay) closeDrawer();
     };
 
-    if (typeof content === 'string') drawer.innerHTML = content;
+    // [SEC-001] safeSetHTML previne XSS em conteúdo de string do Drawer
+    if (typeof content === 'string') safeSetHTML(drawer, content);
     else if (content instanceof Node) drawer.appendChild(content);
     else if (Array.isArray(content)) content.forEach(c => drawer.appendChild(c));
 
@@ -1407,7 +1417,7 @@ export function DockWidget({
     headerActions.forEach(act => {
         const actBtn = createElement("button", "ui-dock-action-btn");
         if (act.title) actBtn.title = act.title;
-        if (typeof act.icon === 'string') actBtn.innerHTML = act.icon;
+        if (typeof act.icon === 'string') safeSetHTML(actBtn, act.icon);
         else if (act.icon instanceof Node) actBtn.appendChild(act.icon);
         actBtn.onclick = (e) => {
             e.stopPropagation();
@@ -1683,7 +1693,7 @@ export function FloatButton({
 
         const actionBtn = createElement("button", `ui-float-dial-btn variant-${act.variant || 'surface'}`);
         if (act.tooltip) actionBtn.title = act.tooltip;
-        if (typeof act.icon === 'string') actionBtn.innerHTML = act.icon;
+        if (typeof act.icon === 'string') safeSetHTML(actionBtn, act.icon);
         else if (act.icon instanceof Node) actionBtn.appendChild(act.icon);
 
         actionBtn.onclick = (e) => {
@@ -1815,12 +1825,16 @@ export function FloatButton({
         }
     };
 
-    // Fecha ao clicar fora
+    // [UI-005] AbortController substitui listener global permanente
+    // Acumular um listener por FloatButton criado causava leak em sessões longas
+    const _fabClickController = new AbortController();
     document.addEventListener("click", (e) => {
         if (!wrap.contains(e.target)) {
             wrap.classList.remove("open");
         }
-    });
+    }, { signal: _fabClickController.signal });
+    if (!wrap._de_cleanup) wrap._de_cleanup = [];
+    wrap._de_cleanup.push(() => _fabClickController.abort());
 
     wrap.appendChild(dial);
     wrap.appendChild(mainBtn);

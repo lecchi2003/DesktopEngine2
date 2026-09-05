@@ -1,6 +1,7 @@
 // ui/media.js
 // DesktopEngine V2.0
 import { createElement, applyCommonProps, resolveInstance } from './core-dom.js';
+import { safeSetHTML } from './sanitize.js';
 
 
 export function WebView({ bindUrl, instance, height = "100%" }) {
@@ -62,7 +63,8 @@ export function Carousel({ items = [], height = "200px", prevControl, nextContro
     items.forEach(item => {
         const slide = createElement("div", "ui-carousel-slide");
         if (typeof item === 'string') {
-            slide.innerHTML = item;
+            // [SEC-001] safeSetHTML para slides do Carousel
+            safeSetHTML(slide, item);
         } else if (item instanceof Node) {
             slide.appendChild(item);
         }
@@ -71,11 +73,11 @@ export function Carousel({ items = [], height = "200px", prevControl, nextContro
 
     if (prevControl && nextControl) {
         const btnPrev = createElement("div", "ui-carousel-control prev");
-        if (typeof prevControl === 'string') btnPrev.innerHTML = prevControl;
+        if (typeof prevControl === 'string') safeSetHTML(btnPrev, prevControl);
         else if (prevControl instanceof Node) btnPrev.appendChild(prevControl);
 
         const btnNext = createElement("div", "ui-carousel-control next");
-        if (typeof nextControl === 'string') btnNext.innerHTML = nextControl;
+        if (typeof nextControl === 'string') safeSetHTML(btnNext, nextControl);
         else if (nextControl instanceof Node) btnNext.appendChild(nextControl);
 
         btnPrev.onclick = () => {

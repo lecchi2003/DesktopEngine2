@@ -4,15 +4,11 @@ import { Desktop } from '../desktop.js?v=2';
 import { EventBus, UIContext, isSignal, effect } from '../core.js?v=2';
 import { bindContextMenu } from './navigation.js';
 
-
-export function resolveInstance(inst) {
-    return inst || UIContext.getCurrent() || null;
-}
-
-export function createElement(tag, arg2, arg3) {
-    const el = document.createElement(tag);
-
-    // Anexa a API programática de menu de contexto a todo elemento criado no framework
+/**
+ * [UI-006] Função privada única para anexar a API de menu de contexto a um elemento.
+ * Elimina a duplicação entre createElement e applyCommonProps.
+ */
+function _attachContextMenuAPI(el) {
     el.setContextMenu = (items) => {
         if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
             el._contextMenuController.destroy();
@@ -30,6 +26,19 @@ export function createElement(tag, arg2, arg3) {
         }
         return el._contextMenuController;
     };
+}
+
+
+export function resolveInstance(inst) {
+    return inst || UIContext.getCurrent() || null;
+}
+
+export function createElement(tag, arg2, arg3) {
+    const el = document.createElement(tag);
+
+
+    // [UI-006] Usa função centralizada — sem duplicação
+    _attachContextMenuAPI(el);
 
     let children = [];
     let pendingProps = null;
@@ -113,23 +122,8 @@ export function applyCommonProps(el, props) {
 
     // Suporte ao setContextMenu programático
     if (!el.setContextMenu) {
-        el.setContextMenu = (items) => {
-            if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
-                el._contextMenuController.destroy();
-            }
-            if (items) {
-                let menuItems = items;
-                let menuOptions = {};
-                if (items && !Array.isArray(items) && typeof items === 'object' && items.items) {
-                    menuItems = items.items;
-                    menuOptions = items;
-                }
-                el._contextMenuController = bindContextMenu(el, menuItems, menuOptions);
-            } else {
-                el._contextMenuController = null;
-            }
-            return el._contextMenuController;
-        };
+        // [UI-006] Reutiliza a função centralizada
+        _attachContextMenuAPI(el);
     }
 
     if (props.contextMenu || props.contextmenu) {
@@ -154,10 +148,10 @@ export function applyCommonProps(el, props) {
 }
 
 /**
- * Utilitário global do framework para imprimir apenas um elemento HTML específico.
- * Ele clona o HTML do elemento e os estilos da página atual para um iFrame oculto e dispara a impressão.
+ * [UI-002] Utilitário para imprimir um elemento HTML via iframe seguro.
+ * Usa DOM API (importNode + srcdoc) em vez do depreciado doc.write() + outerHTML,
+ * eliminando o vetor de XSS e a injeção de HTML não sanitizado.
  */
-
 export function printElement(element, options = {}) {
     const title = options.title || "Imprimir Documento";
     const target = typeof element === 'string' ? document.getElementById(element) : element;
@@ -167,47 +161,54 @@ export function printElement(element, options = {}) {
         return;
     }
 
+    // Usar srcdoc com HTML mínimo — evita doc.open()/doc.write()
     const iframe = document.createElement('iframe');
-    iframe.style.position = 'absolute';
-    iframe.style.width = '0px';
-    iframe.style.height = '0px';
-    iframe.style.border = 'none';
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.style.cssText = 'position:absolute;width:0;height:0;border:none;';
+    // srcdoc inicializa o documento de forma segura
+    iframe.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body></body></html>';
     document.body.appendChild(iframe);
 
-    const doc = iframe.contentWindow.document;
-    doc.open();
-
-    // Clona os estilos da página atual para o iframe de impressão
-    let stylesHtml = '';
-    document.querySelectorAll('style, link[rel="stylesheet"]').forEach(el => {
-        stylesHtml += el.outerHTML;
-    });
-
-    doc.write(`
-        <html>
-            <head>
-                <title>${title}</title>
-                ${stylesHtml}
-                <style>
-                    body { padding: 20px; font-family: sans-serif; background: white; }
-                    /* Esconde os redimensionadores ou UI desnecessária caso a pessoa imprima a janela toda */
-                    .resizeHandle, .winButtons, .titlebar, .statusbar { display: none !important; }
-                    .window { position: relative !important; left: 0 !important; top: 0 !important; border: none !important; box-shadow: none !important; }
-                </style>
-            </head>
-            <body>
-                ${target.outerHTML}
-            </body>
-        </html>
-    `);
-    doc.close();
-
-    const doPrint = () => {
+    const doSetup = () => {
         try {
+            const doc = iframe.contentDocument;
+            if (!doc) return;
+
+            // Ttulo seguro via textContent
+            doc.title = title;
+
+            // Clonar folhas de estilo externas (link) e internas (style) de forma segura
+            document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                const clone = doc.createElement('link');
+                clone.rel = 'stylesheet';
+                clone.href = link.href; // URL absoluta — sem injeção
+                doc.head.appendChild(clone);
+            });
+            document.querySelectorAll('style').forEach(style => {
+                const clone = doc.createElement('style');
+                clone.textContent = style.textContent; // textContent — sem innerHTML
+                doc.head.appendChild(clone);
+            });
+
+            // Estilos específicos de impressão
+            const printStyle = doc.createElement('style');
+            printStyle.textContent = [
+                'body { padding: 20px; font-family: sans-serif; background: white; }',
+                '.resizeHandle, .winButtons, .titlebar, .statusbar { display: none !important; }',
+                '.window { position: relative !important; left: 0 !important; top: 0 !important;',
+                '          border: none !important; box-shadow: none !important; }'
+            ].join('\n');
+            doc.head.appendChild(printStyle);
+
+            // Importar o elemento alvo de forma segura — sem outerHTML
+            const imported = doc.importNode(target, true);
+            doc.body.appendChild(imported);
+
+            // Disparar impressão
             iframe.contentWindow.focus();
             iframe.contentWindow.print();
         } catch (err) {
-            console.error("Erro na impressão: ", err);
+            console.error("Erro na impressão:", err);
         } finally {
             setTimeout(() => {
                 if (document.body.contains(iframe)) document.body.removeChild(iframe);
@@ -215,20 +216,14 @@ export function printElement(element, options = {}) {
         }
     };
 
-    // Tenta disparar logo no onload. Se falhar, tem um fallback
-    let printed = false;
+    // Aguardar o srcdoc carregar antes de manipular o DOM
+    let executed = false;
     iframe.onload = () => {
-        if (!printed) {
-            printed = true;
-            doPrint();
-        }
+        if (!executed) { executed = true; doSetup(); }
     };
-
+    // Fallback caso onload já tenha disparado (iframe sincronamente pronto)
     setTimeout(() => {
-        if (!printed) {
-            printed = true;
-            doPrint();
-        }
-    }, 500);
+        if (!executed) { executed = true; doSetup(); }
+    }, 300);
 }
 
