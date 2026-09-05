@@ -2,6 +2,7 @@
 //Autor: Gildasio Lecchi Cravo
 import { EventBus, Framework } from './core.js?v=2';
 import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js?v=2';
+import { safeHTML } from './ui/sanitize.js';
 
 export const Desktop = {
     windowsEl: null,
@@ -131,9 +132,13 @@ export const Desktop = {
         this._ensureShell(this.options);
 
         // Carrega Look and Feel persistido, por URL ou padrão
+        // [SEC-003] Valida o valor de ?laf= contra allowlist de temas conhecidos
         try {
             const urlParams = typeof window !== 'undefined' && window.location ? new URLSearchParams(window.location.search) : null;
-            const urlLaF = urlParams ? urlParams.get("laf") : null;
+            const rawUrlLaF = urlParams ? urlParams.get("laf") : null;
+            const validLaFs = new Set((this.getAvailableLookAndFeels?.() || []).map(t => t.id));
+            const urlLaF = rawUrlLaF && validLaFs.has(rawUrlLaF) ? rawUrlLaF : null;
+            if (rawUrlLaF && !urlLaF) console.warn(`[DesktopEngine] LaF inválido ignorado: "${rawUrlLaF}"`);
             const savedLaF = urlLaF || localStorage.getItem("desktop_engine_laf") || this.options.defaultLaF;
             this.setLookAndFeel(savedLaF, !urlLaF);
         } catch (e) {
@@ -141,8 +146,13 @@ export const Desktop = {
         }
 
         // Carrega Posição da Taskbar persistida ou padrão
+        // [SEC-007] Valida posição contra allowlist antes de usar
         try {
-            const savedTaskbar = localStorage.getItem("desktop_engine_taskbar_pos") || this.options.taskbarPosition || "bottom";
+            const _VALID_TASKBAR_POS = new Set(['top', 'bottom', 'left', 'right']);
+            const _rawTaskbar = localStorage.getItem("desktop_engine_taskbar_pos");
+            const savedTaskbar = (_rawTaskbar && _VALID_TASKBAR_POS.has(_rawTaskbar))
+                ? _rawTaskbar
+                : (this.options.taskbarPosition || "bottom");
             this.setTaskbarPosition(savedTaskbar, false);
         } catch (e) {
             this.setTaskbarPosition(this.options.taskbarPosition || "bottom", false);
@@ -302,6 +312,9 @@ export const Desktop = {
     },
 
     notify(message, type = "info") {
+        if (!this.notifyContainer) {
+            this.setupNotifyContainer();
+        }
         const toast = document.createElement("div");
         toast.className = `toast toast-${type}`;
         toast.textContent = message;
@@ -724,6 +737,11 @@ export const Desktop = {
 
         if (instance && typeof instance.onDestroy === 'function') {
             try { instance.onDestroy(); } catch (e) { console.error("Erro no hook onDestroy:", e); }
+        }
+
+        // [CORE-001] Libera effects reativos de ElementBuilders registrados na janela
+        if (instance && typeof instance._disposeEffects === 'function') {
+            try { instance._disposeEffects(); } catch (e) { console.warn('[DesktopEngine] Erro ao liberar effects da janela:', e); }
         }
 
         if (instance) {
@@ -1256,6 +1274,14 @@ export const Desktop = {
             return;
         }
 
+        // [SEC-003] Garante que apenas slugs de tema simples geram paths relativos seguros
+        // Rejeita qualquer valor que contenha '/', ':', '..', espaços ou caracteres especiais
+        const safeLafPattern = /^[a-zA-Z0-9_-]+$/;
+        if (!safeLafPattern.test(laf)) {
+            console.warn(`[DesktopEngine] loadThemeStylesheet: nome de tema inválido "${laf}" ignorado.`);
+            return;
+        }
+
         const themeHref = `css/themes/theme-${laf}.css`;
         if (!themeLink) {
             themeLink = document.createElement('link');
@@ -1360,15 +1386,21 @@ export const Desktop = {
         candidates.forEach(btn => {
             if (!btn) return;
 
-            let innerHtml = '';
+            // [CORE-004] Usar DOM seguro em vez de template literal com innerHTML
+            btn.innerHTML = '';
             if (startConfig.icon) {
-                innerHtml += `<span class="task-start-icon">${startConfig.icon}</span>`;
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'task-start-icon';
+                iconSpan.innerHTML = safeHTML(startConfig.icon);
+                btn.appendChild(iconSpan);
             }
             if (startConfig.showLabel && startConfig.label) {
-                innerHtml += `<span class="task-start-label">${startConfig.label}</span>`;
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'task-start-label';
+                labelSpan.textContent = startConfig.label;
+                btn.appendChild(labelSpan);
             }
 
-            btn.innerHTML = innerHtml;
             if (startConfig.tooltip) {
                 btn.title = startConfig.tooltip;
             }
@@ -1395,14 +1427,20 @@ export const Desktop = {
             if (!btn.classList.contains("taskShowDesktop")) {
                 btn.classList.add("taskShowDesktop");
             }
-            let innerHtml = '';
+            // [CORE-004] Usar DOM seguro para ícones/labels do botão Mostrar Área de Trabalho
+            btn.innerHTML = '';
             if (showDeskConfig.icon) {
-                innerHtml += `<span class="task-show-desktop-icon">${showDeskConfig.icon}</span>`;
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'task-show-desktop-icon';
+                iconSpan.innerHTML = safeHTML(showDeskConfig.icon);
+                btn.appendChild(iconSpan);
             }
             if (showDeskConfig.label) {
-                innerHtml += `<span class="task-show-desktop-label">${showDeskConfig.label}</span>`;
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'task-show-desktop-label';
+                labelSpan.textContent = showDeskConfig.label;
+                btn.appendChild(labelSpan);
             }
-            btn.innerHTML = innerHtml;
             btn.title = showDeskConfig.tooltip || "Mostrar Área de Trabalho";
             btn.setAttribute('data-laf-showdesktop', laf);
         });

@@ -1,1 +1,16 @@
 *.txt
+
+# [SEC-009] Arquivos sensíveis — nunca commitar no repositório
+*.db
+*.sqlite
+*.sqlite3
+database.db
+
+# Python
+api.py
+__pycache__/
+*.py[cod]
+
+# Temporários
+temp.js
+*.log

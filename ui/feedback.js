@@ -36,7 +36,12 @@ export function Modal({
     const content = [];
     const hasCloseBtn = (showCloseButton !== false && closable !== false);
 
+    // [UI-009] AbortController garante que o listener de Escape é sempre removido,
+    // mesmo que o modal seja destruído por um fechamento externo (janela pai fechada).
+    const escController = new AbortController();
+
     const closeModal = async () => {
+        escController.abort(); // Remove o listener de Escape imediatamente
         if (typeof beforeClose === 'function') {
             try {
                 const canClose = await beforeClose();
@@ -99,13 +104,21 @@ export function Modal({
 
     overlay.appendChild(dialog);
 
-    // Auto-close on escape (apenas se closable = true)
+    // [UI-009] Registrar listener de Escape com AbortController (auto-remove ao fechar)
     const escListener = (e) => {
-        if (e.key === 'Escape' && hasCloseBtn) {
-            closeModal();
-        }
+        if (e.key === 'Escape' && hasCloseBtn) closeModal();
     };
-    document.addEventListener('keydown', escListener);
+    document.addEventListener('keydown', escListener, { signal: escController.signal });
+
+    // [UI-009] Safety net: se o overlay for removido do DOM por um agente externo,
+    // aborta o controller para não deixar listener zombie no document.
+    const _escObserver = new MutationObserver(() => {
+        if (!document.contains(overlay)) {
+            escController.abort();
+            _escObserver.disconnect();
+        }
+    });
+    _escObserver.observe(document.body, { childList: true, subtree: true });
 
     // Resolve Container: se global for true ou se não tiver instance nem targetContainer, assume Desktop (#app)
     let container = targetContainer;
@@ -171,9 +184,8 @@ export function Toast({ message, type = "info", duration = 3000 }) {
 
     setTimeout(() => {
         toast.classList.remove("show");
-        toast.addEventListener('transitionend', () => {
-            toast.remove();
-        });
+        // [UI-008] { once: true } previne chamadas múltiplas se várias propriedades CSS animarem
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
     }, duration);
 }
 

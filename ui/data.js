@@ -3,6 +3,7 @@
 import { createElement, applyCommonProps, resolveInstance } from './core-dom.js';
 import { Button } from './forms.js';
 import { UIContext } from '../core.js?v=2';
+import { safeSetHTML } from './sanitize.js';
 
 
 export function Table(options = {}) {
@@ -16,7 +17,8 @@ export function Table(options = {}) {
             if (c.render) {
                 const td = document.createElement("td");
                 const result = c.render(val, row);
-                if (typeof result === 'string') td.innerHTML = result;
+                // [SEC-001] safeSetHTML para resultado de render() de coluna
+                if (typeof result === 'string') safeSetHTML(td, result);
                 else if (result instanceof Node) td.appendChild(result);
                 return td;
             }
@@ -304,7 +306,8 @@ export function DataGrid(options = {}) {
             if (c.render) {
                 const td = document.createElement("td");
                 const result = c.render(val, row);
-                if (typeof result === 'string') td.innerHTML = result;
+                // [SEC-001] safeSetHTML para resultado de render() do DataGrid
+                if (typeof result === 'string') safeSetHTML(td, result);
                 else if (result instanceof Node) td.appendChild(result);
                 tr.appendChild(td);
             } else {
@@ -323,7 +326,7 @@ export function DataGrid(options = {}) {
 
     const createBtn = (label, disabled, onClick) => {
         const btn = document.createElement("button");
-        btn.innerHTML = label;
+        safeSetHTML(btn, label);
         btn.className = "ui-pagination-btn";
         btn.disabled = disabled;
         btn.onclick = onClick;
@@ -377,12 +380,13 @@ export function Accordion({ items = [], instance }) {
 
         const content = createElement("div", "ui-accordion-content");
         if (typeof item.content === 'string') {
-            content.innerHTML = item.content;
+            // [SEC-001] safeSetHTML para conteúdo de Accordion
+            safeSetHTML(content, item.content);
         } else if (item.content instanceof Node) {
             content.appendChild(item.content);
         } else if (typeof item.content === 'function') {
             const res = item.content.call(inst || window);
-            if (typeof res === 'string') content.innerHTML = res;
+            if (typeof res === 'string') safeSetHTML(content, res);
             else if (res instanceof Node) content.appendChild(res);
         }
 

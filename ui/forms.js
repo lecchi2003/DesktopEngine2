@@ -24,11 +24,14 @@ export function Input({ label, bind, instance, type = "text", placeholder = "", 
 
     if (isSignal(bind)) {
         inp.value = bind.value !== undefined ? bind.value : "";
-        effect(() => {
+        // [UI-001] Guardar cleanup do effect no elemento para _disposeElementTree()
+        const stop = effect(() => {
             if (inp !== document.activeElement) {
                 inp.value = bind.value !== undefined ? bind.value : "";
             }
         });
+        if (!inp._de_cleanup) inp._de_cleanup = [];
+        inp._de_cleanup.push(stop);
         inp.addEventListener("input", (e) => {
             bind.value = e.target.value;
         });
@@ -63,11 +66,14 @@ export function Textarea({ label, bind, instance, placeholder = "", rows = 4, wi
 
     if (isSignal(bind)) {
         txt.value = bind.value !== undefined ? bind.value : "";
-        effect(() => {
+        // [UI-001] Guardar cleanup do effect
+        const stop = effect(() => {
             if (txt !== document.activeElement) {
                 txt.value = bind.value !== undefined ? bind.value : "";
             }
         });
+        if (!txt._de_cleanup) txt._de_cleanup = [];
+        txt._de_cleanup.push(stop);
         txt.addEventListener("input", (e) => {
             bind.value = e.target.value;
         });
@@ -119,9 +125,12 @@ export function Select({ label, bind, instance, options = [], onChange }) {
     });
 
     if (isSignal(bind)) {
-        effect(() => {
+        // [UI-001] Guardar cleanup do effect de Select
+        const stop = effect(() => {
             select.value = bind.value !== undefined ? bind.value : "";
         });
+        if (!select._de_cleanup) select._de_cleanup = [];
+        select._de_cleanup.push(stop);
         select.addEventListener("change", (e) => {
             bind.value = e.target.value;
             if (typeof onChange === 'function') onChange(e.target.value, e);
@@ -151,9 +160,12 @@ export function Checkbox({ label, bind, instance }) {
 
     if (isSignal(bind)) {
         inp.checked = !!bind.value;
-        effect(() => {
+        // [UI-001] Guardar cleanup do effect de Checkbox
+        const stop = effect(() => {
             inp.checked = !!bind.value;
         });
+        if (!inp._de_cleanup) inp._de_cleanup = [];
+        inp._de_cleanup.push(stop);
         inp.addEventListener("change", (e) => {
             bind.value = e.target.checked;
         });
@@ -179,9 +191,12 @@ export function Toggle({ label, bind, instance }) {
 
     if (isSignal(bind)) {
         inp.checked = !!bind.value;
-        effect(() => {
+        // [UI-001] Guardar cleanup do effect de Toggle
+        const stop = effect(() => {
             inp.checked = !!bind.value;
         });
+        if (!inp._de_cleanup) inp._de_cleanup = [];
+        inp._de_cleanup.push(stop);
         inp.addEventListener("change", (e) => {
             bind.value = e.target.checked;
         });
@@ -222,12 +237,15 @@ export function Slider({ label, bind, min = 0, max = 100, step = 1, instance }) 
     if (isSignal(bind)) {
         inp.value = bind.value !== undefined ? bind.value : min;
         updateDisplay(inp.value);
-        effect(() => {
+        // [UI-001] Guardar cleanup do effect de Slider
+        const stop = effect(() => {
             if (inp !== document.activeElement) {
                 inp.value = bind.value !== undefined ? bind.value : min;
                 updateDisplay(inp.value);
             }
         });
+        if (!inp._de_cleanup) inp._de_cleanup = [];
+        inp._de_cleanup.push(stop);
         inp.addEventListener("input", (e) => {
             updateDisplay(Number(e.target.value));
             bind.value = Number(e.target.value);
@@ -260,7 +278,8 @@ export function RadioGroup({ label, name, bind, options = [], instance, layout =
     if (label) wrap.appendChild(createElement("label", "ui-radiogroup-label", [label]));
 
     const container = createElement("div", `ui-radiogroup ui-radiogroup-${layout}`);
-    const groupName = name || `radio_${(bind && bind.name) || Math.random().toString(36).substr(2, 5)}`;
+    // [UI-007] crypto.randomUUID() é mais seguro e não usa .substr() depreciado
+    const groupName = name || `radio_${crypto.randomUUID().slice(0, 8)}`;
 
     options.forEach(opt => {
         const lbl = document.createElement("label");
@@ -273,9 +292,12 @@ export function RadioGroup({ label, name, bind, options = [], instance, layout =
 
         if (isSignal(bind)) {
             if (bind.value === inp.value) inp.checked = true;
-            effect(() => {
+            // [UI-001] Guardar cleanup do effect de RadioGroup por radio
+            const stop = effect(() => {
                 inp.checked = (bind.value === inp.value);
             });
+            if (!inp._de_cleanup) inp._de_cleanup = [];
+            inp._de_cleanup.push(stop);
             inp.addEventListener("change", (e) => {
                 if (e.target.checked) bind.value = inp.value;
             });
@@ -304,7 +326,8 @@ export function Autocomplete({ label, bind, options = [], instance, placeholder 
     const wrap = createElement("div", "ui-field ui-autocomplete-wrap");
     if (label) wrap.appendChild(createElement("label", "", [label]));
 
-    const listId = `dl_${Math.random().toString(36).substr(2, 5)}`;
+    // [UI-007] crypto.randomUUID() para IDs únicos sem Math.random().substr()
+    const listId = `dl_${crypto.randomUUID().slice(0, 8)}`;
     const chipsContainer = createElement("div", "ui-autocomplete-chips");
 
     const inp = document.createElement("input");
@@ -325,9 +348,12 @@ export function Autocomplete({ label, bind, options = [], instance, placeholder 
 
     if (isSignal(bind)) {
         inp.value = bind.value !== undefined ? bind.value : "";
-        effect(() => {
+        // [UI-001] Guardar cleanup do effect de Autocomplete
+        const stop = effect(() => {
             if (inp !== document.activeElement) inp.value = bind.value !== undefined ? bind.value : "";
         });
+        if (!inp._de_cleanup) inp._de_cleanup = [];
+        inp._de_cleanup.push(stop);
         inp.addEventListener("input", (e) => {
             bind.value = e.target.value;
         });

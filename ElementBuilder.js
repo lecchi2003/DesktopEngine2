@@ -2,6 +2,7 @@
 // Autor: Gildasio Lecchi Cravo
 import { UIContext, Framework, isSignal, effect } from './core.js?v=2';
 import * as UIComponents from './ui.js?v=2';
+import { safeSetHTML } from './ui/sanitize.js';
 
 /**
  * ElementBuilder: Construtor fluente e programático para elementos DOM e componentes de UI.
@@ -16,6 +17,9 @@ export class ElementBuilder {
         } else {
             this.el = document.createElement('div');
         }
+
+        // [CORE-001] Armazena cleanups de effects reativos para liberar na destruição
+        this._effects = [];
 
         if (options.className) this.class(options.className);
         if (options.text) this.text(options.text);
@@ -111,31 +115,49 @@ export class ElementBuilder {
             this.el.textContent = '';
             const textNode = document.createTextNode(txtOrSignal.value !== undefined ? String(txtOrSignal.value) : '');
             this.el.appendChild(textNode);
-            effect(() => {
+            // [CORE-001] Guarda o cleanup para ser chamado em dispose()
+            const stop = effect(() => {
                 textNode.textContent = txtOrSignal.value !== undefined ? String(txtOrSignal.value) : '';
             });
+            this._effects.push(stop);
             return this;
         }
         this.el.textContent = txtOrSignal !== undefined && txtOrSignal !== null ? String(txtOrSignal) : '';
         return this;
     }
 
-    /** Define o HTML interno */
+    /**
+     * Define o HTML interno de forma INSEGURA (sem sanitização).
+     * ⚠️ Use apenas com conteúdo 100% controlado pelo desenvolvedor.
+     * Para conteúdo externo ou de usuário, use .safeHtml() em vez deste método.
+     */
     html(markup) {
         this.el.innerHTML = markup !== undefined && markup !== null ? String(markup) : '';
+        return this;
+    }
+
+    /**
+     * Define o HTML interno com sanitização automática (recomendado para conteúdo externo).
+     * [CORE-005] Alternativa segura ao método .html()
+     */
+    safeHtml(markup) {
+        safeSetHTML(this.el, markup !== undefined && markup !== null ? String(markup) : '');
         return this;
     }
 
     /** Exibe ou oculta o elemento condicionalmente (suporta Signal booleano ou função) */
     showIf(conditionOrSignal) {
         if (isSignal(conditionOrSignal)) {
-            effect(() => {
+            // [CORE-001] Guarda cleanup
+            const stop = effect(() => {
                 this.el.style.display = conditionOrSignal.value ? '' : 'none';
             });
+            this._effects.push(stop);
         } else if (typeof conditionOrSignal === 'function') {
-            effect(() => {
+            const stop = effect(() => {
                 this.el.style.display = conditionOrSignal() ? '' : 'none';
             });
+            this._effects.push(stop);
         } else {
             this.el.style.display = conditionOrSignal ? '' : 'none';
         }
@@ -180,18 +202,21 @@ export class ElementBuilder {
         if (isSignal(signalOrStateKey)) {
             const sig = signalOrStateKey;
             if (this.el.type === 'checkbox') {
-                effect(() => {
+                // [CORE-001] Guarda cleanup do effect de binding
+                const stop = effect(() => {
                     this.el.checked = !!sig.value;
                 });
+                this._effects.push(stop);
                 this.el.addEventListener('change', (e) => {
                     sig.value = e.target.checked;
                 });
             } else if ('value' in this.el) {
-                effect(() => {
+                const stop = effect(() => {
                     if (this.el !== document.activeElement) {
                         this.el.value = sig.value !== undefined ? sig.value : '';
                     }
                 });
+                this._effects.push(stop);
                 this.el.addEventListener('input', (e) => {
                     sig.value = e.target.value;
                 });
@@ -242,9 +267,11 @@ export class ElementBuilder {
             if (isSignal(child)) {
                 const textNode = document.createTextNode(child.value !== undefined ? String(child.value) : '');
                 this.el.appendChild(textNode);
-                effect(() => {
+                // [CORE-001] Guarda cleanup de Signal filho reativo
+                const stop = effect(() => {
                     textNode.textContent = child.value !== undefined ? String(child.value) : '';
                 });
+                this._effects.push(stop);
             } else if (child instanceof ElementBuilder) {
                 this.el.appendChild(child.build());
             } else if (child instanceof Node) {
@@ -272,6 +299,20 @@ export class ElementBuilder {
     /** Getter conveniente para acessar o DOM nativo */
     get node() {
         return this.el;
+    }
+
+    /**
+     * [CORE-001] Libera todos os effects reativos registrados neste builder.
+     * Chamar quando o componente pai for destruído (onDestroy da janela).
+     * Propaga o dispose para builders filhos registrados.
+     */
+    dispose() {
+        this._effects.forEach(stop => {
+            if (typeof stop === 'function') {
+                try { stop(); } catch (e) { console.warn('[ElementBuilder] Erro ao limpar effect:', e); }
+            }
+        });
+        this._effects = [];
     }
 }
 

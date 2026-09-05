@@ -4,6 +4,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <!-- [SEC-008] Content Security Policy — defesa contra XSS no browser -->
+    <!-- Nota: 'unsafe-inline' em script-src é necessário para os blocos <script type="module"> inline.
+         Para ambientes de produção com servidor próprio, substituir por nonce ou hash. -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self' 'unsafe-inline';
+                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                   font-src 'self' https://fonts.gstatic.com;
+                   img-src 'self' data: blob: https:;
+                   worker-src blob:;
+                   connect-src 'self';
+                   object-src 'none';
+                   base-uri 'self';">
     <title>Desktop Engine V2.0 - Ultimate Showcase</title>
     <!-- DesktopEngine V2.0: CSS Modular & Temas Sob Demanda -->
     <link rel="stylesheet" href="./css/core.css?v=2">

@@ -1,5 +1,27 @@
 // core.js
 //Autor: Gildasio Lecchi Cravo
+// [CORE-003] Import do sanitizador para config.view como string
+import { safeSetHTML } from './ui/sanitize.js';
+
+/**
+ * [UI-001/UI-003/UI-005] Helper global para limpar effects e listeners registrados em elementos DOM.
+ * Percorre a árvore DOM a partir de `root` chamando `_de_cleanup` em cada elemento que o possuir.
+ * Componentes de UI registram seus cleanups assim: `el._de_cleanup = [stop1, stop2]`
+ * @param {Element} root
+ */
+export function _disposeElementTree(root) {
+    if (!root || !(root instanceof Element)) return;
+    const walk = (el) => {
+        if (el._de_cleanup) {
+            const fns = Array.isArray(el._de_cleanup) ? el._de_cleanup : [el._de_cleanup];
+            fns.forEach(fn => { try { if (typeof fn === 'function') fn(); } catch (e) { console.warn('[DesktopEngine] cleanup error:', e); } });
+            el._de_cleanup = [];
+        }
+    };
+    walk(root);
+    root.querySelectorAll('*').forEach(walk);
+}
+
 // --- Event Bus (Pub/Sub com suporte a LocalStorage) ---
 export const EventBus = {
     listeners: {},
@@ -9,7 +31,14 @@ export const EventBus = {
         window.addEventListener('storage', (e) => {
             if (e.key === 'desktop_event_bus' && e.newValue) {
                 try {
-                    const { event, payload } = JSON.parse(e.newValue);
+                    const parsed = JSON.parse(e.newValue);
+                    // [SEC-002] Validar assinatura de versão e event contra allowlist
+                    if (parsed._v !== 'DE2.0') return;
+                    const { event, payload } = parsed;
+                    if (typeof event !== 'string' || !EventBus._allowedEvents.has(event)) {
+                        console.warn('[EventBus] Evento inter-aba rejeitado:', event);
+                        return;
+                    }
                     this.emitLocal(event, payload);
                 } catch (err) {
                     console.error("Erro ao processar evento do EventBus:", err);
@@ -17,6 +46,17 @@ export const EventBus = {
             }
         });
     },
+
+    // Eventos permitidos para sincronização entre abas (allowlist de segurança)
+    _allowedEvents: new Set([
+        'laf:change',
+        'taskbar:change', 'taskbar:positionchange',
+        'menubar:change', 'menubar:positionchange', 'menubar:modechange',
+        'responsive:change', 'startmenu:sync',
+        'window:open', 'window:close', 'window:minimize', 'window:maximize',
+        'desktop:ready', 'desktop:modechange', 'desktop:configloaded', 'desktop:configimported',
+        'screen:navigate'
+    ]),
 
     on(event, callback) {
         if (!this.listeners[event]) this.listeners[event] = [];
@@ -40,10 +80,12 @@ export const EventBus = {
         this.emitLocal(event, payload);
         
         // Persistência no LocalStorage para sincronizar entre abas
+        // [SEC-002] Inclui tag de versão para validar na escuta
         localStorage.setItem('desktop_event_bus', JSON.stringify({
             event,
             payload,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            _v: 'DE2.0'
         }));
     }
 };
@@ -133,7 +175,8 @@ export function effect(fn) {
 
 export function computed(fn) {
     const computedSignal = signal(undefined);
-    effect(() => {
+    // [CORE-009] Salvar o cleanup do effect interno para permitir dispose()
+    const stopEffect = effect(() => {
         computedSignal.value = fn();
     });
     return {
@@ -146,6 +189,10 @@ export function computed(fn) {
         },
         subscribe(cb) {
             return computedSignal.subscribe(cb);
+        },
+        /** Destrói o computed, cancelando a subscrição reativa interna */
+        dispose() {
+            stopEffect();
         },
         toString() {
             return String(this.value);
@@ -161,6 +208,8 @@ export function createStore(initialObj = {}) {
     for (const key of Object.keys(initialObj)) {
         signals[key] = signal(initialObj[key]);
     }
+    // [CORE-006] Guard contra keys perigosas (prototype pollution)
+    const _BLOCKED_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
     return new Proxy(initialObj, {
         get(target, prop) {
             if (prop === '$signals') return signals;
@@ -177,6 +226,8 @@ export function createStore(initialObj = {}) {
             return target[prop];
         },
         set(target, prop, val) {
+            // [CORE-006] Bloquear chaves perigosas para evitar prototype pollution
+            if (typeof prop !== 'string' || _BLOCKED_KEYS.has(prop)) return true;
             target[prop] = val;
             if (!signals[prop]) {
                 signals[prop] = signal(val);
@@ -202,6 +253,13 @@ export const UIContext = {
         this._current = instance;
     },
 
+    /**
+     * Executa uma função com um contexto de instância de janela definido.
+     * ⚠️ [CORE-008] Limitação com async/await: o contexto é restaurado sincronamente
+     * no bloco `finally`, antes de qualquer `await` interno ser resolvido.
+     * Se precisar de contexto async correto, passe `UIContext.getCurrent()` explicitamente
+     * para funções assíncronas filhas.
+     */
     runWith(instance, fn) {
         this._stack.push(this._current);
         this._current = instance;
@@ -259,13 +317,40 @@ export class BaseComponent {
         return this.el;
     }
 
+    // [CORE-011] Preserva foco e posição do cursor durante re-renders (mesmo padrão do createWindow)
     update() {
         if (!this.el || !this.el.parentNode) return;
         const oldEl = this.el;
+
+        // Salvar estado de foco antes de recriar o DOM
+        const activeElement = document.activeElement;
+        let focusedId = null;
+        let selStart = null;
+        let selEnd = null;
+        if (activeElement && oldEl.contains(activeElement)) {
+            focusedId = activeElement.id || activeElement.dataset?.bind || null;
+            if (typeof activeElement.selectionStart === 'number') {
+                selStart = activeElement.selectionStart;
+                selEnd = activeElement.selectionEnd;
+            }
+        }
+
         const newEl = this.render();
         if (oldEl && newEl && oldEl.parentNode) {
             oldEl.parentNode.replaceChild(newEl, oldEl);
             this.el = newEl;
+
+            // Restaurar foco e posição do cursor sem perder a digitação
+            if (focusedId) {
+                const elToFocus = newEl.querySelector(`#${focusedId}, [data-bind="${focusedId}"]`);
+                if (elToFocus) {
+                    elToFocus.focus();
+                    if (selStart !== null && typeof elToFocus.setSelectionRange === 'function') {
+                        elToFocus.setSelectionRange(selStart, selEnd);
+                    }
+                }
+            }
+
             if (typeof this.onUpdate === 'function') {
                 try { this.onUpdate(); } catch (e) { console.error("Erro no hook onUpdate de BaseComponent:", e); }
             }
@@ -362,6 +447,36 @@ export const Framework = {
             el: null, // Elemento raiz (conteúdo da janela)
             windowEl: null, // Elemento físico da janela (container)
 
+            // [CORE-001] Sistema de rastreamento de effects reativos da janela
+            _effectCleanups: [],
+
+            /**
+             * Registra um cleanup de effect para ser chamado quando a janela for fechada.
+             * @param {Function} stopFn — função retornada por effect()
+             */
+            registerEffect(stopFn) {
+                if (typeof stopFn === 'function') this._effectCleanups.push(stopFn);
+                return stopFn;
+            },
+
+            /** Registra múltiplos cleanups de uma vez */
+            registerEffects(...stopFns) {
+                stopFns.flat().forEach(fn => this.registerEffect(fn));
+            },
+
+            /** Chamado automaticamente pelo Desktop.closeWindow() para liberar todos os effects */
+            _disposeEffects() {
+                // 1. Effects registrados manualmente via registerEffect()
+                this._effectCleanups.forEach(stop => {
+                    try { stop(); } catch (e) { console.warn('[DesktopEngine] Erro ao liberar effect:', e); }
+                });
+                this._effectCleanups = [];
+
+                // 2. [UI-001/UI-003/UI-005] Percorre o DOM da janela liberando cleanups de componentes UI
+                //    (forms.js, navigation.js, etc. registram em el._de_cleanup[])
+                if (this.el) _disposeElementTree(this.el);
+            },
+
             $signal(prop, initialValue = undefined) {
                 return this.signals[prop];
             },
@@ -426,9 +541,9 @@ export const Framework = {
                         this.el = node;
                         return node;
                     }
-                    // Fallback para conteúdo estático
+                    // [CORE-003] Fallback para conteúdo estático: sanitizado antes de inserir no DOM
                     const div = document.createElement('div');
-                    div.innerHTML = config.view || '';
+                    safeSetHTML(div, config.view || '');
                     this.el = div;
                     return div;
                 });

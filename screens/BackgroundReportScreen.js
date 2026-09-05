@@ -101,7 +101,10 @@ export default {
         `;
 
         const blob = new Blob([workerCode], { type: 'application/javascript' });
-        const worker = new Worker(URL.createObjectURL(blob));
+        // [SEC-005] Revogar a URL imediatamente após criar o Worker para evitar memory leak
+        const _workerUrl = URL.createObjectURL(blob);
+        const worker = new Worker(_workerUrl);
+        URL.revokeObjectURL(_workerUrl);
         this.state.workerRef = worker;
 
         worker.onmessage = (e) => {
