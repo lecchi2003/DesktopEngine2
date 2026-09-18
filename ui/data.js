@@ -2,7 +2,7 @@
 // DesktopEngine V2.0
 import { createElement, applyCommonProps, resolveInstance } from './core-dom.js';
 import { Button } from './forms.js';
-import { UIContext } from '../core.js?v=2';
+import { UIContext } from '../core.js?v=3';
 import { safeSetHTML } from './sanitize.js';
 
 

@@ -1,7 +1,7 @@
 // ui/core-dom.js
 // DesktopEngine V2.0
-import { Desktop } from '../desktop.js?v=2';
-import { EventBus, UIContext, isSignal, effect } from '../core.js?v=2';
+import { Desktop } from '../desktop.js?v=3';
+import { EventBus, UIContext, isSignal, effect } from '../core.js?v=3';
 import { bindContextMenu } from './navigation.js';
 
 /**

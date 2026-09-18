@@ -55,7 +55,8 @@ export const EventBus = {
         'responsive:change', 'startmenu:sync',
         'window:open', 'window:close', 'window:minimize', 'window:maximize',
         'desktop:ready', 'desktop:modechange', 'desktop:configloaded', 'desktop:configimported',
-        'screen:navigate'
+        'screen:navigate',
+        'auth:login', 'auth:logout', 'auth:change'
     ]),
 
     on(event, callback) {
@@ -517,7 +518,10 @@ export const Framework = {
                 const next = async () => {
                     if (index < steps.length) {
                         await UIContext.runWith(this, async () => {
-                            await steps[index++](context, next);
+                            const stepFn = steps[index++];
+                            if (typeof stepFn === 'function') {
+                                await stepFn.call(this, context, next, eventPayload);
+                            }
                         });
                     }
                 };
@@ -536,16 +540,20 @@ export const Framework = {
 
             render() {
                 return UIContext.runWith(this, () => {
+                    let node;
                     if (typeof config.view === 'function') {
-                        const node = config.view.call(this);
-                        this.el = node;
-                        return node;
+                        node = config.view.call(this);
+                    } else {
+                        // [CORE-003] Fallback para conteúdo estático: sanitizado antes de inserir no DOM
+                        const div = document.createElement('div');
+                        safeSetHTML(div, config.view || '');
+                        node = div;
                     }
-                    // [CORE-003] Fallback para conteúdo estático: sanitizado antes de inserir no DOM
-                    const div = document.createElement('div');
-                    safeSetHTML(div, config.view || '');
-                    this.el = div;
-                    return div;
+                    if (node && node instanceof Element) {
+                        applySecurityPolicies(node);
+                    }
+                    this.el = node;
+                    return node;
                 });
             },
 
@@ -792,3 +800,133 @@ export const Framework = {
         return instance;
     }
 };
+
+// --- Security & RBAC Engine (Zero-Trust Security Service) ---
+export const SecurityService = {
+    _user: signal(null),
+    _permissions: signal(new Set()),
+    _roles: signal(new Set()),
+
+    /**
+     * Inicializa ou atualiza a sessão de autenticação
+     * @param {Object} session - { user: any, roles: string[], permissions: string[] }
+     * @param {boolean} emitEvent - Se deve emitir evento de mudança no EventBus
+     */
+    init(session = {}, emitEvent = true) {
+        this._user.value = session?.user || null;
+        this._permissions.value = new Set(session?.permissions || []);
+        this._roles.value = new Set(session?.roles || []);
+
+        if (emitEvent) {
+            EventBus.emit('auth:change', {
+                user: this._user.value,
+                roles: Array.from(this._roles.value),
+                permissions: Array.from(this._permissions.value)
+            });
+            if (this._user.value) {
+                EventBus.emit('auth:login', this._user.value);
+            }
+        }
+    },
+
+    /**
+     * Retorna o usuário logado atualmente (ou null)
+     */
+    getUser() {
+        return this._user.value;
+    },
+
+    /**
+     * Retorna o array de papéis (roles) do usuário
+     */
+    getRoles() {
+        return Array.from(this._roles.value);
+    },
+
+    /**
+     * Retorna o array de permissões do usuário
+     */
+    getPermissions() {
+        return Array.from(this._permissions.value);
+    },
+
+    /**
+     * Verifica se o usuário autenticado possui uma determinada permissão.
+     * Se for ADMIN, possui autorização universal.
+     * @param {string} permission
+     * @returns {boolean}
+     */
+    can(permission) {
+        if (!permission) return true;
+        if (this._roles.value.has('ADMIN')) return true;
+        return this._permissions.value.has(permission);
+    },
+
+    /**
+     * Verifica se o usuário autenticado possui determinado papel (role).
+     * @param {string} role
+     * @returns {boolean}
+     */
+    hasRole(role) {
+        if (!role) return true;
+        return this._roles.value.has(role);
+    },
+
+    /**
+     * Encerra a sessão e notifica os ouvintes
+     */
+    logout(emitEvent = true) {
+        const prevUser = this._user.value;
+        this._user.value = null;
+        this._permissions.value = new Set();
+        this._roles.value = new Set();
+
+        if (emitEvent) {
+            EventBus.emit('auth:logout', prevUser);
+            EventBus.emit('auth:change', { user: null, roles: [], permissions: [] });
+        }
+    }
+};
+
+/**
+ * Higieniza elementos que possuem atributos declarativos de segurança (data-permission e data-role)
+ * @param {Element|Node} rootEl
+ */
+export function applySecurityPolicies(rootEl) {
+    if (!rootEl || !(rootEl instanceof Element)) return;
+    
+    const targets = [];
+    if (rootEl.hasAttribute && (rootEl.hasAttribute('data-permission') || rootEl.hasAttribute('data-role'))) {
+        targets.push(rootEl);
+    }
+    if (rootEl.querySelectorAll) {
+        targets.push(...Array.from(rootEl.querySelectorAll('[data-permission], [data-role]')));
+    }
+
+    targets.forEach(el => {
+        const perm = el.getAttribute('data-permission');
+        const role = el.getAttribute('data-role');
+        const behavior = el.getAttribute('data-auth-behavior') || 'remove';
+
+        let allowed = true;
+        if (perm && !SecurityService.can(perm)) allowed = false;
+        if (role && !SecurityService.hasRole(role)) allowed = false;
+
+        if (!allowed) {
+            if (behavior === 'remove') {
+                const comment = document.createComment(`[Acesso Restrito: ${perm || role}]`);
+                if (el.parentNode) {
+                    el.parentNode.replaceChild(comment, el);
+                } else {
+                    el.remove();
+                }
+            } else {
+                el.setAttribute('disabled', 'true');
+                el.classList.add('is-disabled');
+                el.setAttribute('title', el.getAttribute('title') || 'Acesso restrito');
+                el.style.pointerEvents = 'none';
+                el.style.opacity = '0.5';
+            }
+        }
+    });
+}

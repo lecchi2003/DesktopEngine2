@@ -14,7 +14,7 @@
                    font-src 'self' https://fonts.gstatic.com;
                    img-src 'self' data: blob: https:;
                    worker-src blob:;
-                   connect-src 'self';
+                   connect-src 'self' http://localhost:* http://127.0.0.1:*;
                    object-src 'none';
                    base-uri 'self';">
     <title>Desktop Engine V2.0 - Ultimate Showcase</title>
@@ -28,7 +28,7 @@
     <div id="app"></div>
 
     <script type="module">
-        import { Framework, EventBus, signal, computed, effect, createStore } from './core.js?v=3';
+        import { Framework, EventBus, signal, computed, effect, createStore, SecurityService } from './core.js?v=3';
         import { Desktop } from './desktop.js?v=3';
         import {
             MenuBar, StartMenu, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
@@ -1203,6 +1203,10 @@
 
         // --- REGISTRO DE TELAS (Screen Registry & Lazy Loading) ---
         Desktop.registerScreens({
+            // Central de Segurança & RBAC Zero-Trust
+            "security_rbac": () => import('./screens/SecurityRbacScreen.js'),
+            "painel_financeiro_restrito": () => import('./screens/PainelFinanceiroRestritoScreen.js'),
+
             // Framework Híbrido & ElementBuilder Showcase
             "modern_hybrid": () => import('./screens/ModernHybridShowcaseScreen.js'),
 
@@ -1241,10 +1245,16 @@
             scroll: false,
             alignH: 'left',
             alignV: 'top',
-            shortcutSize: '80px',
-            gap: '6px',
+            shortcutSize: '84px',
+            gap: '10px',
             passthroughPointer: true,
             shortcuts: [
+                Shortcut({
+                    label: 'Segurança & RBAC',
+                    icon: '🛡️',
+                    type: 'app',
+                    action: () => Desktop.openScreen('security_rbac')
+                }),
                 Shortcut({
                     label: 'Framework Híbrido',
                     icon: '⚡',
@@ -1290,6 +1300,14 @@
             ]
         });
 
+
+        // Inicialização da Sessão de Segurança Padrão (RBAC)
+        SecurityService.init({
+            user: "admin",
+            name: "Administrador Geral",
+            roles: ["ADMIN"],
+            permissions: ["products:view", "products:create", "products:edit", "products:delete", "financeiro:view", "audit:view"]
+        }, false);
 
         // Abre telas iniciais demonstrativas via Screen Registry
         setTimeout(() => {
@@ -1354,6 +1372,12 @@
             variant: "primary",
             draggable: true,
             actions: [
+                {
+                    icon: "🛡️",
+                    label: "Segurança & RBAC",
+                    variant: "danger",
+                    action: () => Desktop.openScreen('security_rbac')
+                },
                 {
                     icon: "⚡",
                     label: "Framework Híbrido",

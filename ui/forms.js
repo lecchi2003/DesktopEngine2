@@ -1,7 +1,7 @@
 // ui/forms.js
 // DesktopEngine V2.0
 import { createElement, applyCommonProps, resolveInstance } from './core-dom.js';
-import { UIContext, isSignal, effect } from '../core.js?v=2';
+import { UIContext, isSignal, effect } from '../core.js?v=3';
 
 export function Form({ fields = [], actions = [] }) {
     const content = [];
