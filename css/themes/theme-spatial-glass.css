@@ -112,30 +112,55 @@
 
 [data-laf="spatial-glass"] #menubar,
 [data-laf="spatial-glass"] .ui-menubar {
-    background: var(--bg-secondary);
-    backdrop-filter: blur(30px);
-    border-bottom: 1px solid var(--win-border);
-    color: var(--text-primary);
+    background: rgba(22, 22, 24, 0.82) !important;
+    backdrop-filter: blur(32px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(32px) saturate(190%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.13) !important;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35) !important;
+    color: #ffffff !important;
 }
 
 [data-laf="spatial-glass"] #taskbar {
-    background: var(--bg-secondary);
-    backdrop-filter: blur(30px);
-    border-top: 1px solid var(--win-border);
-    color: var(--text-primary);
+    background: rgba(22, 22, 24, 0.82) !important;
+    backdrop-filter: blur(32px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(32px) saturate(190%) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.13) !important;
+    box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.35) !important;
+    color: #ffffff !important;
 }
+
+/* Itens da menubar — texto e ícones brancos para combinar com os dropdowns */
+[data-laf="spatial-glass"] .menubar-item {
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+[data-laf="spatial-glass"] .menubar-item-label,
+[data-laf="spatial-glass"] .menubar-item-icon {
+    color: #ffffff !important;
+}
+
+[data-laf="spatial-glass"] .menubar-item:hover,
+[data-laf="spatial-glass"] .menubar-item.active {
+    background: rgba(255, 255, 255, 0.14) !important;
+    color: #ffffff !important;
+}
+
 
 [data-laf="spatial-glass"] .taskButton {
     border-radius: 16px;
-    background: rgba(128, 128, 128, 0.18);
-    border: 1px solid var(--win-border);
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.10) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: rgba(255, 255, 255, 0.90) !important;
 }
 
 [data-laf="spatial-glass"] .taskButton.active {
-    background: var(--btn-primary);
-    color: #ffffff;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    background: rgba(99, 102, 241, 0.75) !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45) !important;
 }
 
 [data-laf="spatial-glass"] .ui-start-menu,
@@ -342,3 +367,29 @@
 [data-laf="spatial-glass"] .bottom-sheet-handle {
     background: rgba(255, 255, 255, 0.4) !important;
 }
+
+/* Relógio e botões auxiliares da taskbar */
+[data-laf="spatial-glass"] #clock,
+[data-laf="spatial-glass"] .clock,
+[data-laf="spatial-glass"] #taskbar .clock {
+    color: rgba(255, 255, 255, 0.92) !important;
+    font-weight: 600 !important;
+}
+
+[data-laf="spatial-glass"] #startBtn,
+[data-laf="spatial-glass"] .start-btn,
+[data-laf="spatial-glass"] #showDesktop,
+[data-laf="spatial-glass"] .show-desktop-btn {
+    color: rgba(255, 255, 255, 0.90) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 10px !important;
+}
+
+[data-laf="spatial-glass"] #startBtn:hover,
+[data-laf="spatial-glass"] .start-btn:hover,
+[data-laf="spatial-glass"] #showDesktop:hover,
+[data-laf="spatial-glass"] .show-desktop-btn:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    color: #ffffff !important;
+}
