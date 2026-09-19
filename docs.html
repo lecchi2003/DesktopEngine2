@@ -4,31 +4,43 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Documentação Completa - DesktopEngine V2.0</title>
+    <title>Documentação Completa - DesktopEngine V2.1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"
         rel="stylesheet">
+    <!-- PrismJS Theme for Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <style>
         :root {
             --primary: #4F46E5;
             --primary-dark: #3730a3;
-            --primary-light: #e0e7ff;
+            --primary-light: #eef2ff;
+            --primary-glow: rgba(79, 70, 229, 0.15);
             --surface: #ffffff;
             --background: #f8fafc;
+            --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            --code-bg: #0f172a;
-            --code-color: #f1f5f9;
-            --code-keyword: #818cf8;
-            --code-string: #34d399;
-            --code-comment: #94a3b8;
-            --radius: 8px;
-            --sidebar-width: 290px;
+            --border-hover: #cbd5e1;
+            --code-bg: #0d1117;
+            --code-header-bg: #161b22;
+            --code-color: #f0f6fc;
+            --radius-sm: 6px;
+            --radius: 10px;
+            --radius-lg: 14px;
+            --sidebar-width: 310px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+            --shadow-code: 0 12px 24px -4px rgba(0, 0, 0, 0.25);
         }
 
         * {
             box-sizing: border-box;
+            scroll-behavior: smooth;
         }
 
         body {
@@ -36,60 +48,192 @@
             background-color: var(--surface);
             color: var(--text-main);
             margin: 0;
-            line-height: 1.6;
+            line-height: 1.65;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* Scroll Progress Bar */
+        #readingProgress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4F46E5, #06b6d4, #10b981);
+            width: 0%;
+            z-index: 2000;
+            transition: width 0.1s ease;
+        }
+
+        /* Top Navbar */
         .navbar {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             color: white;
-            padding: 1rem 2rem;
-            font-weight: 700;
-            font-size: 1.25rem;
+            padding: 0.75rem 2rem;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .navbar .badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            text-decoration: none;
         }
 
+        .navbar-brand span {
+            background: linear-gradient(135deg, #818cf8, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar .badge {
+            background: rgba(99, 102, 241, 0.25);
+            border: 1px solid rgba(129, 140, 248, 0.4);
+            color: #c7d2fe;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .nav-btn.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .nav-btn.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Layout */
         .layout {
             display: flex;
             flex: 1;
         }
 
+        /* Sidebar Navigation */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--background);
             border-right: 1px solid var(--border);
-            padding: 1.5rem 1rem 3rem;
+            padding: 1.25rem 1rem 3rem;
             position: sticky;
-            top: 60px;
-            height: calc(100vh - 60px);
+            top: 55px;
+            height: calc(100vh - 55px);
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        /* Search Box in Sidebar */
+        .sidebar-search-box {
+            position: relative;
+            margin-bottom: 1.2rem;
+        }
+
+        .sidebar-search-box input {
+            width: 100%;
+            padding: 8px 32px 8px 12px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.84rem;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar-search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .sidebar-search-box .search-shortcut {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 5px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-results-info {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: -0.6rem 0 0.8rem 0.4rem;
+            display: none;
         }
 
         .sidebar a {
-            display: block;
-            padding: 0.4rem 0.8rem;
-            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            padding: 0.45rem 0.8rem;
+            color: #475569;
             text-decoration: none;
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             margin-bottom: 0.15rem;
-            font-size: 0.88rem;
+            font-size: 0.86rem;
+            font-weight: 450;
             transition: all 0.15s ease;
+            border-left: 3px solid transparent;
         }
 
         .sidebar a:hover {
@@ -98,85 +242,168 @@
             font-weight: 500;
         }
 
+        .sidebar a.active-link {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+            border-left-color: var(--primary);
+        }
+
         .sidebar .nav-header {
             font-weight: 700;
             text-transform: uppercase;
             font-size: 0.72rem;
             color: var(--text-muted);
-            margin: 1.25rem 0 0.4rem 0.8rem;
-            letter-spacing: 0.05em;
+            margin: 1.4rem 0 0.4rem 0.6rem;
+            letter-spacing: 0.06em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
+        /* Main Content */
         .content {
             flex: 1;
-            padding: 2.5rem 3.5rem 5rem;
-            max-width: 1050px;
+            padding: 2.5rem 4rem 6rem;
+            max-width: 1080px;
             overflow-y: auto;
         }
 
         h1 {
-            font-size: 2.4rem;
+            font-family: 'Outfit', 'Inter', sans-serif;
+            font-size: 2.5rem;
             margin-top: 0;
             margin-bottom: 0.8rem;
             font-weight: 800;
             color: #0f172a;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
         }
 
         h2 {
-            font-size: 1.6rem;
-            margin-top: 2.8rem;
+            font-family: 'Outfit', 'Inter', sans-serif;
+            font-size: 1.65rem;
+            margin-top: 3.2rem;
             border-bottom: 2px solid var(--border);
-            padding-bottom: 0.5rem;
+            padding-bottom: 0.6rem;
             font-weight: 700;
             color: #1e293b;
+            letter-spacing: -0.02em;
+            scroll-margin-top: 80px;
         }
 
         h3 {
-            font-size: 1.2rem;
-            margin-top: 2rem;
+            font-size: 1.25rem;
+            margin-top: 2.2rem;
             color: var(--primary);
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            scroll-margin-top: 80px;
         }
 
         h4 {
             font-size: 1.05rem;
-            margin-top: 1.4rem;
+            margin-top: 1.6rem;
             color: #334155;
             font-weight: 600;
         }
 
         p {
-            margin-bottom: 1rem;
+            margin-bottom: 1.1rem;
             color: #334155;
+            font-size: 0.96rem;
         }
 
         .lead {
             font-size: 1.15rem;
             font-weight: 400;
-            color: var(--text-muted);
+            color: #475569;
             margin-bottom: 2rem;
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
+        /* Modern Code Box with macOS Header & Copy Button */
         .code-box {
             background-color: var(--code-bg);
             border-radius: var(--radius);
-            margin: 1rem 0 1.5rem 0;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border: 1px solid #1e293b;
+            margin: 1.2rem 0 1.8rem 0;
+            box-shadow: var(--shadow-code);
+            border: 1px solid #21262d;
             overflow: hidden;
+            position: relative;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--code-header-bg);
+            padding: 8px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            user-select: none;
+        }
+
+        .code-header-dots {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .code-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .code-dot.red { background: #ff5f56; }
+        .code-dot.yellow { background: #ffbd2e; }
+        .code-dot.green { background: #27c93f; }
+
+        .code-lang-tag {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: #8b949e;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .code-copy-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #c9d1d9;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .code-copy-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+        }
+
+        .code-copy-btn.copied {
+            background: #10b981;
+            border-color: #10b981;
+            color: #ffffff;
         }
 
         .code-box pre {
             margin: 0;
-            padding: 1.25rem;
+            padding: 1.25rem 1.4rem;
             overflow-x: auto;
-            white-space: pre;
             font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
             font-size: 0.88rem;
-            line-height: 1.55;
+            line-height: 1.6;
             color: var(--code-color);
+            background: transparent !important;
         }
 
         .code-box code {
@@ -184,175 +411,314 @@
             background: transparent;
             padding: 0;
             color: inherit;
+            text-shadow: none !important;
         }
 
         code:not(pre code) {
             font-family: 'Fira Code', 'Consolas', monospace;
             background-color: #f1f5f9;
-            color: #dc2626;
-            padding: 0.15rem 0.35rem;
+            color: #4338ca;
+            padding: 0.18rem 0.42rem;
             border-radius: 4px;
-            font-size: 0.88em;
+            font-size: 0.86em;
             border: 1px solid #e2e8f0;
+            font-weight: 500;
+        }
+
+        /* Modern Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            margin: 1.2rem 0 1.8rem;
+            background: #ffffff;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 1rem 0 1.5rem;
-            font-size: 0.9rem;
+            font-size: 0.89rem;
+            margin: 0;
         }
 
         th,
         td {
             text-align: left;
-            padding: 0.65rem 0.9rem;
+            padding: 0.85rem 1.1rem;
             border-bottom: 1px solid var(--border);
         }
 
         th {
-            background-color: var(--background);
-            font-weight: 600;
-            color: #475569;
-            border-top: 1px solid var(--border);
+            background-color: #f8fafc;
+            font-weight: 650;
+            color: #334155;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-top: none;
         }
 
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Modern Alerts */
         .alert {
-            padding: 1rem 1.25rem;
+            padding: 1.1rem 1.3rem;
             border-radius: var(--radius);
-            margin: 1.5rem 0;
+            margin: 1.6rem 0;
             display: flex;
-            gap: 12px;
+            gap: 14px;
             align-items: flex-start;
+            box-shadow: var(--shadow-sm);
+            font-size: 0.94rem;
+            line-height: 1.6;
         }
 
         .alert-info {
-            background-color: #eff6ff;
-            border-left: 4px solid var(--primary);
-            color: #1e40af;
+            background-color: #f0fdfa;
+            border: 1px solid #99f6e4;
+            border-left: 5px solid #0d9488;
+            color: #134e4a;
         }
 
-        .alert-tip {
-            background-color: #ecfdf5;
-            border-left: 4px solid #10b981;
-            color: #065f46;
+        .alert-tip,
+        .alert-success {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-left: 5px solid #16a34a;
+            color: #166534;
         }
 
-        .alert-warn {
+        .alert-warn,
+        .alert-warning {
             background-color: #fffbeb;
-            border-left: 4px solid #f59e0b;
+            border: 1px solid #fde68a;
+            border-left: 5px solid #d97706;
             color: #92400e;
         }
 
+        .alert-danger {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-left: 5px solid #dc2626;
+            color: #991b1b;
+        }
+
         .alert-icon {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             line-height: 1;
+            flex-shrink: 0;
+            margin-top: 1px;
         }
 
         .showcase-link {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             background: #f8fafc;
-            border: 1px dashed #cbd5e1;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #475569;
+            border: 1px solid #cbd5e1;
+            padding: 7px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            color: #334155;
             margin-top: 0.5rem;
             margin-bottom: 1.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .showcase-link:hover {
+            background: #ffffff;
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+            transform: translateX(2px);
         }
 
         ul {
             margin-bottom: 1.25rem;
-            padding-left: 1.5rem;
+            padding-left: 1.6rem;
             color: #334155;
         }
 
         li {
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.45rem;
+            font-size: 0.95rem;
         }
 
         hr {
             border: 0;
             border-top: 1px solid var(--border);
-            margin: 3rem 0 2rem;
+            margin: 3.5rem 0 2.5rem;
+        }
+
+        /* Back to Top Button */
+        #backToTop {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.2s ease;
+        }
+
+        #backToTop:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 900px) {
+            .navbar {
+                padding: 0.75rem 1rem;
+            }
+            .sidebar {
+                display: none;
+                position: fixed;
+                top: 55px;
+                left: 0;
+                width: 80%;
+                max-width: 320px;
+                z-index: 1500;
+                box-shadow: var(--shadow-lg);
+            }
+            .sidebar.mobile-open {
+                display: block;
+            }
+            .content {
+                padding: 1.5rem 1.25rem 4rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="navbar">
-        <div>DesktopEngine V2.0</div>
-        <div class="badge">Documentação de Referência Completa</div>
-    </div>
+    <div id="readingProgress"></div>
+
+    <header class="navbar">
+        <a href="docs.html" class="navbar-brand">
+            <span>🖥️ DesktopEngine</span> V2.1
+        </a>
+        <div class="navbar-actions">
+            <span class="badge">Documentação &amp; Referência Completa</span>
+            <a href="index.html" class="nav-btn primary">⚡ Showcase Interativo</a>
+        </div>
+    </header>
 
     <div class="layout">
         <!-- Sidebar Navigation -->
-        <nav class="sidebar">
-            <div class="nav-header">Visão Geral</div>
-            <a href="#intro">Filosofia do Motor</a>
-            <a href="#executando">Executando o Projeto</a>
-            <a href="#init">Inicialização do Desktop</a>
-            <a href="#telas">Criando Telas (Windows)</a>
-            <a href="#element-builder">Abordagem Híbrida &amp; ElementBuilder</a>
-            <a href="#signals-reatividade">⚡ Signals Nativos (Fine-Grained)</a>
-            <a href="#contexto-reativo">Reatividade Implícita (Sem)</a>
-            <a href="#css-modular">🎨 CSS Modular &amp; Temas Sob Demanda</a>
-            <a href="#ui-modular">📦 Arquitetura Modular de UI (ui/)</a>
-            <a href="#extensibilidade">Extensibilidade (BaseComponent &amp; Plugins)</a>
-            <a href="#arquitetura-telas">Modularização &amp; Lazy Loading</a>
-            <a href="#estado-reativo">Reatividade com Proxies</a>
-            <a href="#middlewares">Middlewares &amp; Actions</a>
-            <a href="#ciclo-de-vida">Ciclo de Vida (Lifecycle Hooks)</a>
+        <nav class="sidebar" id="sidebarNav">
+            <div class="sidebar-search-box">
+                <input type="text" id="docSearch" placeholder="Buscar componente ou API..." autocomplete="off">
+                <span class="search-shortcut">/</span>
+            </div>
+            <div id="searchInfo" class="search-results-info"></div>
 
-            <div class="nav-header">Layout e Estrutura</div>
-            <a href="#primitivas">createElement &amp; Print</a>
-            <a href="#row-col-grid">Row, Col &amp; Grid</a>
-            <a href="#card-form">Card &amp; Form</a>
-            <a href="#tabs">Tabs (Abas)</a>
+            <div class="nav-group">
+                <div class="nav-header">Visão Geral</div>
+                <a href="#intro">Filosofia do Motor</a>
+                <a href="#executando">Executando o Projeto</a>
+                <a href="#init">Inicialização do Desktop</a>
+                <a href="#telas">Criando Telas (Windows)</a>
+                <a href="#element-builder">⚡ Abordagem Híbrida &amp; ElementBuilder</a>
+                <a href="#signals-reatividade">⚡ Signals Nativos (Fine-Grained)</a>
+                <a href="#css-modular">🎨 CSS Modular &amp; Temas Sob Demanda</a>
+                <a href="#ui-modular">📦 Arquitetura Modular de UI (ui/)</a>
+                <a href="#contexto-reativo">🧬 Reatividade Implícita (UIContext)</a>
+                <a href="#extensibilidade">🧩 Extensibilidade (BaseComponent &amp; Plugins)</a>
+                <a href="#arquitetura-telas">Modularização &amp; Lazy Loading</a>
+                <a href="#estado-reativo">Reatividade com Proxies</a>
+                <a href="#middlewares">Middlewares &amp; Actions</a>
+                <a href="#ciclo-de-vida">Ciclo de Vida (Lifecycle Hooks)</a>
+            </div>
 
-            <div class="nav-header">Formulários &amp; Inputs</div>
-            <a href="#inputs-basicos">Input, Select &amp; Button</a>
-            <a href="#checkbox-toggle">Checkbox &amp; Toggle</a>
-            <a href="#slider">Slider (Range Contínuo)</a>
-            <a href="#radiogroup">RadioGroup</a>
-            <a href="#autocomplete">Autocomplete (Chips Múltiplos)</a>
+            <div class="nav-group">
+                <div class="nav-header">Layout e Estrutura</div>
+                <a href="#primitivas">createElement &amp; Print</a>
+                <a href="#row-col-grid">Row, Col &amp; Grid</a>
+                <a href="#tabs">Tabs (Abas)</a>
+            </div>
 
-            <div class="nav-header">Visualização de Dados</div>
-            <a href="#table">Table (Simples com Render)</a>
-            <a href="#datagrid">DataGrid (Paginação &amp; Filtros)</a>
-            <a href="#treeview">TreeView (Árvore Expansível)</a>
-            <a href="#draggable">DraggableList (Drag &amp; Drop)</a>
-            <a href="#webview">WebView (Iframe Reativo)</a>
+            <div class="nav-group">
+                <div class="nav-header">Formulários &amp; Inputs</div>
+                <a href="#inputs-basicos">Input, Select &amp; Button</a>
+                <a href="#checkbox-toggle">Checkbox &amp; Toggle</a>
+                <a href="#slider">Slider (Range Contínuo)</a>
+                <a href="#radiogroup">RadioGroup</a>
+                <a href="#autocomplete">Autocomplete (Chips Múltiplos)</a>
+            </div>
 
-            <div class="nav-header">Feedback &amp; Status</div>
-            <a href="#alert-spinner">Alert &amp; Spinner</a>
-            <a href="#toast">Toast (Notificações)</a>
-            <a href="#badge-progress">Badge, Progress &amp; Skeleton</a>
+            <div class="nav-group">
+                <div class="nav-header">Visualização de Dados</div>
+                <a href="#table">Table (Simples com Render)</a>
+                <a href="#datagrid">DataGrid (Paginação &amp; Filtros)</a>
+                <a href="#treeview">TreeView (Árvore Expansível)</a>
+                <a href="#draggable">DraggableList (Drag &amp; Drop)</a>
+                <a href="#webview">WebView (Iframe Reativo)</a>
+            </div>
 
-            <div class="nav-header">Navegação &amp; Overlays</div>
-            <a href="#accordion">Accordion (Sanfona)</a>
-            <a href="#drawer">Drawer (Context Menu Flutuante)</a>
-            <a href="#modal">Modal (Isolado e Global)</a>
-            <a href="#breadcrumbs-stepper">Breadcrumbs &amp; Stepper</a>
-            <a href="#carousel">Carousel Magnético</a>
-            <a href="#avatar-tooltip">Avatar &amp; Tooltip</a>
-            <a href="#dock-widget">DockWidget (Collapsible Tray &amp; Messenger)</a>
-            <a href="#float-button">FloatButton (FAB &amp; Speed Dial)</a>
-            <a href="#shortcut-container">ShortcutContainer (Grade de Atalhos)</a>
-            <a href="#shortcut">Shortcut (Atalho Clicável)</a>
+            <div class="nav-group">
+                <div class="nav-header">Feedback &amp; Status</div>
+                <a href="#alert-spinner">Alert &amp; Spinner</a>
+                <a href="#toast">Toast (Notificações)</a>
+                <a href="#badge-progress">Badge, Progress &amp; Skeleton</a>
+            </div>
 
-            <div class="nav-header">Sistema Global &amp; Arquitetura</div>
-            <a href="#background-tasks">Tarefas em Segundo Plano &amp; Web Workers</a>
-            <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
-            <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
-            <a href="#look-and-feel">Look and Feel (34 Skins)</a>
-            <a href="#config-export-load">Exportar &amp; Carregar Configurações (JSON)</a>
-            <a href="#modo-mobile">Modo Mobile &amp; Responsivo</a>
-            <a href="#menus-globais">MenuBar &amp; StartMenu</a>
-            <a href="#contextmenu">ContextMenu &amp; bindContextMenu</a>
+            <div class="nav-group">
+                <div class="nav-header">Navegação &amp; Overlays</div>
+                <a href="#accordion">Accordion (Sanfona)</a>
+                <a href="#drawer">Drawer (Context Menu Flutuante)</a>
+                <a href="#modal">Modal (Isolado e Global)</a>
+                <a href="#breadcrumbs-stepper">Breadcrumbs &amp; Stepper</a>
+                <a href="#carousel">Carousel Magnético</a>
+                <a href="#avatar-tooltip">Avatar &amp; Tooltip</a>
+                <a href="#dock-widget">DockWidget (Collapsible Tray &amp; Messenger)</a>
+                <a href="#float-button">FloatButton (FAB &amp; Speed Dial)</a>
+                <a href="#shortcut-container">ShortcutContainer (Grade de Atalhos)</a>
+                <a href="#shortcut">Shortcut (Atalho Clicável)</a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-header">Sistema Global &amp; Arquitetura</div>
+                <a href="#menus-globais">Menus Globais (MenuBar &amp; StartMenu)</a>
+                <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
+                <a href="#window-action-toolbar">Barra de Ações Rápidas (Action Toolbar)</a>
+                <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
+                <a href="#export-import-config">Exportar &amp; Importar Configurações (JSON)</a>
+                <a href="#integracao-api">Integração com APIs REST &amp; Backend</a>
+                <a href="#look-and-feel">Look and Feel (34 Skins)</a>
+                <a href="#contextmenu">ContextMenu &amp; bindContextMenu</a>
+                <a href="#eventbus-p2p">Comunicação Inter-telas (EventBus)</a>
+                <a href="#modo-mobile">Modo Mobile &amp; Responsivo</a>
+                <a href="#seguranca-rbac">🛡️ Guia de Segurança &amp; RBAC (Zero-Trust)</a>
+            </div>
         </nav>
 
         <!-- Main Content -->
@@ -386,9 +752,7 @@
             </ul>
             <p>Páginas de demonstração incluídas:</p>
             <ul>
-                <li><code>index.html</code>: Layout moderno com <strong>MenuBar superior</strong> e
-                    taskbar de janelas.</li>
-                <li><code>index2.html</code>: Layout clássico com <strong>Menu Iniciar na Taskbar</strong>.</li>
+                <li><code>index.html</code>: Showcase interativo completo com <strong>MenuBar superior</strong>, Taskbar, Dock de aplicativos e central de segurança.</li>
             </ul>
 
             <!-- SEÇÃO 2: INIT -->
@@ -631,9 +995,10 @@ Desktop.open(Framework.createWindow(MinhaJanela, "JANELA_USUARIO", Desktop));</c
                 <div>
                     <strong>Vantagens da Fluent API:</strong>
                     <ul style="margin: 4px 0 0 0; padding-left: 18px;">
-                        <li><strong>Zero DOM Bruto:</strong> Construção estruturada por métodos encadeáveis (<code>.class()</code>, <code>.style()</code>, <code>.text()</code>, <code>.children()</code>, <code>.click()</code>).</li>
+                        <li><strong>Zero DOM Bruto:</strong> Construção estruturada por métodos encadeáveis (<code>.class()</code>, <code>.style()</code>, <code>.text()</code>, <code>.children()</code>, <code>.click()</code>, <code>.appendTo()</code>).</li>
                         <li><strong>Integração Nativa com o UI Kit:</strong> Acesso imediato a todos os componentes do framework (<code>UI.card()</code>, <code>UI.grid()</code>, <code>UI.input()</code>, <code>UI.button()</code>, <code>UI.badge()</code>, etc.).</li>
                         <li><strong>Encapsulamento de Eventos e Ações:</strong> Disparo direto de actions da janela passando apenas o nome da ação (<code>.click("salvar")</code> ou <code>UI.button("Salvar", "salvar")</code>).</li>
+                        <li><strong>Controle de Acesso RBAC Nativo:</strong> Proteção fluente de nós via <code>.requirePermission()</code> e <code>.requireRole()</code> com remoção inerte do DOM ou desabilitação estrita.</li>
                     </ul>
                 </div>
             </div>
@@ -1259,7 +1624,7 @@ const TelaCadastro = {
     // 12. INTERCEPTADOR DE FECHAMENTO (Antes de Destruir)
     async beforeClose() {
         if (this.state.temAlteracoesPendentes) {
-            // Pode retornar false ou uma Promise<boolean> para cancelar o fechamento
+            // Pode retornar false ou uma Promise&lt;boolean&gt; para cancelar o fechamento
             return await Modal.confirm("Você tem dados não salvos. Deseja realmente fechar?");
         }
         return true; // Permite fechar
@@ -2515,7 +2880,6 @@ Desktop.setMenuBarPosition("top");   // "top", "bottom", "left", "right" ou "non
                     dedicada (Window MenuBar)</strong> posicionada imediatamente abaixo da titlebar, exatamente como nos
                 aplicativos nativos (VS Code, Notepad, navegadores e suites de escritório).</p>
 
-            <div class="alert alert-info">
             <h3>1. Declaração Declarativa na Configuração da Tela</h3>
             <p>Basta declarar a propriedade <code>menubar</code> (ou <code>menus</code>) no objeto de configuração da tela. Você também pode definir a posição da barra com <code>menubarPosition</code> (<code>"top"</code>, <code>"bottom"</code>, <code>"left"</code> ou <code>"right"</code>):</p>
 
@@ -3095,7 +3459,7 @@ export default {
         const workerCode = `
             self.onmessage = function(e) {
                 const total = e.data.total;
-                for (let i = 0; i < total; i++) {
+                for (let i = 0; i &lt; total; i++) {
                     // Cálculo pesado...
                     if (i % 1000 === 0) {
                         self.postMessage({ progresso: Math.floor((i / total) * 100) });
@@ -3456,40 +3820,6 @@ EventBus.on("laf:change", (lafName) => {
                 </tbody>
             </table>
 
-            <!-- SEÇÃO: EXPORTAR E CARREGAR CONFIGURAÇÕES -->
-            <h2 id="config-export-load">Exportar &amp; Carregar Configurações do Ambiente (JSON)</h2>
-            <p>O framework fornece métodos nativos e convenientes para extrair o estado exato da configuração visual e estrutural do desktop em formato de objeto JavaScript ou string <code>JSON</code> (ideal para salvar em banco de dados, perfil do usuário ou arquivos de configuração) e recarregá-lo instantaneamente:</p>
-
-            <div class="code-box">
-                <pre><code>import { Desktop } from './desktop.js';
-
-// 1. Extrair configuração atual como String JSON formatada
-const jsonConfig = Desktop.exportConfig(true);
-console.log(jsonConfig);
-/* Exemplo de saída gerada:
-{
-  "lookAndFeel": "aqua-frosted",
-  "taskbarPosition": "bottom",
-  "menubarPosition": "top",
-  "menubarMode": "separate",
-  "responsiveMode": "auto",
-  "showDesktopButton": true
-}
-*/
-
-// 2. Extrair configuração como Objeto JavaScript puro
-const configObj = Desktop.exportConfig(); // { lookAndFeel: "aqua-frosted", ... }
-
-// 3. Carregar e Aplicar Configurações (a partir de JSON ou Objeto)
-Desktop.loadConfig(jsonConfig);
-
-// Também aceita objeto diretamente e controla se deve persistir no localStorage:
-Desktop.loadConfig({
-    lookAndFeel: "fluent-acrylic",
-    taskbarPosition: "left",
-    menubarMode: "startmenu" // Integra automaticamente o MenuBar ao Menu Iniciar
-}, true);</code></pre>
-            </div>
 
             <h2 id="contextmenu">ContextMenu e bindContextMenu</h2>
             <p>Adiciona menus de contexto flutuantes com suporte a <strong>submenus aninhados (<code>items: [...]</code>)</strong>, separadores, ícones, atalhos de teclado e proteção nativa contra colisão de bordas. Permite configurar teclas de atalho/modificadoras (ex: <code>"alt"</code>, <code>"ctrl"</code>, <code>"shift"</code>, <code>"meta"</code>) para ignorar o menu customizado e exibir o menu nativo do navegador (a tecla <strong><code>"shift"</code></strong> já vem ativa por padrão em todo o framework).</p>
@@ -3633,12 +3963,494 @@ Desktop.setMobileMode("auto");   // Retorna para detecção automática por view
 Desktop.toggleMobileMode();      // Alterna entre Desktop e Mobile instantaneamente</code></pre>
             </div>
 
+            <h2 id="seguranca-rbac">🛡️ Guia de Arquitetura &amp; Implementação: Autenticação, Autorização e Segurança Zero-Trust (RBAC)</h2>
+            <p>Em aplicações no estilo <em>Desktop in Browser</em> como o <strong>DesktopEngine</strong>, a interface simula janelas, menus de contexto, barras de ferramentas e atalhos com alto grau de interatividade. No entanto, por rodar integralmente no navegador do usuário, qualquer tentativa de implementar segurança <strong>exclusivamente no frontend</strong> é vulnerável a manipulação via DevTools (F12), injeção de scripts no console ou alteração de atributos no DOM.</p>
+
+            <div class="alert alert-warning">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>Princípio Zero-Trust (Frontend não é fronteira de confiança):</strong>
+                    O código do cliente (HTML, CSS, JS) atua exclusivamente como <strong>UX Defensiva (Experiência do Usuário)</strong>. A autoridade inquebrável sobre o acesso a dados e ações de negócio reside <strong>sempre no Servidor / Backend</strong>. O sistema seguro combina a blindagem incondicional do backend com conveniência e higienização rigorosa da interface no frontend.
+                </div>
+            </div>
+
+            <h3>1. Arquitetura em 4 Camadas de Proteção</h3>
+            <div class="code-box">
+                <pre><code>+-------------------------------------------------------------------------+
+|                  1. BACKEND ZERO-TRUST (Autoridade Máxima)               |
+|  - Validação Criptográfica de Sessão (HttpOnly Cookie / JWT Assinado)   |
+|  - Autorização RBAC/ABAC por Endpoint de Dados e Ação (/api/...)        |
+|  - Rejeição Imediata com HTTP 401 / 403 para requisições não autorizadas |
++-------------------------------------------------------------------------+
+                                    ▲
+                                    │ (fetch seguro com credenciais)
+                                    ▼
++-------------------------------------------------------------------------+
+|                2. GUARDS DE ROTEAMENTO E CARREGAMENTO LAZY              |
+|  - Desktop.openScreen() interceptado por Guards de Acesso               |
+|  - Módulos restritos servidos dinamicamente apenas sob autorização       |
++-------------------------------------------------------------------------+
+                                    ▲
+                                    ▼
++-------------------------------------------------------------------------+
+|             3. SERVIÇO DE SEGURANÇA REATIVO (SecurityService)           |
+|  - Contexto global de permissões do usuário logado (Signals nativos)    |
+|  - Higienização automática de itens no MenuBar, ContextMenu e StartMenu |
++-------------------------------------------------------------------------+
+                                    ▲
+                                    ▼
++-------------------------------------------------------------------------+
+|           4. APLICAÇÃO HÍBRIDA (Declarativa &amp; ElementBuilder)            |
+|  - data-permission com remoção definitiva do nó DOM (evita display:none)|
+|  - ElementBuilder.requirePermission() para construção fluente e segura  |
++-------------------------------------------------------------------------+</code></pre>
+            </div>
+
+            <h3>2. Camada de Serviço de Segurança Central (`SecurityService`)</h3>
+            <p>O <code>SecurityService</code> centraliza os dados do usuário autenticado, suas roles (papéis) e permissões granulares, utilizando <strong>Signals</strong> para permitir que qualquer parte da interface reaja imediatamente a trocas de usuário ou logout:</p>
+            <div class="code-box">
+                <pre><code>import { signal } from './core.js';
+
+export const SecurityService = {
+    // Sinais reativos finos
+    user: signal(null),
+    permissions: signal(new Set()),
+    roles: signal(new Set()),
+
+    /**
+     * Inicializa a sessão com os dados retornados pelo endpoint de autenticação
+     * @param {Object} session - { user: 'admin', roles: ['ADMIN'], permissions: ['users:view', 'users:delete'] }
+     */
+    init(session) {
+        this.user.value = session?.user || null;
+        this.permissions.value = new Set(session?.permissions || []);
+        this.roles.value = new Set(session?.roles || []);
+    },
+
+    /**
+     * Checa se o usuário possui a permissão exigida (ou se é ADMIN absoluto)
+     * @param {string} perm - Ex: 'users:delete'
+     * @returns {boolean}
+     */
+    can(perm) {
+        if (!perm) return true;
+        if (this.roles.value.has('ADMIN')) return true; // Superusuário
+        return this.permissions.value.has(perm);
+    },
+
+    /**
+     * Checa se o usuário possui determinado papel (role)
+     * @param {string} role - Ex: 'FINANCEIRO'
+     * @returns {boolean}
+     */
+    hasRole(role) {
+        if (!role) return true;
+        return this.roles.value.has(role);
+    },
+
+    /**
+     * Efetua logout seguro e limpa o estado
+     */
+    logout() {
+        this.user.value = null;
+        this.permissions.value = new Set();
+        this.roles.value = new Set();
+        window.location.reload();
+    }
+};</code></pre>
+            </div>
+
+            <h3>3. Guards de Janelas e Telas (`Desktop.openScreen`)</h3>
+            <p>Para impedir que usuários abram janelas restritas digitando comandos no console (ex: <code>Desktop.openScreen('painel_financeiro')</code>), registre as telas declarando o requisito de autorização e proteja a abertura:</p>
+            <div class="code-box">
+                <pre><code>import { Desktop } from './desktop.js';
+import { SecurityService } from './core.js';
+
+// 1. Registro de Telas com Metadados de Permissão
+Desktop.registerScreen('financeiro', {
+    permission: 'financeiro:view',
+    title: 'Painel Financeiro',
+    singleInstance: true,
+    // Carregamento dinâmico (Lazy Loading) do módulo sob demanda:
+    view: async () => {
+        const module = await import('./screens/financeiro.js');
+        return module.render();
+    }
+});
+
+// 2. Interceptor / Guard global antes de abrir qualquer tela:
+const originalOpenScreen = Desktop.openScreen.bind(Desktop);
+Desktop.openScreen = async function(idOrConfig, initialProps = {}) {
+    const screenId = typeof idOrConfig === 'string' ? idOrConfig : idOrConfig.id;
+    const config = typeof idOrConfig === 'string' ? this.screens[screenId] : idOrConfig;
+
+    if (config && config.permission && !SecurityService.can(config.permission)) {
+        Desktop.notify(`Acesso negado: Você não possui a permissão "${config.permission}".`, 'danger');
+        console.warn(`[Security Guard] Tentativa não autorizada de abrir tela: ${screenId}`);
+        return null; // A tela nem sequer é instanciada nem renderizada
+    }
+
+    return originalOpenScreen(idOrConfig, initialProps);
+};</code></pre>
+            </div>
+
+            <h3>4. Sanitização Automática de Menus e Barras de Ações (MenuBar, ContextMenu, StartMenu e ActionToolbar)</h3>
+            <p>Itens de menu e ações que o usuário não tem direito de acessar <strong>jamais são gerados com <code>display: none</code></strong> no DOM, pois um invasor poderia simplesmente inspecionar e remover a classe CSS. No DesktopEngine, o componente <code>ui/navigation.js</code> aplica a filtragem nativa <strong>antes da renderização</strong> através da função <code>filterAuthorizedMenuItems</code>:</p>
+            <div class="code-box">
+                <pre><code>import { ContextMenu, MenuBar, StartMenu, ActionToolbar, filterAuthorizedMenuItems } from './ui.js';
+import { SecurityService } from './core.js';
+
+// Exemplo: MenuBar, StartMenu, ContextMenu e ActionToolbar filtram automaticamente!
+MenuBar({
+    container: '#menubar',
+    menus: [
+        {
+            label: 'Sistema',
+            items: [
+                { label: 'Relatórios Gerais', action: () => Desktop.openScreen('relatorios') },
+                { label: 'Auditoria Fiscal', permission: 'fiscal:audit', action: () => Desktop.openScreen('fiscal') },
+                { label: 'Excluir Base de Dados', role: 'ADMIN', action: () => expurgarDados() }
+            ]
+        }
+    ]
+});
+
+// Em ActionToolbar, botões restritos são omitidos da montagem:
+ActionToolbar({
+    element: toolbarEl,
+    actions: [
+        { icon: '📝', label: 'Editar', permission: 'products:edit', action: 'edit' },
+        { icon: '🗑️', label: 'Excluir', permission: 'products:delete', action: 'delete' }
+    ]
+});</code></pre>
+            </div>
+
+            <h3>5. Abordagem Híbrida em Elementos de Tela</h3>
+
+            <h4>A) Programática via <code>ElementBuilder.js</code> (Recomendada)</h4>
+            <p>Utilize o método fluente <code>.requirePermission()</code>. Se a permissão não for atendida, o elemento é substituído por um comentário inofensivo no DOM ou renderizado em modo estritamente desabilitado:</p>
+            <div class="code-box">
+                <pre><code>// Exemplo de uso no ElementBuilder:
+new ElementBuilder('button')
+    .class('btn', 'btn-danger')
+    .text('Excluir Registro')
+    // Se o usuário não tiver 'users:delete', o nó é removido do DOM:
+    .requirePermission('users:delete', { behavior: 'remove' }) // 'remove' | 'disable'
+    .click(async () => {
+        await api.deleteUser(id);
+    })
+    .appendTo(container);
+
+// Implementação interna no ElementBuilder:
+ElementBuilder.prototype.requirePermission = function(permission, options = { behavior: 'remove' }) {
+    if (!SecurityService.can(permission)) {
+        if (options.behavior === 'remove') {
+            // Converte o elemento para um comentário inerte sem eventos nem visual
+            this.el = document.createComment(`[Acesso Restrito: ${permission}]`);
+        } else {
+            this.attr('disabled', 'true')
+                .addClass('is-disabled')
+                .attr('title', 'Você não tem permissão para executar esta ação');
+        }
+    }
+    return this;
+};</code></pre>
+            </div>
+
+            <h4>B) Declarativa via HTML (Data Attributes)</h4>
+            <p>Em templates HTML estáticos ou strings, utilize atributos semânticos processados na montagem da tela:</p>
+            <div class="code-box">
+                <pre><code><!-- Template Declarativo Seguro -->
+<div class="toolbar-actions">
+    <button class="btn btn-secondary" onclick="exportarCSV()">Exportar</button>
+    <button class="btn btn-danger" data-permission="financeiro:estornar" data-auth-behavior="remove">
+        Estornar Pagamento
+    </button>
+</div></code></pre>
+            </div>
+            <p>Função utilitária de sanitização declarativa na inicialização da janela:</p>
+            <div class="code-box">
+                <pre><code>export function applySecurityPolicies(rootEl) {
+    if (!rootEl) return;
+    rootEl.querySelectorAll('[data-permission]').forEach(el => {
+        const perm = el.getAttribute('data-permission');
+        const behavior = el.getAttribute('data-auth-behavior') || 'remove';
+
+        if (!SecurityService.can(perm)) {
+            if (behavior === 'remove') {
+                el.remove(); // Exclusão física do DOM
+            } else {
+                el.setAttribute('disabled', 'true');
+                el.classList.add('disabled');
+            }
+        }
+    });
+}</code></pre>
+            </div>
+
+            <h3>6. Proteção Incondicional no Backend (Exemplo Python com RBAC)</h3>
+            <p>No arquivo <code>api.py</code>, todo endpoint que manipule ou entregue dados confidenciais valida as credenciais criptográficas e as permissões associadas à sessão:</p>
+            <div class="code-box">
+                <pre><code># Exemplo conceitual no api.py
+def check_permission(session, required_permission):
+    user_roles = session.get("roles", [])
+    if "ADMIN" in user_roles:
+        return True
+    return required_permission in session.get("permissions", [])
+
+def handle_delete_product(handler, session, product_id):
+    if not check_permission(session, "products:delete"):
+        # HTTP 403 Forbidden imediato
+        handler.send_response(403)
+        handler.send_header("Content-Type", "application/json")
+        handler.end_headers()
+        handler.wfile.write(json.dumps({"error": "Acesso Negado: Permissão insuficiente"}).encode())
+        return
+
+    # Execução autorizada no banco SQLite
+    db_delete_product(product_id)</code></pre>
+            </div>
+
+            <h3>7. Matriz de Vetores de Ataque no DevTools vs Resposta do Framework</h3>
+            <table class="table" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Tentativa de Ataque do Usuário (DevTools / F12)</th>
+                        <th>O que o invasor tenta fazer</th>
+                        <th>Por que a tentativa <strong>FALHA</strong></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Remover <code>display: none</code> ou <code>disabled</code></strong></td>
+                        <td>Edita o HTML inspecionado para tornar visível ou clicável um botão de exclusão.</td>
+                        <td>Com <code>behavior: 'remove'</code>, o elemento <strong>nem existe no DOM</strong>. Mesmo que o usuário crie manualmente o elemento e dispare a requisição, o backend retorna <strong>HTTP 403</strong>.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Abertura Forçada via Console JS</strong></td>
+                        <td>Digita <code>Desktop.openScreen('painel_admin')</code> no console do navegador.</td>
+                        <td>O guard em <code>openScreen()</code> barra a criação. Se a tela usar carregamento de dados da API, o servidor rejeita os dados sigilosos com <strong>HTTP 401/403</strong>.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sobrescrita de Funções Locais</strong></td>
+                        <td>Digita <code>SecurityService.can = () => true</code> no console.</td>
+                        <td>Ele pode alterar o comportamento visual local de sua própria máquina, mas qualquer interação que faça requisições HTTP falhará criptograficamente no backend.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Roubo de Tokens via XSS / Storage</strong></td>
+                        <td>Executa <code>localStorage.getItem('token')</code> para sequestrar sessões.</td>
+                        <td>Sessões seguras utilizam <strong>Cookies com flag <code>HttpOnly</code></strong>, inacessíveis para leitura via scripts do navegador.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>8. Demonstração Interativa ao Vivo no DesktopEngine</h3>
+            <div class="alert alert-info">
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>Experimente na Prática:</strong> Abra o arquivo <code>index.html</code> e clique no atalho <strong>🛡️ Segurança &amp; RBAC</strong> no Desktop (ou execute <code>Desktop.openScreen('security_rbac')</code>). Nessa tela você pode alternar perfis em tempo real, testar a remoção de botões no DOM, experimentar o bloqueio do Guard ao abrir janelas restritas e simular requisições protegidas contra o backend <code>api.py</code> com retorno de <strong>HTTP 403 Forbidden</strong>.
+                </div>
+            </div>
+
             <br><br>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V2.0 &copy; 2026 -
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V2.1 &copy; 2026 -
                 O micro-framework corporativo definitivo em Vanilla JS.</p>
         </main>
     </div>
 
+    <button id="backToTop" title="Voltar ao Topo">↑</button>
+
+    <!-- PrismJS Scripts for Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+
+    <!-- Docs Interactive Engine -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Processamento e Embelezamento de Blocos de Código (.code-box)
+            const codeBoxes = document.querySelectorAll(".code-box");
+            codeBoxes.forEach(box => {
+                const pre = box.querySelector("pre");
+                const code = box.querySelector("code");
+                if (!pre || !code) return;
+
+                const text = code.textContent || "";
+                
+                // Detecção automática de linguagem
+                let lang = "javascript";
+                let label = "JavaScript";
+
+                if (text.trim().startsWith("<") || text.includes("</") || text.includes("<!doctype")) {
+                    lang = "markup";
+                    label = "HTML / XML";
+                } else if (text.includes("def ") || text.includes("import sqlite3") || text.includes("BaseHTTPRequestHandler")) {
+                    lang = "python";
+                    label = "Python";
+                } else if (text.includes("├──") || text.includes("css/") || text.startsWith(":root") || text.includes("var(--")) {
+                    if (text.startsWith(":root") || text.includes("var(--")) {
+                        lang = "css";
+                        label = "CSS";
+                    } else {
+                        lang = "text";
+                        label = "Estrutura";
+                    }
+                } else if (text.includes("git ") || text.includes("npx ") || text.includes("python -m http.server")) {
+                    lang = "bash";
+                    label = "Terminal / Bash";
+                } else if (text.includes("+---") || text.includes("|  -")) {
+                    lang = "text";
+                    label = "Arquitetura / Diagrama";
+                }
+
+                // Configura classes Prism
+                code.className = `language-${lang}`;
+                pre.className = `language-${lang}`;
+
+                // Cria o Header moderno com Dots macOS e Botão de Copiar
+                const header = document.createElement("div");
+                header.className = "code-header";
+                header.innerHTML = `
+                    <div class="code-header-dots">
+                        <span class="code-dot red"></span>
+                        <span class="code-dot yellow"></span>
+                        <span class="code-dot green"></span>
+                    </div>
+                    <span class="code-lang-tag">${label}</span>
+                    <button class="code-copy-btn" title="Copiar código">📋 Copiar</button>
+                `;
+
+                // Botão de Copiar com feedback visual
+                const copyBtn = header.querySelector(".code-copy-btn");
+                copyBtn.addEventListener("click", async () => {
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        copyBtn.textContent = "✓ Copiado!";
+                        copyBtn.classList.add("copied");
+                        setTimeout(() => {
+                            copyBtn.textContent = "📋 Copiar";
+                            copyBtn.classList.remove("copied");
+                        }, 2000);
+                    } catch (err) {
+                        console.error("Falha ao copiar:", err);
+                    }
+                });
+
+                box.insertBefore(header, pre);
+            });
+
+            // Executa o syntax highlight do Prism
+            if (window.Prism) {
+                Prism.highlightAll();
+            }
+
+            // 2. Envolver Tabelas em Contêineres Responsivos
+            document.querySelectorAll("table").forEach(table => {
+                if (!table.parentElement.classList.contains("table-responsive")) {
+                    const wrapper = document.createElement("div");
+                    wrapper.className = "table-responsive";
+                    table.parentNode.insertBefore(wrapper, table);
+                    wrapper.appendChild(table);
+                }
+            });
+
+            // 3. Barra de Progresso de Leitura & Botão Voltar ao Topo
+            const progress = document.getElementById("readingProgress");
+            const backBtn = document.getElementById("backToTop");
+
+            window.addEventListener("scroll", () => {
+                const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+                if (totalHeight > 0) {
+                    const percent = (window.scrollY / totalHeight) * 100;
+                    progress.style.width = percent + "%";
+                }
+
+                if (window.scrollY > 400) {
+                    backBtn.style.display = "flex";
+                } else {
+                    backBtn.style.display = "none";
+                }
+            });
+
+            backBtn.addEventListener("click", () => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+
+            // 4. Busca Instantânea em Tempo Real na Sidebar
+            const searchInput = document.getElementById("docSearch");
+            const searchInfo = document.getElementById("searchInfo");
+            const sidebarLinks = Array.from(document.querySelectorAll("#sidebarNav a"));
+            const navGroups = Array.from(document.querySelectorAll("#sidebarNav .nav-group"));
+
+            searchInput.addEventListener("input", (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                let matchCount = 0;
+
+                if (!query) {
+                    sidebarLinks.forEach(link => link.style.display = "");
+                    navGroups.forEach(group => group.style.display = "");
+                    searchInfo.style.display = "none";
+                    return;
+                }
+
+                navGroups.forEach(group => {
+                    let groupHasMatch = false;
+                    const links = group.querySelectorAll("a");
+                    links.forEach(link => {
+                        const text = link.textContent.toLowerCase();
+                        if (text.includes(query)) {
+                            link.style.display = "";
+                            groupHasMatch = true;
+                            matchCount++;
+                        } else {
+                            link.style.display = "none";
+                        }
+                    });
+                    group.style.display = groupHasMatch ? "" : "none";
+                });
+
+                searchInfo.style.display = "block";
+                searchInfo.textContent = `${matchCount} resultado(s) encontrado(s)`;
+            });
+
+            // Atalho de Teclado '/' para focar na busca
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "/" && document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            });
+
+            // 5. ScrollSpy (Destaque do Item Ativo na Sidebar)
+            const headings = Array.from(document.querySelectorAll("h1[id], h2[id]"));
+            const linkMap = new Map();
+            sidebarLinks.forEach(link => {
+                const href = link.getAttribute("href");
+                if (href && href.startsWith("#")) {
+                    linkMap.set(href.substring(1), link);
+                }
+            });
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute("id");
+                        const activeLink = linkMap.get(id);
+                        if (activeLink) {
+                            sidebarLinks.forEach(l => l.classList.remove("active-link"));
+                            activeLink.classList.add("active-link");
+                        }
+                    }
+                });
+            }, { rootMargin: "0px 0px -70% 0px", threshold: 0 });
+
+            headings.forEach(h => observer.observe(h));
+        });
+    </script>
 </body>
 
 </html>

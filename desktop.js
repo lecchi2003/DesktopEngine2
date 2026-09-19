@@ -1,7 +1,7 @@
 // desktop.js
 //Autor: Gildasio Lecchi Cravo
-import { EventBus, Framework } from './core.js?v=2';
-import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js?v=2';
+import { EventBus, Framework, SecurityService, applySecurityPolicies } from './core.js';
+import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js';
 import { safeHTML } from './ui/sanitize.js';
 
 export const Desktop = {
@@ -363,6 +363,18 @@ export const Desktop = {
         }
 
         const config = instance.config;
+        if (config) {
+            if (config.permission && !SecurityService.can(config.permission)) {
+                this.notify(`Acesso negado: Requer permissão "${config.permission}".`, "danger");
+                console.warn(`[Desktop.createWindow] Bloqueio por permissão insuficiente: ${config.permission}`);
+                return null;
+            }
+            if (config.role && !SecurityService.hasRole(config.role)) {
+                this.notify(`Acesso negado: Requer papel "${config.role}".`, "danger");
+                console.warn(`[Desktop.createWindow] Bloqueio por role insuficiente: ${config.role}`);
+                return null;
+            }
+        }
 
         const w = document.createElement("div");
         w.className = "window";
@@ -479,6 +491,7 @@ export const Desktop = {
         const bodyEl = w.querySelector(".windowBody");
         const contentEl = instance.render();
         if (bodyEl && contentEl) {
+            applySecurityPolicies(contentEl);
             bodyEl.appendChild(contentEl);
         }
 
@@ -1808,6 +1821,18 @@ export const Desktop = {
 
         if (!config) return null;
 
+        // --- Security Guard: Verificação de Permissão e Role da Tela ---
+        if (config.permission && !SecurityService.can(config.permission)) {
+            this.notify(`Acesso negado: Requer permissão "${config.permission}".`, "danger");
+            console.warn(`[Desktop.openScreen] Bloqueio por permissão insuficiente: ${config.permission}`);
+            return null;
+        }
+        if (config.role && !SecurityService.hasRole(config.role)) {
+            this.notify(`Acesso negado: Requer papel "${config.role}".`, "danger");
+            console.warn(`[Desktop.openScreen] Bloqueio por role insuficiente: ${config.role}`);
+            return null;
+        }
+
         // Se singleInstance = true e a janela já existe aberta:
         if (config.singleInstance && this.windows[screenId]) {
             const existingInstance = this.windows[screenId];
@@ -1940,6 +1965,12 @@ export const Desktop = {
 
     getSurface() {
         return document.getElementById(this.options?.desktopContainerId || "desktop") || this.windowsEl || document.body;
+    },
+
+    /** Retorna o elemento container onde as janelas são renderizadas.
+     *  Use em vez de document.getElementById('windows'). */
+    getWindowsContainer() {
+        return this.windowsEl || document.getElementById(this.options?.windowsContainerId || "windows");
     },
 
     getTaskbar() {

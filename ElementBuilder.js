@@ -1,7 +1,7 @@
 // ElementBuilder.js
 // Autor: Gildasio Lecchi Cravo
-import { UIContext, Framework, isSignal, effect } from './core.js?v=2';
-import * as UIComponents from './ui.js?v=2';
+import { UIContext, Framework, isSignal, effect, SecurityService } from './core.js';
+import * as UIComponents from './ui.js';
 import { safeSetHTML } from './ui/sanitize.js';
 
 /**
@@ -20,6 +20,7 @@ export class ElementBuilder {
 
         // [CORE-001] Armazena cleanups de effects reativos para liberar na destruição
         this._effects = [];
+        this._isRestricted = false;
 
         if (options.className) this.class(options.className);
         if (options.text) this.text(options.text);
@@ -30,6 +31,7 @@ export class ElementBuilder {
 
     /** Adiciona uma ou mais classes CSS */
     class(...classNames) {
+        if (this._isRestricted || !this.el.classList) return this;
         const flat = classNames.flat().filter(Boolean);
         flat.forEach(c => {
             c.split(' ').forEach(cls => {
@@ -63,12 +65,14 @@ export class ElementBuilder {
 
     /** Define o ID do elemento */
     id(value) {
+        if (this._isRestricted || !this.el) return this;
         this.el.id = value;
         return this;
     }
 
     /** Define estilos inline (objeto ou chave-valor ou string cssText) */
     style(keyOrObj, value) {
+        if (this._isRestricted || !this.el || !this.el.style) return this;
         if (typeof keyOrObj === 'string') {
             if (value !== undefined) {
                 this.el.style[keyOrObj] = value;
@@ -83,18 +87,21 @@ export class ElementBuilder {
 
     /** Define largura */
     width(val) {
+        if (this._isRestricted || !this.el || !this.el.style) return this;
         this.el.style.width = typeof val === 'number' ? `${val}px` : val;
         return this;
     }
 
     /** Define altura */
     height(val) {
+        if (this._isRestricted || !this.el || !this.el.style) return this;
         this.el.style.height = typeof val === 'number' ? `${val}px` : val;
         return this;
     }
 
     /** Define atributo HTML */
     attr(name, val) {
+        if (this._isRestricted || !this.el || !this.el.setAttribute) return this;
         if (val === null || val === undefined || val === false) {
             this.el.removeAttribute(name);
         } else {
@@ -105,12 +112,14 @@ export class ElementBuilder {
 
     /** Define dataset attribute */
     data(key, val) {
+        if (this._isRestricted || !this.el || !this.el.dataset) return this;
         this.el.dataset[key] = val;
         return this;
     }
 
     /** Define o texto do elemento (suporta string, número ou Signal reativo atômico) */
     text(txtOrSignal) {
+        if (this._isRestricted || !this.el || !('textContent' in this.el)) return this;
         if (isSignal(txtOrSignal)) {
             this.el.textContent = '';
             const textNode = document.createTextNode(txtOrSignal.value !== undefined ? String(txtOrSignal.value) : '');
@@ -132,6 +141,7 @@ export class ElementBuilder {
      * Para conteúdo externo ou de usuário, use .safeHtml() em vez deste método.
      */
     html(markup) {
+        if (this._isRestricted || !this.el || !('innerHTML' in this.el)) return this;
         this.el.innerHTML = markup !== undefined && markup !== null ? String(markup) : '';
         return this;
     }
@@ -141,12 +151,14 @@ export class ElementBuilder {
      * [CORE-005] Alternativa segura ao método .html()
      */
     safeHtml(markup) {
+        if (this._isRestricted || !this.el) return this;
         safeSetHTML(this.el, markup !== undefined && markup !== null ? String(markup) : '');
         return this;
     }
 
     /** Exibe ou oculta o elemento condicionalmente (suporta Signal booleano ou função) */
     showIf(conditionOrSignal) {
+        if (this._isRestricted || !this.el || !this.el.style) return this;
         if (isSignal(conditionOrSignal)) {
             // [CORE-001] Guarda cleanup
             const stop = effect(() => {
@@ -164,14 +176,70 @@ export class ElementBuilder {
         return this;
     }
 
+    /**
+     * Aplica autorização por permissão (RBAC) via SecurityService.
+     * @param {string} permission - Ex: 'products:delete'
+     * @param {Object} options - { behavior: 'remove' | 'disable', title: string }
+     */
+    requirePermission(permission, options = {}) {
+        const behavior = options.behavior || 'remove';
+        const allowed = SecurityService.can(permission);
+        if (!allowed) {
+            if (behavior === 'remove') {
+                const comment = document.createComment(`[Acesso Restrito: ${permission}]`);
+                if (this.el && this.el.parentNode) {
+                    this.el.parentNode.replaceChild(comment, this.el);
+                }
+                this.el = comment;
+                this._isRestricted = true;
+            } else {
+                this.attr('disabled', 'true');
+                this.class('is-disabled');
+                this.attr('title', options.title || 'Acesso restrito: permissão insuficiente');
+                this.style('pointer-events', 'none');
+                this.style('opacity', '0.5');
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Aplica autorização por papel (Role) via SecurityService.
+     * @param {string} role - Ex: 'ADMIN'
+     * @param {Object} options - { behavior: 'remove' | 'disable', title: string }
+     */
+    requireRole(role, options = {}) {
+        const behavior = options.behavior || 'remove';
+        const allowed = SecurityService.hasRole(role);
+        if (!allowed) {
+            if (behavior === 'remove') {
+                const comment = document.createComment(`[Acesso Restrito: Papel ${role}]`);
+                if (this.el && this.el.parentNode) {
+                    this.el.parentNode.replaceChild(comment, this.el);
+                }
+                this.el = comment;
+                this._isRestricted = true;
+            } else {
+                this.attr('disabled', 'true');
+                this.class('is-disabled');
+                this.attr('title', options.title || `Acesso restrito: requer papel ${role}`);
+                this.style('pointer-events', 'none');
+                this.style('opacity', '0.5');
+            }
+        }
+        return this;
+    }
+
     /** Adiciona um listener de evento */
     on(event, handler, options) {
+        if (this._isRestricted || !this.el.addEventListener) return this;
         this.el.addEventListener(event, handler, options);
         return this;
     }
 
     /** Atalho para evento click ou action da janela atual */
     click(handlerOrActionName) {
+        if (this._isRestricted || !this.el.addEventListener) return this;
         if (typeof handlerOrActionName === 'function') {
             this.el.addEventListener('click', (e) => handlerOrActionName(e, UIContext.getCurrent()));
         } else if (typeof handlerOrActionName === 'string') {
@@ -199,6 +267,7 @@ export class ElementBuilder {
 
     /** Liga o valor do elemento a um Signal ou ao state da janela (Two-Way Data Binding) */
     bind(signalOrStateKey) {
+        if (this._isRestricted || !this.el) return this;
         if (isSignal(signalOrStateKey)) {
             const sig = signalOrStateKey;
             if (this.el.type === 'checkbox') {
@@ -250,6 +319,7 @@ export class ElementBuilder {
 
     /** Conecta menu de contexto ao elemento */
     contextMenu(items) {
+        if (this._isRestricted || !this.el) return this;
         if (typeof this.el.setContextMenu === 'function') {
             this.el.setContextMenu(items);
         } else {
@@ -260,6 +330,7 @@ export class ElementBuilder {
 
     /** Anexa nós filhos (aceita Strings, Números, Signals, HTMLElement, ElementBuilder, Arrays ou falsy) */
     children(...children) {
+        if (this._isRestricted || !this.el || !this.el.appendChild) return this;
         const flat = children.flat(Infinity);
         flat.forEach(child => {
             if (child === null || child === undefined || child === false) return;
@@ -289,6 +360,27 @@ export class ElementBuilder {
     /** Alias para children */
     add(...children) {
         return this.children(...children);
+    }
+
+    /**
+     * Anexa o elemento deste builder a um elemento pai (HTMLElement, seletor CSS ou outro ElementBuilder).
+     * @param {HTMLElement|ElementBuilder|string} target
+     */
+    appendTo(target) {
+        if (!target) return this;
+        let parentEl = null;
+        if (target instanceof ElementBuilder) {
+            parentEl = target.el;
+        } else if (target instanceof Node) {
+            parentEl = target;
+        } else if (typeof target === 'string') {
+            parentEl = document.querySelector(target);
+        }
+
+        if (parentEl && parentEl.appendChild) {
+            parentEl.appendChild(this.build());
+        }
+        return this;
     }
 
     /** Retorna o elemento DOM nativo */
@@ -531,7 +623,9 @@ export const UI = {
 
     /** Instancia um componente customizado registrado via Framework.defineComponent */
     custom(name, props = {}) {
-        const compDef = Framework.getComponent(name);
+        // Busca via Framework e também diretamente no registry global (fallback para múltiplas instâncias de módulo)
+        const compDef = Framework.getComponent(name)
+            ?? (window.__DE_registry?.components?.[name]);
         if (!compDef) {
             throw new Error(`Componente customizado '${name}' não está registrado.`);
         }

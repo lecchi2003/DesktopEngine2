@@ -4375,8 +4375,8 @@ select option {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 5px;
-    padding: 6px 4px 8px;
+    gap: 4px;
+    padding: 6px 4px 6px;
     border-radius: var(--radius-sm, 6px);
     cursor: pointer;
     user-select: none;
@@ -4384,9 +4384,10 @@ select option {
     transition: background 0.18s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
     border: 1px solid transparent;
     position: relative;
-    overflow: hidden;
     text-align: center;
-    min-width: 60px;
+    min-width: 64px;
+    min-height: 80px;
+    height: auto;
 }
 
 .ui-shortcut__image {
@@ -4409,25 +4410,35 @@ select option {
 .ui-shortcut__label {
     font-size: 11px;
     font-weight: 500;
-    line-height: 1.3;
+    line-height: 1.25;
     max-width: 100%;
+    width: 100%;
     word-break: break-word;
+    overflow-wrap: break-word;
     text-align: center;
     color: var(--text-primary, #fff);
-    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.9);
     pointer-events: none;
-    /* Truncar em 2 linhas */
+    /* Truncar suavemente em até 3 linhas */
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    padding: 0 2px;
 }
 
 .ui-shortcut:hover {
-    background: rgba(255,255,255,0.12);
-    border-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.14);
+    border-color: rgba(255,255,255,0.25);
     transform: scale(1.05) translateY(-2px);
     box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    z-index: 10;
+}
+
+.ui-shortcut:hover .ui-shortcut__label,
+.ui-shortcut.active .ui-shortcut__label {
+    -webkit-line-clamp: unset;
+    overflow: visible;
 }
 
 .ui-shortcut:hover .ui-shortcut__image {
@@ -4439,6 +4450,7 @@ select option {
     border-color: rgba(var(--accent-rgb, 99,102,241), 0.5);
     box-shadow: 0 0 0 2px rgba(var(--accent-rgb, 99,102,241), 0.35),
                 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 10;
 }
 
 .ui-shortcut.active .ui-shortcut__label {

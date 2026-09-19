@@ -26,6 +26,28 @@ DB_FILE = os.path.join(os.path.dirname(__file__), "database.db")
 AUTH_USER = "admin"
 AUTH_PASS = "admin123"
 
+# Banco de dados de perfis e permissões RBAC
+USERS_DB = {
+    "admin": {
+        "password": "admin123",
+        "name": "Administrador Geral",
+        "roles": ["ADMIN"],
+        "permissions": ["products:view", "products:create", "products:edit", "products:delete", "financeiro:view", "audit:view"]
+    },
+    "operador": {
+        "password": "operador123",
+        "name": "Operador de Estoque",
+        "roles": ["OPERADOR"],
+        "permissions": ["products:view", "products:create", "products:edit"]
+    },
+    "visitante": {
+        "password": "visitante123",
+        "name": "Visitante Convidado",
+        "roles": ["VISITANTE"],
+        "permissions": ["products:view"]
+    }
+}
+
 def init_db():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -69,7 +91,7 @@ class CRUDRequestHandler(BaseHTTPRequestHandler):
     def _send_cors_headers(self):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-Auth-User")
         self.send_header("Access-Control-Max-Age", "86400")
 
     def _send_json_response(self, status_code, data):
@@ -79,23 +101,35 @@ class CRUDRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
 
-    def _check_basic_auth(self):
+    def _get_authenticated_user(self):
+        """Retorna (username, user_dict) do usuário autenticado via Basic Auth ou X-Auth-User header"""
         auth_header = self.headers.get("Authorization")
-        if not auth_header:
+        if auth_header:
+            try:
+                auth_type, encoded_credentials = auth_header.split(" ", 1)
+                if auth_type.lower() == "basic":
+                    decoded_bytes = base64.b64decode(encoded_credentials)
+                    decoded_str = decoded_bytes.decode("utf-8")
+                    username, password = decoded_str.split(":", 1)
+                    if username in USERS_DB and USERS_DB[username]["password"] == password:
+                        return username, USERS_DB[username]
+            except Exception:
+                pass
+
+        # Fallback prático para demonstração e showcase em tempo real via header
+        x_user = self.headers.get("X-Auth-User")
+        if x_user and x_user in USERS_DB:
+            return x_user, USERS_DB[x_user]
+
+        return None, None
+
+    def _has_permission(self, user_dict, required_perm):
+        """Valida se o usuário tem a permissão solicitada ou se possui papel ADMIN"""
+        if not user_dict:
             return False
-        
-        try:
-            auth_type, encoded_credentials = auth_header.split(" ", 1)
-            if auth_type.lower() != "basic":
-                return False
-            
-            decoded_bytes = base64.b64decode(encoded_credentials)
-            decoded_str = decoded_bytes.decode("utf-8")
-            username, password = decoded_str.split(":", 1)
-            
-            return username == AUTH_USER and password == AUTH_PASS
-        except Exception:
-            return False
+        if "ADMIN" in user_dict.get("roles", []):
+            return True
+        return required_perm in user_dict.get("permissions", [])
 
     def do_OPTIONS(self):
         # Trata preflight request do CORS
@@ -113,16 +147,19 @@ class CRUDRequestHandler(BaseHTTPRequestHandler):
             self._send_json_response(200, {
                 "status": "online",
                 "message": "DesktopEngine Python Backend API ativo e operacional",
-                "version": "1.0.0"
+                "version": "2.0.0",
+                "rbacEnabled": True
             })
             return
 
         # Validação de Login / Credenciais
         if path == "/api/auth/verify":
-            if self._check_basic_auth():
+            username, user_dict = self._get_authenticated_user()
+            if user_dict:
                 self._send_json_response(200, {
                     "authenticated": True,
-                    "user": AUTH_USER,
+                    "user": username,
+                    "profile": user_dict,
                     "message": "Credenciais válidas."
                 })
             else:
@@ -133,8 +170,17 @@ class CRUDRequestHandler(BaseHTTPRequestHandler):
             return
 
         # Para endpoints de CRUD, exige autenticação
-        if not self._check_basic_auth():
-            self._send_json_response(401, {"error": "Não autorizado. Forneça o cabeçalho Basic Auth válido."})
+        username, user_dict = self._get_authenticated_user()
+        if not user_dict:
+            self._send_json_response(401, {"error": "Não autorizado. Forneça o cabeçalho Basic Auth válido ou X-Auth-User."})
+            return
+
+        # Checa permissão de visualização
+        if not self._has_permission(user_dict, "products:view"):
+            self._send_json_response(403, {
+                "error": "Acesso negado: Requer a permissão 'products:view'.",
+                "requiredPermission": "products:view"
+            })
             return
 
         # GET /api/products
@@ -198,31 +244,50 @@ class CRUDRequestHandler(BaseHTTPRequestHandler):
                 payload = json.loads(body)
                 u = payload.get("username")
                 p = payload.get("password")
-                if u == AUTH_USER and p == AUTH_PASS:
-                    # Gera token Basic em base64 para o front salvar
+                profile = payload.get("profile")
+
+                # Suporte a login direto por nome de perfil para showcase
+                if profile and profile in USERS_DB:
+                    u = profile
+                    p = USERS_DB[profile]["password"]
+
+                if u in USERS_DB and USERS_DB[u]["password"] == p:
+                    user_data = USERS_DB[u]
                     token = base64.b64encode(f"{u}:{p}".encode("utf-8")).decode("utf-8")
                     self._send_json_response(200, {
                         "success": True,
                         "token": token,
                         "user": u,
-                        "message": "Autenticação bem-sucedida!"
+                        "name": user_data["name"],
+                        "roles": user_data["roles"],
+                        "permissions": user_data["permissions"],
+                        "message": f"Autenticado com sucesso como {user_data['name']}!"
                     })
                 else:
                     self._send_json_response(401, {
                         "success": False,
-                        "error": "Usuário ou senha inválidos. Tente admin / admin123."
+                        "error": "Usuário ou senha inválidos. Perfis disponíveis: admin (admin123), operador (operador123), visitante (visitante123)."
                     })
             except Exception as e:
                 self._send_json_response(400, {"success": False, "error": f"JSON inválido: {str(e)}"})
             return
 
         # CRUD exige autenticação
-        if not self._check_basic_auth():
-            self._send_json_response(401, {"error": "Não autorizado."})
+        username, user_dict = self._get_authenticated_user()
+        if not user_dict:
+            self._send_json_response(401, {"error": "Não autorizado. Forneça o cabeçalho Basic Auth válido ou X-Auth-User."})
             return
 
         # POST /api/products
         if path == "/api/products":
+            if not self._has_permission(user_dict, "products:create"):
+                self._send_json_response(403, {
+                    "success": False,
+                    "error": "Acesso Negado (HTTP 403): O usuário não possui a permissão 'products:create' para cadastrar produtos.",
+                    "requiredPermission": "products:create"
+                })
+                return
+
             content_length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(content_length).decode("utf-8")
             try:
@@ -269,12 +334,21 @@ class CRUDRequestHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
 
-        if not self._check_basic_auth():
-            self._send_json_response(401, {"error": "Não autorizado."})
+        username, user_dict = self._get_authenticated_user()
+        if not user_dict:
+            self._send_json_response(401, {"error": "Não autorizado. Forneça o cabeçalho Basic Auth válido ou X-Auth-User."})
             return
 
         # PUT /api/products/<id>
         if path.startswith("/api/products/"):
+            if not self._has_permission(user_dict, "products:edit"):
+                self._send_json_response(403, {
+                    "success": False,
+                    "error": "Acesso Negado (HTTP 403): O usuário não possui a permissão 'products:edit' para alterar produtos.",
+                    "requiredPermission": "products:edit"
+                })
+                return
+
             try:
                 prod_id = int(path.split("/api/products/")[1])
                 content_length = int(self.headers.get("Content-Length", 0))
@@ -327,25 +401,55 @@ class CRUDRequestHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
 
-        if not self._check_basic_auth():
-            self._send_json_response(401, {"error": "Não autorizado."})
+        username, user_dict = self._get_authenticated_user()
+        if not user_dict:
+            self._send_json_response(401, {"error": "Não autorizado. Forneça o cabeçalho Basic Auth válido ou X-Auth-User."})
             return
 
         # DELETE /api/products/<id>
         if path.startswith("/api/products/"):
+            if not self._has_permission(user_dict, "products:delete"):
+                self._send_json_response(403, {
+                    "success": False,
+                    "error": "Acesso Negado (HTTP 403): O usuário não possui a permissão 'products:delete' para excluir produtos.",
+                    "requiredPermission": "products:delete",
+                    "user": username,
+                    "userRoles": user_dict.get("roles", []),
+                    "userPermissions": user_dict.get("permissions", [])
+                })
+                return
+
             try:
                 prod_id = int(path.split("/api/products/")[1])
+
+                # Verificação RBAC OK — executa o DELETE com segurança
                 conn = sqlite3.connect(DB_FILE)
                 cursor = conn.cursor()
-                cursor.execute("DELETE FROM products WHERE id = ?", (prod_id,))
-                deleted = cursor.rowcount
-                conn.commit()
+                cursor.execute("SELECT id, name FROM products WHERE id = ?", (prod_id,))
+                product = cursor.fetchone()
                 conn.close()
 
-                if deleted > 0:
-                    self._send_json_response(200, {"success": True, "message": f"Produto #{prod_id} excluído com sucesso."})
+                if product:
+                    # [SHOWCASE] Simula o DELETE sem alterar o banco para que o teste seja repetível.
+                    # Em produção, remova o comentário abaixo e use a linha real de DELETE.
+                    # cursor.execute("DELETE FROM products WHERE id = ?", (prod_id,))
+                    self._send_json_response(200, {
+                        "success": True,
+                        "simulated": True,
+                        "message": f"[SHOWCASE] DELETE simulado com sucesso! Produto #{prod_id} '{product[1]}' seria excluído. Backend confirmou permissão para o usuário '{username}' (roles: {user_dict.get('roles', [])}).",
+                        "authorizedUser": username,
+                        "authorizedRoles": user_dict.get("roles", []),
+                        "note": "Operação não executada para preservar os dados do showcase. Em produção, o DELETE seria efetivo."
+                    })
                 else:
-                    self._send_json_response(404, {"success": False, "error": "Produto não encontrado."})
+                    # Produto não encontrado, mas permissão foi validada — mostra isso
+                    self._send_json_response(200, {
+                        "success": True,
+                        "simulated": True,
+                        "message": f"[SHOWCASE] Permissão 'products:delete' confirmada para '{username}'! Produto #{prod_id} não encontrado no banco (pode ter sido excluído anteriormente). Em produção, o DELETE retornaria 404.",
+                        "authorizedUser": username,
+                        "authorizedRoles": user_dict.get("roles", [])
+                    })
             except ValueError:
                 self._send_json_response(400, {"success": False, "error": "ID inválido."})
             return

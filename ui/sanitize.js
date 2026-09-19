@@ -1,10 +1,10 @@
-ï»¿// ui/sanitize.js
-// DesktopEngine V2.0 â€” MÃ³dulo de SanitizaÃ§Ã£o HTML
+// ui/sanitize.js
+// DesktopEngine V2.0 — Módulo de Sanitização HTML
 // [SEC-001] Protege contra XSS em componentes que aceitam HTML como string.
-// Usa DOMParser nativo (sem dependÃªncias externas) + allowlist de elementos/atributos.
+// Usa DOMParser nativo (sem dependências externas) + allowlist de elementos/atributos.
 
 /**
- * Elementos HTML seguros permitidos no conteÃºdo de componentes.
+ * Elementos HTML seguros permitidos no conteúdo de componentes.
  * Bloqueia: script, iframe, object, embed, form, input, button, link, meta, style, base
  */
 const ALLOWED_TAGS = new Set([
@@ -52,7 +52,7 @@ function sanitizeNode(node) {
 }
 
 /**
- * Retorna uma string HTML sanitizada, segura para inserÃ§Ã£o via innerHTML.
+ * Retorna uma string HTML sanitizada, segura para inserção via innerHTML.
  * @param {string} html
  * @returns {string}
  */

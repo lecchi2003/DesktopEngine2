@@ -1,12 +1,51 @@
 // ui/navigation.js
 // DesktopEngine V2.0
 import { createElement, applyCommonProps, resolveInstance } from './core-dom.js';
-import { Desktop } from '../desktop.js?v=2';
-import { EventBus, UIContext } from '../core.js?v=2';
+import { Desktop } from '../desktop.js';
+import { EventBus, UIContext, SecurityService } from '../core.js';
 import { safeSetHTML } from './sanitize.js';
+
+/**
+ * Remove recursivamente itens e submenus cujas permissions ou roles não sejam atendidas pelo SecurityService
+ * @param {Array} items
+ * @returns {Array}
+ */
+export function filterAuthorizedMenuItems(items = []) {
+    if (!Array.isArray(items)) return [];
+    const filtered = [];
+    for (const item of items) {
+        if (item === "separator") {
+            if (filtered.length > 0 && filtered[filtered.length - 1] !== "separator") {
+                filtered.push(item);
+            }
+            continue;
+        }
+        if (item && typeof item === 'object') {
+            if (item.permission && !SecurityService.can(item.permission)) continue;
+            if (item.role && !SecurityService.hasRole(item.role)) continue;
+
+            const cloned = { ...item };
+            if (Array.isArray(cloned.items)) {
+                cloned.items = filterAuthorizedMenuItems(cloned.items);
+            }
+            if (Array.isArray(cloned.submenu)) {
+                cloned.submenu = filterAuthorizedMenuItems(cloned.submenu);
+            }
+            if (Array.isArray(cloned.menus)) {
+                cloned.menus = filterAuthorizedMenuItems(cloned.menus);
+            }
+            filtered.push(cloned);
+        }
+    }
+    if (filtered.length > 0 && filtered[filtered.length - 1] === "separator") {
+        filtered.pop();
+    }
+    return filtered;
+}
 
 
 export function ContextMenu({ x, y, items = [] }) {
+    items = filterAuthorizedMenuItems(items);
     document.querySelectorAll(".ui-context-menu, .ui-bottom-sheet-backdrop").forEach(el => el.remove());
 
     const isMobileMode = (typeof window !== 'undefined' && window.Desktop && typeof window.Desktop.isMobile === 'function')
@@ -534,6 +573,7 @@ export function openMobileMenuDrawer({ menus = [], title = "📱 Menu Principal"
 }
 
 export function MenuBar({ containerId, element, position, menus = [], windowInstance = null } = {}) {
+    menus = filterAuthorizedMenuItems(menus);
     let bar;
     if (element && (element.nodeType || element instanceof HTMLElement)) {
         bar = element;
@@ -835,7 +875,10 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                         } else if (subItem.action) {
                             subItem.action(windowInstance, e);
                         }
+                        // Fecha o menu e reseta o estado isMenuOpen para evitar reabertura por hover
                         bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
+                        bar.querySelectorAll(".menubar-dropdown, .dropdown").forEach(d => { d.style.display = "none"; });
+                        isMenuOpen = false;
                     };
                 }
                 container.appendChild(opt);
@@ -958,6 +1001,11 @@ export function ActionToolbar({ containerId, element, position = "top", actions 
             return;
         }
 
+        if (act && typeof act === 'object') {
+            if (act.permission && !SecurityService.can(act.permission)) return;
+            if (act.role && !SecurityService.hasRole(act.role)) return;
+        }
+
         const btnChildren = [];
         if (act.icon) {
             btnChildren.push(createElement("span", "action-toolbar-icon", [act.icon]));
@@ -997,6 +1045,7 @@ export function ActionToolbar({ containerId, element, position = "top", actions 
 }
 
 export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
+    menus = filterAuthorizedMenuItems(menus);
     let btn = document.getElementById(buttonId);
 
     // Registra a configuração inicial no Desktop
@@ -2014,7 +2063,8 @@ export function ShortcutContainer(options = {}) {
     function _addShortcut(scEl) {
         if (!scEl) return;
         scEl.style.width = shortcutSizePx;
-        scEl.style.height = shortcutSizePx;
+        scEl.style.minHeight = shortcutSizePx;
+        scEl.style.height = 'auto';
         // Garante clicabilidade individual quando o container está em modo passthrough
         if (passthroughPointer) scEl.style.pointerEvents = 'auto';
         el.appendChild(scEl);
@@ -2073,7 +2123,7 @@ export function ShortcutContainer(options = {}) {
         setShortcutSize(size) {
             const s = typeof size === 'number' ? `${size}px` : size;
             el.dataset.shortcutSize = s;
-            el.querySelectorAll('.ui-shortcut').forEach(sc => { sc.style.width = s; sc.style.height = s; });
+            el.querySelectorAll('.ui-shortcut').forEach(sc => { sc.style.width = s; sc.style.minHeight = s; sc.style.height = 'auto'; });
             return this;
         },
 
@@ -2153,7 +2203,7 @@ export function Shortcut(options = {}) {
         action = null,
         instance = null,
         type = 'app',
-        iconSize = '48px',
+        iconSize = '40px',
         fontSize = '11px',
         active = false,
         disabled = false,

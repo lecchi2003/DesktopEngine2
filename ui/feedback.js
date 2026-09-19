@@ -1,7 +1,7 @@
 // ui/feedback.js
 // DesktopEngine V2.0
 import { createElement, applyCommonProps, resolveInstance } from './core-dom.js';
-import { Desktop } from '../desktop.js?v=2';
+import { Desktop } from '../desktop.js';
 
 
 export function Badge({ text, variant = "primary" }) {

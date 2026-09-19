@@ -5,9 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
     <title>Desktop Engine V1.5 - Padrão 5: Templates HTML Estáticos & Strings</title>
-    <link rel="stylesheet" href="./css/core.css?v=3">
-    <link rel="stylesheet" href="./css/components.css?v=3">
-    <link rel="stylesheet" id="desktop-theme-stylesheet" href="./css/themes/theme-win11.css?v=3">
+    <link rel="stylesheet" href="./css/core.css?v=5">
+    <link rel="stylesheet" href="./css/components.css?v=5">
+    <link rel="stylesheet" id="desktop-theme-stylesheet" href="./css/themes/theme-win11.css?v=5">
 </head>
 
 <body>
@@ -165,6 +165,9 @@
                 pedidos: []
             },
             view() {
+                // NOTA: document.getElementById aqui é intencional — esta tela demonstra
+                // especificamente a arquitetura de <template> HTML nativa do browser.
+                // Em telas comuns, use os componentes UI.* / ElementBuilder do framework.
                 const tpl = document.getElementById("pedido-template");
                 const clone = tpl.content.cloneNode(true);
                 const wrapper = document.createElement("div");
@@ -261,7 +264,6 @@
                         { label: "📄 5. Templates HTML Puro [Atual]", action: () => Desktop.open(Framework.createWindow(GuiaTemplateScreen, "guia_template", Desktop)) },
                         "separator",
                         { label: "🖥️ Layout macOS (index.html)", action: () => window.location.href = 'index.html' },
-                        { label: "🪟 Layout Windows (index2.html)", action: () => window.location.href = 'index2.html' },
                         { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
                     ]
                 },
@@ -290,19 +292,13 @@
             ]
         });
 
-        // Context Menu do Desktop
-        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            ContextMenu({
-                x: e.clientX, y: e.clientY,
-                items: [
-                    { label: "Abrir Calculadora (Template)", action: () => Desktop.open(Framework.createWindow(HtmlStringScreen, "calc_template", Desktop)) },
-                    { label: "Abrir Pedidos (Tag <template>)", action: () => Desktop.open(Framework.createWindow(DomTemplateScreen, "pedidos_dom_template", Desktop)) },
-                    "separator",
-                    { label: "Guia Desta Abordagem", action: () => Desktop.open(Framework.createWindow(GuiaTemplateScreen, "guia_template", Desktop)) }
-                ]
-            });
-        });
+        // Context Menu do Desktop (via API pública — sem getElementById)
+        Desktop.setContextMenu([
+            { label: "Abrir Calculadora (Template)", action: () => Desktop.open(Framework.createWindow(HtmlStringScreen, "calc_template", Desktop)) },
+            { label: "Abrir Pedidos (Tag <template>)", action: () => Desktop.open(Framework.createWindow(DomTemplateScreen, "pedidos_dom_template", Desktop)) },
+            "separator",
+            { label: "Guia Desta Abordagem", action: () => Desktop.open(Framework.createWindow(GuiaTemplateScreen, "guia_template", Desktop)) }
+        ]);
 
         // Abertura inicial
         setTimeout(() => {

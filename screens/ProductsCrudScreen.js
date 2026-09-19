@@ -21,7 +21,7 @@ export default {
     singleInstance: false,
     status: "Conectando à API Python...",
     state: {
-        apiUrl: "http://localhost:8000",
+        apiUrl: "http://localhost:8080",
         username: "admin",
         password: "admin123",
         authHeader: "Basic " + btoa("admin:admin123"),
@@ -77,7 +77,7 @@ export default {
             icon: "🌐",
             items: [
                 {
-                    label: "Testar Conexão (localhost:8000)",
+                    label: "Testar Conexão (localhost:8080)",
                     icon: "🔌",
                     action: (inst) => inst.checkApiHealth(true)
                 },
@@ -159,7 +159,7 @@ export default {
             const res = await fetch(`${this.state.apiUrl}/api/health`, { method: "GET" });
             if (res.ok) {
                 this.state.serverStatus = "online";
-                this.setStatus("🟢 API Python Online (http://localhost:8000)");
+                this.setStatus("🟢 API Python Online (" + this.state.apiUrl + ")");
                 if (notify) Toast({ message: "API Python está online e respondendo!", type: "success" });
                 this.fetchProducts();
             } else {
@@ -483,7 +483,7 @@ export default {
                 createElement("div", "flex-col", [
                     createElement("label", "", ["URL Base da API:"]),
                     (inpUrl = createElement("input", "filter-input", [], { value: this.state.apiUrl })),
-                    createElement("small", "", ["Padrão: http://localhost:8000 (servidor api.py)", { style: "opacity: 0.7; margin-top: 4px;" }]),
+                    createElement("small", "", ["Padrão: http://localhost:8080 (servidor api.py)", { style: "opacity: 0.7; margin-top: 4px;" }]),
                     Row({
                         style: "justify-content: flex-end; gap: 8px; margin-top: 16px;",
                         children: [
@@ -514,7 +514,7 @@ export default {
                     createElement("ol", "", [
                         createElement("li", "", ["Abra o terminal na pasta raiz do projeto."]),
                         createElement("li", "", ["Execute o comando: ", createElement("code", "", ["python api.py"])]),
-                        createElement("li", "", ["O servidor iniciará em ", createElement("code", "", ["http://localhost:8000"])]),
+                        createElement("li", "", ["O servidor iniciará em ", createElement("code", "", ["http://localhost:8080"])]),
                         createElement("li", "", ["Credenciais Basic Auth: usuário ", createElement("b", "", ["admin"]), " e senha ", createElement("b", "", ["admin123"])])
                     ]),
                     createElement("p", "", ["A API possui suporte nativo a CORS, persistência automática em SQLite (database.db) e rotas REST completas."])
@@ -536,7 +536,7 @@ export default {
         let statusBadge = "🟡 Verificando...";
         let statusColor = "#f59e0b";
         if (isOnline) {
-            statusBadge = "🟢 API Python Online (localhost:8000)";
+            statusBadge = `🟢 API Python Online (${this.state.apiUrl})`;
             statusColor = "#10b981";
         } else if (isMock) {
             statusBadge = "🎭 Modo Mock Local";

@@ -20,7 +20,6 @@ Para rodar localmente:
 
 **Páginas de Demonstração Incluídas:**
 - **`index.html`:** Layout moderno com **MenuBar superior** (estilo macOS) e taskbar de janelas.
-- **`index2.html`:** Layout clássico com **Menu Iniciar na Taskbar** (estilo Windows).
 - **`index-direct.html`:** **Padrão 1** — Criação Direta (Inline Objects & Multi-Instâncias / Post-its).
 - **`index-lazy.html`:** **Padrão 2** — Screen Registry & Lazy Loading Modular (`/screens/*.js`).
 - **`index-factory.html`:** **Padrão 3** — Factory Functions & Geradores de Telas Parametrizadas (CRUD Generator, BI KPIs).
@@ -271,9 +270,10 @@ Desktop.open(Framework.createWindow(MinhaJanela, "ID_UNICO_JANELA", Desktop));
 O **DesktopEngine** promove o desenvolvimento híbrido (declarativo + programático fluente) através do módulo [`ElementBuilder.js`](file:///c:/Users/lecch/Desktop/Projetos/DesktopEngine/ElementBuilder.js) e da fachada `UI`. Esta abordagem elimina a necessidade de manipulação direta de nós DOM via `document.createElement`, strings de HTML cruas ou chamadas a `document.getElementById`:
 
 ### Vantagens da Fluent API:
-1. **Zero DOM Bruto**: Construção estruturada por métodos encadeáveis (`.class()`, `.style()`, `.text()`, `.children()`, `.click()`).
+1. **Zero DOM Bruto**: Construção estruturada por métodos encadeáveis (`.class()`, `.style()`, `.text()`, `.children()`, `.click()`, `.appendTo()`).
 2. **Integração Nativa com o UI Kit**: Acesso imediato a todos os componentes do framework (`UI.card()`, `UI.grid()`, `UI.input()`, `UI.button()`, `UI.badge()`, etc.).
 3. **Encapsulamento de Eventos e Ações**: Disparo direto de actions da janela passando apenas o nome da ação (`.click("salvar")` ou `UI.button("Salvar", "salvar")`).
+4. **Controle de Acesso RBAC Nativo**: Proteção fluente de nós via `.requirePermission()` e `.requireRole()` com remoção inerte do DOM ou desabilitação estrita.
 
 ```javascript
 import { UI, ElementBuilder } from './ElementBuilder.js';
@@ -2015,9 +2015,298 @@ Desktop.loadConfig({
 
 ---
 
+## 🛡️ Guia de Arquitetura & Implementação: Autenticação, Autorização e Segurança Zero-Trust (RBAC)
+
+Em aplicações no estilo *Desktop in Browser* como o **DesktopEngine**, a interface simula janelas, menus de contexto, barras de ferramentas e atalhos com alto grau de interatividade. No entanto, por rodar integralmente no navegador do usuário, qualquer tentativa de implementar segurança **exclusivamente no frontend** é vulnerável a manipulação via DevTools (F12), injeção de scripts no console ou alteração de atributos no DOM.
+
+> ⚠️ **Princípio Zero-Trust (Frontend não é fronteira de confiança):**  
+> O código do cliente (HTML, CSS, JS) atua exclusivamente como **UX Defensiva (Experiência do Usuário)**. A autoridade inquebrável sobre o acesso a dados e ações de negócio reside **sempre no Servidor / Backend**. O sistema seguro combina a blindagem incondicional do backend com conveniência e higienização rigorosa da interface no frontend.
+
+### 1. Arquitetura em 4 Camadas de Proteção
+
+```text
++-------------------------------------------------------------------------+
+|                  1. BACKEND ZERO-TRUST (Autoridade Máxima)               |
+|  - Validação Criptográfica de Sessão (HttpOnly Cookie / JWT Assinado)   |
+|  - Autorização RBAC/ABAC por Endpoint de Dados e Ação (/api/...)        |
+|  - Rejeição Imediata com HTTP 401 / 403 para requisições não autorizadas |
++-------------------------------------------------------------------------+
+                                    ▲
+                                    │ (fetch seguro com credenciais)
+                                    ▼
++-------------------------------------------------------------------------+
+|                2. GUARDS DE ROTEAMENTO E CARREGAMENTO LAZY              |
+|  - Desktop.openScreen() interceptado por Guards de Acesso               |
+|  - Módulos restritos servidos dinamicamente apenas sob autorização       |
++-------------------------------------------------------------------------+
+                                    ▲
+                                    ▼
++-------------------------------------------------------------------------+
+|             3. SERVIÇO DE SEGURANÇA REATIVO (SecurityService)           |
+|  - Contexto global de permissões do usuário logado (Signals nativos)    |
+|  - Higienização automática de itens no MenuBar, ContextMenu e StartMenu |
++-------------------------------------------------------------------------+
+                                    ▲
+                                    ▼
++-------------------------------------------------------------------------+
+|           4. APLICAÇÃO HÍBRIDA (Declarativa & ElementBuilder)            |
+|  - data-permission com remoção definitiva do nó DOM (evita display:none)|
+|  - ElementBuilder.requirePermission() para construção fluente e segura  |
++-------------------------------------------------------------------------+
+```
+
+---
+
+### 2. Camada de Serviço de Segurança Central (`SecurityService`)
+
+O `SecurityService` centraliza os dados do usuário autenticado, suas roles (papéis) e permissões granulares, utilizando **Signals** para permitir que qualquer parte da interface reaja imediatamente a trocas de usuário ou logout:
+
+```javascript
+import { signal } from './core.js';
+
+export const SecurityService = {
+    // Sinais reativos finos
+    user: signal(null),
+    permissions: signal(new Set()),
+    roles: signal(new Set()),
+
+    /**
+     * Inicializa a sessão com os dados retornados pelo endpoint de autenticação
+     * @param {Object} session - { user: 'admin', roles: ['ADMIN'], permissions: ['users:view', 'users:delete'] }
+     */
+    init(session) {
+        this.user.value = session?.user || null;
+        this.permissions.value = new Set(session?.permissions || []);
+        this.roles.value = new Set(session?.roles || []);
+    },
+
+    /**
+     * Checa se o usuário possui a permissão exigida (ou se é ADMIN absoluto)
+     * @param {string} perm - Ex: 'users:delete'
+     * @returns {boolean}
+     */
+    can(perm) {
+        if (!perm) return true;
+        if (this.roles.value.has('ADMIN')) return true; // Superusuário
+        return this.permissions.value.has(perm);
+    },
+
+    /**
+     * Checa se o usuário possui determinado papel (role)
+     * @param {string} role - Ex: 'FINANCEIRO'
+     * @returns {boolean}
+     */
+    hasRole(role) {
+        if (!role) return true;
+        return this.roles.value.has(role);
+    },
+
+    /**
+     * Efetua logout seguro e limpa o estado
+     */
+    logout() {
+        this.user.value = null;
+        this.permissions.value = new Set();
+        this.roles.value = new Set();
+        window.location.reload();
+    }
+};
+```
+
+---
+
+### 3. Guards de Janelas e Telas (`Desktop.openScreen`)
+
+Para impedir que usuários abram janelas restritas digitando comandos no console (ex: `Desktop.openScreen('painel_financeiro')`), registre as telas declarando o requisito de autorização e proteja a abertura:
+
+```javascript
+import { Desktop } from './desktop.js';
+import { SecurityService } from './core.js';
+
+// 1. Registro de Telas com Metadados de Permissão
+Desktop.registerScreen('financeiro', {
+    permission: 'financeiro:view',
+    title: 'Painel Financeiro',
+    singleInstance: true,
+    // Carregamento dinâmico (Lazy Loading) do módulo sob demanda:
+    view: async () => {
+        const module = await import('./screens/financeiro.js');
+        return module.render();
+    }
+});
+
+// 2. Interceptor / Guard global antes de abrir qualquer tela:
+const originalOpenScreen = Desktop.openScreen.bind(Desktop);
+Desktop.openScreen = async function(idOrConfig, initialProps = {}) {
+    const screenId = typeof idOrConfig === 'string' ? idOrConfig : idOrConfig.id;
+    const config = typeof idOrConfig === 'string' ? this.screens[screenId] : idOrConfig;
+
+    if (config && config.permission && !SecurityService.can(config.permission)) {
+        Desktop.notify(`Acesso negado: Você não possui a permissão "${config.permission}".`, 'danger');
+        console.warn(`[Security Guard] Tentativa não autorizada de abrir tela: ${screenId}`);
+        return null; // A tela nem sequer é instanciada nem renderizada
+    }
+
+    return originalOpenScreen(idOrConfig, initialProps);
+};
+```
+
+---
+
+### 4. Sanitização Automática de Menus e Barras de Ações (MenuBar, ContextMenu, StartMenu e ActionToolbar)
+
+Itens de menu e ações que o usuário não tem direito de acessar **jamais são gerados com `display: none`** no DOM, pois um invasor poderia simplesmente inspecionar e remover a classe CSS. No DesktopEngine, o componente `ui/navigation.js` aplica a filtragem nativa **antes da renderização** através da função `filterAuthorizedMenuItems`:
+
+```javascript
+import { ContextMenu, MenuBar, StartMenu, ActionToolbar, filterAuthorizedMenuItems } from './ui.js';
+import { SecurityService } from './core.js';
+
+// Exemplo: MenuBar, StartMenu, ContextMenu e ActionToolbar filtram automaticamente!
+MenuBar({
+    container: '#menubar',
+    menus: [
+        {
+            label: 'Sistema',
+            items: [
+                { label: 'Relatórios Gerais', action: () => Desktop.openScreen('relatorios') },
+                { label: 'Auditoria Fiscal', permission: 'fiscal:audit', action: () => Desktop.openScreen('fiscal') },
+                { label: 'Excluir Base de Dados', role: 'ADMIN', action: () => expurgarDados() }
+            ]
+        }
+    ]
+});
+
+// Em ActionToolbar, botões restritos são omitidos da montagem:
+ActionToolbar({
+    element: toolbarEl,
+    actions: [
+        { icon: '📝', label: 'Editar', permission: 'products:edit', action: 'edit' },
+        { icon: '🗑️', label: 'Excluir', permission: 'products:delete', action: 'delete' }
+    ]
+});
+```
+
+---
+
+### 5. Abordagem Híbrida em Elementos de Tela
+
+#### A) Programática via `ElementBuilder.js` (Recomendada)
+Utilize o método fluente `.requirePermission()`. Se a permissão não for atendida, o elemento é substituído por um comentário inofensivo no DOM ou renderizado em modo estritamente desabilitado:
+
+```javascript
+// Exemplo de uso no ElementBuilder:
+new ElementBuilder('button')
+    .class('btn', 'btn-danger')
+    .text('Excluir Registro')
+    // Se o usuário não tiver 'users:delete', o nó é removido do DOM:
+    .requirePermission('users:delete', { behavior: 'remove' }) // 'remove' | 'disable'
+    .click(async () => {
+        await api.deleteUser(id);
+    })
+    .appendTo(container);
+
+// Implementação interna no ElementBuilder:
+ElementBuilder.prototype.requirePermission = function(permission, options = { behavior: 'remove' }) {
+    if (!SecurityService.can(permission)) {
+        if (options.behavior === 'remove') {
+            // Converte o elemento para um comentário inerte sem eventos nem visual
+            this.el = document.createComment(`[Acesso Restrito: ${permission}]`);
+        } else {
+            this.attr('disabled', 'true')
+                .addClass('is-disabled')
+                .attr('title', 'Você não tem permissão para executar esta ação');
+        }
+    }
+    return this;
+};
+```
+
+#### B) Declarativa via HTML (Data Attributes)
+Em templates HTML estáticos ou strings, utilize atributos semânticos processados na montagem da tela:
+
+```html
+<!-- Template Declarativo Seguro -->
+<div class="toolbar-actions">
+    <button class="btn btn-secondary" onclick="exportarCSV()">Exportar</button>
+    <button class="btn btn-danger" data-permission="financeiro:estornar" data-auth-behavior="remove">
+        Estornar Pagamento
+    </button>
+</div>
+```
+
+Função utilitária de sanitização declarativa na inicialização da janela:
+
+```javascript
+export function applySecurityPolicies(rootEl) {
+    if (!rootEl) return;
+    rootEl.querySelectorAll('[data-permission]').forEach(el => {
+        const perm = el.getAttribute('data-permission');
+        const behavior = el.getAttribute('data-auth-behavior') || 'remove';
+
+        if (!SecurityService.can(perm)) {
+            if (behavior === 'remove') {
+                el.remove(); // Exclusão física do DOM
+            } else {
+                el.setAttribute('disabled', 'true');
+                el.classList.add('disabled');
+            }
+        }
+    });
+}
+```
+
+---
+
+### 6. Proteção Incondicional no Backend (Exemplo Python com RBAC)
+
+No arquivo `api.py`, todo endpoint que manipule ou entregue dados confidenciais valida as credenciais criptográficas e as permissões associadas à sessão:
+
+```python
+# Exemplo conceitual no api.py
+def check_permission(session, required_permission):
+    user_roles = session.get("roles", [])
+    if "ADMIN" in user_roles:
+        return True
+    return required_permission in session.get("permissions", [])
+
+def handle_delete_product(handler, session, product_id):
+    if not check_permission(session, "products:delete"):
+        # HTTP 403 Forbidden imediato
+        handler.send_response(403)
+        handler.send_header("Content-Type", "application/json")
+        handler.end_headers()
+        handler.wfile.write(json.dumps({"error": "Acesso Negado: Permissão insuficiente"}).encode())
+        return
+
+    # Execução autorizada no banco SQLite
+    db_delete_product(product_id)
+```
+
+---
+
+### 7. Matriz de Vetores de Ataque no DevTools vs Resposta do Framework
+
+| Tentativa de Ataque do Usuário (DevTools / F12) | O que o invasor tenta fazer | Por que a tentativa **FALHA** |
+|---|---|---|
+| **Remover `display: none` ou `disabled`** | Edita o HTML inspecionado para tornar visível ou clicável um botão de exclusão. | Com `behavior: 'remove'`, o elemento **nem existe no DOM**. Mesmo que o usuário crie manualmente o elemento e dispare a requisição, o backend retorna **HTTP 403**. |
+| **Abertura Forçada via Console JS** | Digita `Desktop.openScreen('painel_admin')` no console do navegador. | O guard em `openScreen()` barra a criação. Se a tela usar carregamento de dados da API, o servidor rejeita os dados sigilosos com **HTTP 401/403**. |
+| **Sobrescrita de Funções Locais** | Digita `SecurityService.can = () => true` no console. | Ele pode alterar o comportamento visual local de sua própria máquina, mas qualquer interação que faça requisições HTTP falhará criptograficamente no backend. |
+| **Roubo de Tokens via XSS / Storage** | Executa `localStorage.getItem('token')` para sequestrar sessões. | Sessões seguras utilizam **Cookies com flag `HttpOnly`**, inacessíveis para leitura via scripts do navegador. |
+
+---
+
+### 8. Demonstração Interativa ao Vivo no DesktopEngine
+
+> 💡 **Experimente na Prática:**  
+> Abra o arquivo `index.html` e clique no atalho **🛡️ Segurança & RBAC** no Desktop (ou execute `Desktop.openScreen('security_rbac')`).  
+> Nessa tela você pode alternar perfis em tempo real (*Visitante*, *Operador*, *Administrador*), testar a remoção física de botões no DOM via `ElementBuilder` e `data-permission`, experimentar o bloqueio do Guard ao tentar abrir o *Painel Financeiro Restrito* e simular requisições protegidas contra o backend `api.py` com retorno de **HTTP 403 Forbidden**.
+
+---
+
 ## 📖 Visualizando a Documentação Interativa
 
-Para navegar pelo manual visual com menu lateral expansível e tabelas de consulta rápida:
-👉 Abra o arquivo **`docs.html`** no seu navegador.
+Para navegar pelo manual visual com syntax highlighting colorido, botão de cópia de código em um clique, busca instantânea e menu lateral expansível:
+👉 Abra o arquivo **`docs.html`** no seu navegador ou acesse pelo servidor local `http://localhost:8000/docs.html`.
 
-
+---
+*DesktopEngine V2.1 &copy; 2026 - O micro-framework corporativo definitivo em Vanilla JS.*
