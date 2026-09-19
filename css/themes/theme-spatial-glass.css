@@ -1,5 +1,22 @@
 /* DesktopEngine V2.0 - Look and Feel: spatial-glass */
 
+/* Spatial Glass: sobrescreve variáveis de cor para esquema dark */
+[data-laf="spatial-glass"] {
+    --text-primary:   rgba(255, 255, 255, 0.95);
+    --text-secondary: rgba(255, 255, 255, 0.60);
+    --menu-text:      rgba(255, 255, 255, 0.95);
+    --input-bg:       rgba(255, 255, 255, 0.07);
+    --input-border:   rgba(255, 255, 255, 0.18);
+    --input-text:     rgba(255, 255, 255, 0.92);
+    --win-bg:         rgba(28, 28, 32, 0.78);
+    --win-border:     rgba(255, 255, 255, 0.14);
+    --bg-secondary:   rgba(255, 255, 255, 0.07);
+    --btn-primary:    rgba(99, 102, 241, 0.85);
+    --btn-primary-hover: rgba(99, 102, 241, 1);
+    --btn-primary-text: #ffffff;
+}
+
+/* Todos os outros LaFs mantêm seus padrões claros */
 :root,
 [data-laf="default"],
 [data-laf="steel-metal"],
@@ -24,7 +41,6 @@
 [data-laf="aubergine-orange"],
 [data-laf="aqua-frosted"],
 [data-laf="fluent-acrylic"],
-[data-laf="spatial-glass"],
 [data-laf="cupertino-touch"],
 [data-laf="flatlaf-light"],
 [data-laf="comic-doodle"] {
@@ -36,7 +52,13 @@
     --input-text: #111827;
 }
 
-[data-laf="spatial-glass"] .statusbar,
+[data-laf="spatial-glass"] .statusbar {
+    background: rgba(18, 18, 22, 0.65) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+    color: rgba(255, 255, 255, 0.70) !important;
+    font-size: 11px !important;
+}
+
 [data-laf="cupertino-touch"] .statusbar {
     background: rgba(255, 255, 255, 0.4) !important;
     border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -54,60 +76,137 @@
 }
 
 [data-laf="spatial-glass"] .titlebar {
-    background: var(--bg-secondary) !important;
-    backdrop-filter: blur(25px) !important;
-    border-bottom: 1px solid var(--win-border) !important;
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.06) !important;
+    backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
     height: 46px;
     padding: 0 18px;
     border-radius: 26px 26px 0 0;
 }
 
 [data-laf="spatial-glass"] .titleText {
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--text-primary);
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4) !important;
 }
 
 [data-laf="spatial-glass"] .winBtn {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: rgba(128, 128, 128, 0.2);
+    background: rgba(255, 255, 255, 0.12) !important;
     backdrop-filter: blur(10px);
-    color: var(--text-secondary);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.80) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
 [data-laf="spatial-glass"] .winBtn:hover {
-    background: rgba(128, 128, 128, 0.35);
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.22) !important;
+    color: #ffffff !important;
 }
 
 [data-laf="spatial-glass"] .winBtn.close:hover {
-    background: rgba(239, 68, 68, 0.85);
-    color: #ffffff;
+    background: rgba(239, 68, 68, 0.85) !important;
+    color: #ffffff !important;
 }
 
+/* Cards e painéis internos — glass escuro sutil */
 [data-laf="spatial-glass"] .ui-card,
 [data-laf="spatial-glass"] .card {
-    border-radius: 20px;
-    background: var(--bg-secondary);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--win-border);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-    color: var(--text-primary);
+    border-radius: 20px !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+    color: rgba(255, 255, 255, 0.92) !important;
 }
 
+[data-laf="spatial-glass"] .ui-card .card-title,
+[data-laf="spatial-glass"] .card .card-title,
+[data-laf="spatial-glass"] .ui-card h3,
+[data-laf="spatial-glass"] .card h3 {
+    color: rgba(255, 255, 255, 0.95) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Botões — glass com acento índigo */
 [data-laf="spatial-glass"] .ui-btn,
 [data-laf="spatial-glass"] .ui-button,
 [data-laf="spatial-glass"] .btn {
-    border-radius: 18px;
-    background: var(--bg-secondary);
-    backdrop-filter: blur(15px);
-    border: 1px solid var(--win-border);
-    color: var(--text-primary);
-    font-weight: 600;
+    border-radius: 18px !important;
+    background: rgba(255, 255, 255, 0.10) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+    font-weight: 600 !important;
+}
+
+[data-laf="spatial-glass"] .ui-btn:hover,
+[data-laf="spatial-glass"] .ui-button:hover,
+[data-laf="spatial-glass"] .btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+
+[data-laf="spatial-glass"] .ui-btn-primary,
+[data-laf="spatial-glass"] .ui-button.primary,
+[data-laf="spatial-glass"] .btn-primary {
+    background: rgba(99, 102, 241, 0.85) !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4) !important;
+}
+
+[data-laf="spatial-glass"] .ui-btn-primary:hover,
+[data-laf="spatial-glass"] .ui-button.primary:hover {
+    background: rgba(99, 102, 241, 1) !important;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55) !important;
+}
+
+/* Inputs */
+[data-laf="spatial-glass"] input,
+[data-laf="spatial-glass"] textarea,
+[data-laf="spatial-glass"] select {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+    border-radius: 10px !important;
+}
+
+[data-laf="spatial-glass"] input::placeholder,
+[data-laf="spatial-glass"] textarea::placeholder {
+    color: rgba(255, 255, 255, 0.38) !important;
+}
+
+[data-laf="spatial-glass"] input:focus,
+[data-laf="spatial-glass"] textarea:focus,
+[data-laf="spatial-glass"] select:focus {
+    border-color: rgba(99, 102, 241, 0.7) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+    outline: none !important;
+}
+
+/* Labels e texto geral */
+[data-laf="spatial-glass"] label,
+[data-laf="spatial-glass"] p,
+[data-laf="spatial-glass"] span,
+[data-laf="spatial-glass"] li {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+[data-laf="spatial-glass"] h1,
+[data-laf="spatial-glass"] h2,
+[data-laf="spatial-glass"] h3,
+[data-laf="spatial-glass"] h4 {
+    color: rgba(255, 255, 255, 0.97) !important;
+}
+
+/* WindowBody */
+[data-laf="spatial-glass"] .windowBody {
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.88) !important;
 }
 
 [data-laf="spatial-glass"] #menubar,
