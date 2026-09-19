@@ -875,7 +875,10 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                         } else if (subItem.action) {
                             subItem.action(windowInstance, e);
                         }
+                        // Fecha o menu e reseta o estado isMenuOpen para evitar reabertura por hover
                         bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
+                        bar.querySelectorAll(".menubar-dropdown, .dropdown").forEach(d => { d.style.display = "none"; });
+                        isMenuOpen = false;
                     };
                 }
                 container.appendChild(opt);

@@ -623,7 +623,9 @@ export const UI = {
 
     /** Instancia um componente customizado registrado via Framework.defineComponent */
     custom(name, props = {}) {
-        const compDef = Framework.getComponent(name);
+        // Busca via Framework e também diretamente no registry global (fallback para múltiplas instâncias de módulo)
+        const compDef = Framework.getComponent(name)
+            ?? (window.__DE_registry?.components?.[name]);
         if (!compDef) {
             throw new Error(`Componente customizado '${name}' não está registrado.`);
         }
