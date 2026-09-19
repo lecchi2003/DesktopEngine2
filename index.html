@@ -1239,7 +1239,7 @@
         // passthroughPointer: cliques passam pelo overlay, janelas funcionam normalmente
         // Salvamos em Desktop.shortcutArea para que qualquer janela possa injetar atalhos lá
         Desktop.shortcutArea = ShortcutContainer({
-            container: document.getElementById('windows'),
+            container: Desktop.getWindowsContainer(),
             full: true,
             scroll: false,
             alignH: 'left',

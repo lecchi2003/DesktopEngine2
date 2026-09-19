@@ -1967,6 +1967,12 @@ export const Desktop = {
         return document.getElementById(this.options?.desktopContainerId || "desktop") || this.windowsEl || document.body;
     },
 
+    /** Retorna o elemento container onde as janelas são renderizadas.
+     *  Use em vez de document.getElementById('windows'). */
+    getWindowsContainer() {
+        return this.windowsEl || document.getElementById(this.options?.windowsContainerId || "windows");
+    },
+
     getTaskbar() {
         return document.getElementById("taskbar") || this.tasksEl?.closest('.taskbar') || document.querySelector('.taskbar');
     },
