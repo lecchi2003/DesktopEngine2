@@ -20,7 +20,6 @@ Para rodar localmente:
 
 **Páginas de Demonstração Incluídas:**
 - **`index.html`:** Layout moderno com **MenuBar superior** (estilo macOS) e taskbar de janelas.
-- **`index2.html`:** Layout clássico com **Menu Iniciar na Taskbar** (estilo Windows).
 - **`index-direct.html`:** **Padrão 1** — Criação Direta (Inline Objects & Multi-Instâncias / Post-its).
 - **`index-lazy.html`:** **Padrão 2** — Screen Registry & Lazy Loading Modular (`/screens/*.js`).
 - **`index-factory.html`:** **Padrão 3** — Factory Functions & Geradores de Telas Parametrizadas (CRUD Generator, BI KPIs).
@@ -2306,8 +2305,8 @@ def handle_delete_product(handler, session, product_id):
 
 ## 📖 Visualizando a Documentação Interativa
 
-Para navegar pelo manual visual com menu lateral expansível e tabelas de consulta rápida:
-👉 Abra o arquivo **`docs.html`** no seu navegador.
+Para navegar pelo manual visual com syntax highlighting colorido, botão de cópia de código em um clique, busca instantânea e menu lateral expansível:
+👉 Abra o arquivo **`docs.html`** no seu navegador ou acesse pelo servidor local `http://localhost:8000/docs.html`.
 
-
-
+---
+*DesktopEngine V2.1 &copy; 2026 - O micro-framework corporativo definitivo em Vanilla JS.*

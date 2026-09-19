@@ -1,8 +1,8 @@
 // ui/navigation.js
 // DesktopEngine V2.0
 import { createElement, applyCommonProps, resolveInstance } from './core-dom.js';
-import { Desktop } from '../desktop.js?v=3';
-import { EventBus, UIContext, SecurityService } from '../core.js?v=3';
+import { Desktop } from '../desktop.js';
+import { EventBus, UIContext, SecurityService } from '../core.js';
 import { safeSetHTML } from './sanitize.js';
 
 /**

@@ -1,7 +1,7 @@
 // desktop.js
 //Autor: Gildasio Lecchi Cravo
-import { EventBus, Framework, SecurityService, applySecurityPolicies } from './core.js?v=3';
-import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js?v=3';
+import { EventBus, Framework, SecurityService, applySecurityPolicies } from './core.js';
+import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js';
 import { safeHTML } from './ui/sanitize.js';
 
 export const Desktop = {

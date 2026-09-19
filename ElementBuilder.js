@@ -1,7 +1,7 @@
 // ElementBuilder.js
 // Autor: Gildasio Lecchi Cravo
-import { UIContext, Framework, isSignal, effect, SecurityService } from './core.js?v=3';
-import * as UIComponents from './ui.js?v=3';
+import { UIContext, Framework, isSignal, effect, SecurityService } from './core.js';
+import * as UIComponents from './ui.js';
 import { safeSetHTML } from './ui/sanitize.js';
 
 /**

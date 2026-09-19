@@ -375,20 +375,26 @@ export class BaseComponent {
 }
 
 // --- Core Engine ---
+// Registry global compartilhado — garante singleton mesmo se o módulo for carregado
+// múltiplas vezes (ex: caminhos relativos diferentes ou query strings variadas).
+if (!window.__DE_registry) {
+    window.__DE_registry = { components: {}, plugins: [] };
+}
+
 export const Framework = {
-    _components: {},
-    _plugins: [],
+    get _components() { return window.__DE_registry.components; },
+    get _plugins()    { return window.__DE_registry.plugins; },
 
     /** Registra um novo componente no framework para uso declarativo e programático */
     defineComponent(name, componentDef) {
         if (!name || !componentDef) throw new Error("Nome e definição do componente são obrigatórios.");
-        this._components[name] = componentDef;
+        window.__DE_registry.components[name] = componentDef;
         return this;
     },
 
     /** Retorna um componente previamente registrado */
     getComponent(name) {
-        return this._components[name];
+        return window.__DE_registry.components[name];
     },
 
     /** Registra e executa um plugin que estende o framework */

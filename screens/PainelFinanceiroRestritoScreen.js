@@ -1,7 +1,7 @@
 // screens/PainelFinanceiroRestritoScreen.js
 // Tela de teste para validação de Guard de Permissão (Requer 'financeiro:view')
-import { ElementBuilder } from '../ElementBuilder.js?v=3';
-import { SecurityService } from '../core.js?v=3';
+import { ElementBuilder } from '../ElementBuilder.js';
+import { SecurityService } from '../core.js';
 
 export default {
     id: "painel_financeiro_restrito",

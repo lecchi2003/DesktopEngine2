@@ -1,8 +1,8 @@
 // screens/SecurityRbacScreen.js
 // DesktopEngine V2.0 - Showcase de Segurança e Controle de Acesso Baseado em Papéis (RBAC)
-import { SecurityService, EventBus, applySecurityPolicies } from '../core.js?v=3';
-import { ElementBuilder } from '../ElementBuilder.js?v=3';
-import { Desktop } from '../desktop.js?v=3';
+import { SecurityService, EventBus, applySecurityPolicies } from '../core.js';
+import { ElementBuilder } from '../ElementBuilder.js';
+import { Desktop } from '../desktop.js';
 
 export default {
     id: "security_rbac",

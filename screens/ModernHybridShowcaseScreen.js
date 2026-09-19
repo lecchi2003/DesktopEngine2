@@ -1,8 +1,8 @@
 // screens/ModernHybridShowcaseScreen.js
 // Autor: Gildasio Lecchi Cravo
-import { Framework, BaseComponent } from '../core.js?v=3';
-import { Desktop } from '../desktop.js?v=3';
-import { UI, ElementBuilder } from '../ElementBuilder.js?v=3';
+import { Framework, BaseComponent } from '../core.js';
+import { Desktop } from '../desktop.js';
+import { UI, ElementBuilder } from '../ElementBuilder.js';
 
 /**
  * Exemplo de Extensibilidade: Criação de um Componente Customizado herdando de BaseComponent.
