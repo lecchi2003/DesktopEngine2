@@ -35,22 +35,22 @@ export default {
                     Button({
                         text: "Product A",
                         style: "height: 100%; min-height: 52px; font-size: 15px; font-weight: 700;",
-                        onClick: () => this.executeAction("selectProduct", "Product A")
+                        onClick: () => this.runAction("selectProduct", "Product A")
                     }),
                     Button({
                         text: "Product B",
                         style: "height: 100%; min-height: 52px; font-size: 15px; font-weight: 700;",
-                        onClick: () => this.executeAction("selectProduct", "Product B")
+                        onClick: () => this.runAction("selectProduct", "Product B")
                     }),
                     Button({
                         text: "Product C",
                         style: "height: 100%; min-height: 52px; font-size: 15px; font-weight: 700;",
-                        onClick: () => this.executeAction("selectProduct", "Product C")
+                        onClick: () => this.runAction("selectProduct", "Product C")
                     }),
                     Button({
                         text: "Product D",
                         style: "height: 100%; min-height: 52px; font-size: 15px; font-weight: 700;",
-                        onClick: () => this.executeAction("selectProduct", "Product D")
+                        onClick: () => this.runAction("selectProduct", "Product D")
                     })
                 ]
             })
