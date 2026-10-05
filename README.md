@@ -45,6 +45,8 @@ Desktop.init({
     clock: { format: "pt-BR", showSeconds: true }, // Relógio gerenciado nativamente
     menuBar: globalSystemMenus,          // MenuBar global auto-conectado
     startMenu: nativeStartMenus,         // Menu Iniciar auto-conectado
+    windowMenuPosition: "top",           // Padrão do menubar das janelas (v2.2.0; config da tela tem prioridade)
+    windowToolbarPosition: "top",       // Padrão da toolbar das janelas (v2.2.0; config da tela tem prioridade)
     contextMenu: desktopContextMenus,    // Menu de Contexto da Área de Trabalho
     screens: {                           // Registro declarativo de telas
         dashboard: () => import('./screens/DashboardScreen.js'),
@@ -78,6 +80,19 @@ Desktop.getMenuBarPosition();            // Retorna a posição ativa do MenuBar
 Desktop.showDesktop();                   // Minimiza todas ou restaura as janelas
 Desktop.arrangeWindows();                // Organiza janelas abertas em grade simétrica
 Desktop.notify("Operação concluída!", "success"); // Notificação global ("success", "danger", "info")
+
+// 3. Menus padrão do ambiente (todo projeto repete o mesmo básico):
+Desktop.getDefaultWindowItems();         // Organizar + Área de Trabalho + Mobile
+Desktop.getDesktopContextItems({         // Botão direito no papel de parede
+    extraItems: [{ label: "Abrir Dashboard", action: () => Desktop.openScreen("dashboard") }],
+    lafItems: buildLaFMenuItems(),       // submenu Look and Feel (da app)
+    appName: "o MeuApp",
+});
+Desktop.getEnvironmentMenus({            // Seções Sistema/LaF/Janelas/Ajuda do Iniciar
+    sessionItems: [{ label: "Sair", action: () => AuthService.logout() }],
+    lafItems: buildLaFMenuItems(),
+    appName: "o MeuApp",
+});
 ```
 
 ---
@@ -132,9 +147,8 @@ Na V2.0, o monólito `style.css` (~370 KB) foi quebrado em uma estrutura modular
 
 ```text
 css/
-├── core.css           # (~43 KB) Window Manager, Taskbar, Dock, Desktop e Mobile
-├── components.css     # (~81 KB) Widgets e componentes de interface
-└── themes/            # Mais de 40 temas desacoplados (~5 KB a 15 KB cada)
+├── core.css           # (~140 KB) Window Manager, Taskbar, Dock, Desktop, Mobile, widgets e componentes
+└── themes/            # 42 temas desacoplados (~5 KB a 15 KB cada)
     ├── theme-win11.css
     ├── theme-aqua-frosted.css
     ├── theme-fluent-acrylic.css
@@ -143,11 +157,10 @@ css/
 ```
 
 ### Carregamento Inicial Otimizado
-O carregamento inicial baixa apenas a estrutura e o tema ativo (reduzindo a transferência inicial para **~45 KB**):
+O carregamento inicial baixa apenas a estrutura (`core.css`) e o tema ativo:
 ```html
 <!-- No cabeçalho HTML -->
 <link rel="stylesheet" href="./css/core.css">
-<link rel="stylesheet" href="./css/components.css">
 <link rel="stylesheet" id="desktop-theme-stylesheet" href="./css/themes/theme-win11.css">
 ```
 
@@ -164,12 +177,13 @@ Desktop.setLookAndFeel("cyberpunk-neon");
 
 O arquivo `ui.js` foi dividido em submódulos especializados por domínio dentro do diretório `ui/`:
 - `ui/core-dom.js`: Primitivas (`createElement`, `applyCommonProps`, `resolveInstance`, `printElement`).
-- `ui/layout.js`: Estrutura (`Row`, `Col`, `Grid`, `Card`, `Splitter`).
+- `ui/layout.js`: Estrutura (`Row`, `Col`, `Grid`, `Card`).
 - `ui/forms.js`: Formulários e inputs com suporte a Signals (`Input`, `Textarea`, `Button`, `Select`, `Checkbox`, `Toggle`, `Slider`, `RadioGroup`, `Autocomplete`, `Stepper`).
 - `ui/data.js`: Visualização de coleções (`Table`, `Tabs`, `TreeView`, `DataGrid`, `DraggableList`, `Accordion`).
 - `ui/navigation.js`: Barras e menus (`ContextMenu`, `MenuBar`, `ActionToolbar`, `StartMenu`, `Drawer`, `Breadcrumbs`, `DockWidget`, `FloatButton`, `Shortcut`).
 - `ui/feedback.js`: Notificações (`Modal`, `Toast`, `Alert`, `Spinner`, `Tooltip`, `Badge`, `ProgressBar`, `Skeleton`).
 - `ui/media.js`: Mídia (`WebView`, `Avatar`, `Carousel`).
+- `ui/patterns.js`: Padrões prontos de tela (`FilterBar`, `EmptyState`, `KpiCard`).
 
 O arquivo `ui.js` na raiz atua como **Barrel Export** unificado, mantendo 100% de compatibilidade retroativa para todos os imports existentes:
 ```javascript
@@ -180,6 +194,61 @@ import { Button, Input, Table, Modal } from './ui.js';
 import { Button, Input } from './ui/forms.js';
 import { Table } from './ui/data.js';
 ```
+
+---
+
+## 🧰 Formatação, Exportação e Diálogos Rápidos (v2.2.0)
+
+### `format.js` — apresentação sem código duplicado (export `./format`)
+
+```javascript
+import {
+    formatCurrency, formatNumber, formatDate, formatDateTime, formatBytes,
+    statusColor, buildCsv, downloadFile, downloadCsv,
+} from './format.js'; // ou 'desktop-engine/format'
+
+formatCurrency(1234.5);   // 'R$ 1.234,50' (null/undefined/vazio → '—'; 0 explícito → 'R$ 0,00')
+formatNumber(1234.5);     // '1.234,5'
+formatDate('2026-03-15'); // '15/03/2026'  (vazio/inválido → '—')
+formatDateTime(value);    // '15/03/2026, 14:30' — sem segundos por padrão ({ seconds: true } inclui)
+formatBytes(1536);        // '1,5 KB'
+
+// Badge de status: cores por chave + fallback padrão { bg: '#f3f4f6', color: '#374151' }
+span.style(statusColor(item.status, { PENDENTE: { bg: '#fef3c7', color: '#92400e' } }));
+
+// CSV com BOM UTF-8, delimitador ';', CRLF e escape de aspas automáticos
+downloadCsv('clientes.csv', rows); // rows: array de objetos (chaves = cabeçalho) ou { columns, rows }
+downloadFile('relatorio.txt', texto, 'text/plain;charset=utf-8');
+```
+
+### `Desktop.confirm` / `Desktop.prompt` / `Desktop.alert` — diálogos Promise
+
+Substituem os `confirm()`/`prompt()` nativos com o visual do tema ativo.
+
+**Escopo:** `Desktop.confirm/prompt/alert` bloqueiam o **Desktop inteiro** (modal global). Para ações relativas a uma janela (excluir um item da listagem, confirmar um pagamento na própria tela), use a variante no escopo da janela — `win.confirm/prompt/alert` ou a opção `{ instance }` — que bloqueia **apenas a janela**. As telas podem chamar direto no próprio objeto (`this` dentro de `view()`/handlers é a instância; `Tela.confirm(...)` também resolve para a janela viva via `_normalizeScreen`), caindo para o modal global apenas quando não há janela aberta:
+
+```javascript
+// Janela: bloqueia apenas ela (uso recomendado dentro de telas)
+if (await this.confirm('Excluir o registro?', { danger: true })) {
+    await api.delete(`/itens/${id}`);
+}
+
+// Instância explícita (menus/contextos fora da tela)
+if (await win.confirm('Excluir o registro?', { danger: true })) { /* ... */ }
+
+// Desktop: bloqueia tudo (avisos de sistema/logout)
+await Desktop.alert('Sua sessão vai expirar.');
+```
+
+| Chamada | Resolução | Opções |
+| :--- | :--- | :--- |
+| `win.confirm(msg, opts)` / `Desktop.confirm(msg, opts)` | `Promise<boolean>` — `false` em Cancelar/ESC/fechar | `title`, `okLabel`, `cancelLabel`, `danger`, `icon`, `width`, `instance` |
+| `win.prompt(msg, opts)` / `Desktop.prompt(msg, opts)` | `Promise<string\|null>` — `null` no cancelar; Enter confirma | `title`, `value` (pré-preenchimento), `placeholder`, `okLabel`, `cancelLabel`, `icon`, `width`, `instance` |
+| `win.alert(msg, opts)` / `Desktop.alert(msg, opts)` | `Promise<void>` — resolve em OK/ESC/fechar | `title`, `okLabel`, `icon`, `width`, `instance` |
+
+> `instance: win` tem o mesmo efeito de `win.confirm(...)`: o `Modal` é renderizado dentro do elemento da janela (overlay cobre só ela); se a janela já foi fechada, o diálogo automaticamente volta ao escopo global.
+
+---
 
 ## 🪟 Anatomia de uma Tela (Windows)
 
@@ -221,6 +290,9 @@ const MinhaJanela = {
     ],
 
     // 1. Estado Reativo Inicial
+    //    O estado declarado aqui é um TEMPLATE: cada abertura da janela recebe
+    //    uma cópia fresca (objetos/arrays clonados) — valores de uma sessão não
+    //    vazam para a próxima. `initialProps` do openScreen é mesclado por cima.
     state: {
         nome: ""
     },
@@ -384,6 +456,33 @@ const LoggerPlugin = (engine, options) => {
 
 Framework.use(LoggerPlugin, { verbose: true });
 ```
+
+### 3. Pontos de Extensão Tipados (`PluginRegistry`) — v2.1.0
+Além do `Framework.use` genérico, o core expõe pontos de extensão tipados para plugins reagirem ao ciclo de vida sem monkey-patch. Sem plugins registrados, o comportamento é idêntico ao anterior:
+
+```javascript
+import { Framework } from './core.js';
+
+const ElementPermissionsPlugin = {
+    install(engine) {
+        // Chamado a cada render de conteúdo (screenId = config.id da tela)
+        engine.registerContentHook(({ screenId, root }) => {
+            root.querySelectorAll('[data-eid]').forEach(el => { /* ... */ });
+        });
+        // Retornar false veta o item (kind: 'menu' | 'toolbar' | 'context')
+        engine.registerMenuItemFilter(({ screenId, kind, labelPath, item }) => {
+            return labelPath !== 'Sistema/Área Restrita';
+        });
+    }
+};
+
+Framework.use(ElementPermissionsPlugin);
+```
+
+Notas:
+- Cada janela carimba `w.dataset.screenId` para os plugins saberem a origem do conteúdo.
+- O helper fluente `.eid('chave')` da `ElementBuilder` marca `data-eid` — chave estável para localização de elementos por plugins.
+- Ambos os registros retornam função de unregister.
 
 ---
 
@@ -600,8 +699,9 @@ Toda janela no DesktopEngine possui um ciclo de vida estruturado em **4 fases** 
 | `onMaximize(isMax)` | Janela | Disparado ao maximizar (`true`) ou restaurar o tamanho normal (`false`). |
 | `onResize(width, height)` | Janela | Disparado ao redimensionar a janela pelas alças. |
 | `onMove(x, y)` | Janela | Disparado ao arrastar a janela pela barra de título. |
-| `beforeClose()` | Destruição | Executado antes de fechar. Se retornar `false` ou uma `Promise<false>`, o fechamento é **cancelado**. |
+| `beforeClose()` | Destruição | Executado antes de fechar. Se retornar `false` ou uma `Promise<false>`, o fechamento é **cancelado** (pulável com `closeWindow(..., { force: true })` ou `closeAllWindows({ force: true })` — ex.: logout). |
 | `onDestroy()` | Destruição | Executado após a janela ser removida do DOM. Ideal para limpar `clearInterval` e ouvintes. |
+| `closeAllWindows({ force })` | Destruição | Fecha todas as janelas (logout); devolve `true`/`false` (bloqueio só sem `force`). |
 
 ```javascript
 export default {
@@ -679,8 +779,8 @@ export default {
     // 12. INTERCEPTADOR DE FECHAMENTO (Antes de Destruir)
     async beforeClose() {
         if (this.state.temAlteracoesPendentes) {
-            // Pode retornar false ou uma Promise<boolean> para cancelar o fechamento
-            return await Modal.confirm("Você tem dados não salvos. Deseja realmente fechar?");
+            // Diálogo Promise no escopo da janela: "false" cancela o fechamento
+            return await this.confirm("Você tem dados não salvos. Deseja realmente fechar?", { danger: true, okLabel: "Descartar e fechar", cancelLabel: "Continuar editando" });
         }
         return true; // Permite fechar
     },
@@ -814,10 +914,17 @@ Autocomplete({
 Table({
     columns: [
         { key: "id", label: "#" },
-        { key: "nome", label: "Produto" },
-        { key: "status", label: "Status", render: (val) => Badge({ text: val, variant: val === "OK" ? "success" : "danger" }) }
+        { key: "nome", label: "Produto", width: "140px" },
+        { key: "status", label: "Status", align: "center", render: (val) => Badge({ text: val, variant: val === "OK" ? "success" : "danger" }) }
     ],
-    data: [ { id: 1, nome: "Servidor Cloud", status: "OK" } ]
+    data: [ { id: 1, nome: "Servidor Cloud", status: "OK" } ],
+    // v2.2.0 — recursos por linha (opcional):
+    onRowClick: (row, tr, event) => openDetalhe(row.id),   // tr ganha cursor:pointer (classe ui-row-clickable)
+    contextMenu: (row) => [                                // menu de contexto por linha (bindContextMenu na tr)
+        { label: "Abrir", action: () => openDetalhe(row.id) },
+        { label: "Excluir", action: () => excluir(row.id) }
+    ],
+    rowEvents: { dblclick: (row, tr) => openDetalhe(row.id) } // listeners extras (dblclick, mouseenter, ...)
 })
 ```
 
@@ -896,7 +1003,7 @@ Drawer({
 ```
 
 #### `Modal` (Diálogos Modais Integrados ao Look and Feel)
-O `Modal` adota nativamente a mesma arquitetura de janelas (`.window`, `.titlebar` com controles de fechar e `.windowBody`), herdando 100% da estética, bordas, sombras e botões do **Look and Feel ativo**. Suporta modo **Local** (bloqueando a janela atual via `this.openModal` ou ``) e modo **Global** (bloqueando todo o Desktop via `Desktop.openModal` ou `global: true`).
+O `Modal` adota nativamente a mesma arquitetura de janelas (`.window`, `.titlebar` com controles de fechar e `.windowBody`), herdando 100% da estética, bordas, sombras e botões do **Look and Feel ativo**. Suporta modo **Local** (bloqueando a janela atual via `this.openModal` ou `win.confirm/prompt/alert`) e modo **Global** (bloqueando todo o Desktop — área de trabalho, taskbar, menubar global, start menu e menus de contexto — via `Desktop.openModal` ou `global: true`; os toasts seguem visíveis acima do modal).
 
 ```javascript
 import { Modal, Button, createElement } from './ui.js';
@@ -1021,6 +1128,17 @@ dock.minimizeToTray();   // Minimiza para a bandeja ao lado do relógio
 dock.restoreFromTray();  // Restaura da bandeja
 ```
 
+> **Empilhamento automático:** docks globais do mesmo canto não se sobrepõem — o framework empilha (mais novo acima, gap 12px), medindo a altura viva de cada um e re-layoutando em `toggle`/`setContent`/`minimize`/`close`/`destroy`/`resize`. Docks locais (dentro de janelas) não participam. O corpo cresce com o conteúdo até `min(height, 100vh - 160px)` e depois rola por dentro.
+
+> **Container de docks:** para N painéis sem estourar a área de trabalho, hospede-os num `DockContainer` (painel do canto com scroll, teto de viewport, badge = visíveis, expande/recolhe sozinho ao esvaziar/encher):
+> ```javascript
+> const central = Desktop.createDockContainer({ title: 'Atividades', icon: '🧪', position: 'bottom-right', width: 360 });
+> central.attach(dockApi);          // sai da pilha fixa, entra no scroll
+> central.detach(dockApi);          // volta ao fluxo fixo do canto
+> DockWidget({ title: 'Job', container: central }); // ou já nasce hospedado
+> ```
+> O `ActivityService` aceita um (`attachContainer`/`detachContainer`): os docks próprios passam a morar nele.
+
 #### `FloatButton` (Floating Action Button / Speed Dial)
 Botão de ação rápida flutuante com menu em cascata (Speed Dial) para Desktop ou Janelas, com suporte opcional a movimentação livre por arrasto (`draggable: true`):
 ```javascript
@@ -1066,8 +1184,11 @@ Cria um contêiner em grade flexível para organizar atalhos clicáveis — comp
 |---|---|---|---|
 | `container` | `HTMLElement\|string` | `null` | Elemento pai ou ID onde o contêiner será montado. |
 | `shortcuts` | `Shortcut[]` | `[]` | Array de elementos `Shortcut()` iniciais. |
-| `alignH` | `string` | `'left'` | Alinhamento horizontal: `'left'`\|`'center'`\|`'right'`\|`'justify'`. |
-| `alignV` | `string` | `'top'` | Alinhamento vertical: `'top'`\|`'center'`\|`'bottom'`\|`'stretch'`. |
+| `alignH` | `string` | `'left'` | Alinhamento horizontal: `'left'`\|`'center'`\|`'right'`\|`'justify'` — `justify-content` em `row`, `align-items` em `column`; em `column` com `'right'` o fluxo vira **rtl** (as colunas nascem na borda direita e crescem para a esquerda). |
+| `alignV` | `string` | `'top'` | Alinhamento vertical: `'top'`\|`'center'`\|`'bottom'`\|`'stretch'` — `align-items` em `row`, `justify-content` em `column`. |
+| `direction` | `string` | `'row'` | Direção do layout: `'row'`\|`'column'` (v2.2.0). |
+| `reorderable` | `boolean` | `false` | Arrastar para reordenar (v2.2.0). |
+| `onReorder` | `function` | `null` | Callback com os ids na nova ordem após drop (v2.2.0). |
 | `shortcutSize` | `string\|number` | `'80px'` | Tamanho-célula (largura e altura) de cada atalho na grade. |
 | `gap` | `string\|number` | `'8px'` | Espaçamento entre atalhos. |
 | `width` | `string\|number` | `'100%'` | Largura do contêiner. |
@@ -1090,6 +1211,7 @@ Cria um contêiner em grade flexível para organizar atalhos clicáveis — comp
 - `sort(mode)` — Reordena: `'asc'`|`'desc'`|`'type'`|`'none'`.
 - `clear()` — Remove todos os atalhos.
 - `setAlignH(h)` / `setAlignV(v)` — Altera o alinhamento em tempo real.
+- `setDirection(d)` — Altera a direção (`'row'`\|`'column'`) em tempo real (v2.2.0).
 - `setShortcutSize(size)` — Altera o tamanho-célula de todos os atalhos.
 - `setVisible(bool)` / `setBorder(bool)` — Controle de visibilidade e borda.
 - `getShortcuts()` — Retorna array com todos os atalhos.
@@ -1144,6 +1266,10 @@ Cria um atalho clicável individual para uso em `ShortcutContainer` ou qualquer 
 | `type` | `string` | `'app'` | Tipo semântico: `'app'`\|`'folder'`\|`'file'`\|`'link'`. |
 | `iconSize` | `string\|number` | `'48px'` | Tamanho do ícone/imagem. |
 | `fontSize` | `string\|number` | `'11px'` | Tamanho da fonte do label. |
+| `fontColor` | `string` | `''` | Cor da fonte do label (ex: `'#fff'`). Vazia = cor do tema. |
+| `fontWeight` | `string\|number` | `''` | Peso da fonte (`'bold'`, `600`…). Vazio = cor do tema. |
+| `fontStyle` | `string` | `''` | Estilo da fonte (`'italic'`, `'normal'`). Vazio = cor do tema. |
+| `backgroundColor` | `string` | `''` | Cor de fundo do atalho. Vazia = cor do tema. |
 | `active` | `boolean` | `false` | Estado inicial selecionado/ativo. |
 | `disabled` | `boolean` | `false` | Desabilita o atalho (não clicável, aparência esmaecida). |
 | `visible` | `boolean` | `true` | Visibilidade inicial. |
@@ -1153,7 +1279,7 @@ Cria um atalho clicável individual para uso em `ShortcutContainer` ou qualquer 
 | `style` | `string\|object` | `''` | Estilos inline extras. |
 | `contextMenu` | `object` | `null` | Menu de contexto do atalho. |
 
-**API pública:** `setActive(bool)`, `setDisabled(bool)`, `setVisible(bool)`, `setLabel(text)`, `setImage(src)`, `destroy()`.
+**API pública:** `setActive(bool)`, `setDisabled(bool)`, `setVisible(bool)`, `setLabel(text)`, `setImage(src)`, `setFontColor(color)`, `setFontSize(size)`, `setFontWeight(weight)`, `setFontStyle(style)`, `setBackgroundColor(color)`, `destroy()` — os setters visuais aceitam `''` para voltar ao tema.
 
 ```javascript
 import { Shortcut, ShortcutContainer } from './ui.js';
@@ -1165,6 +1291,22 @@ const sc = Shortcut({
     type: 'app',
     action: () => Desktop.openScreen('meu_app')
 });
+
+// Visual customizado (cor da fonte, tamanho, peso, estilo e fundo)
+const scCustom = Shortcut({
+    label: 'Atalho Meu',
+    icon: '✨',
+    fontColor: '#ffffff',
+    fontSize: 13,
+    fontWeight: 'bold',
+    fontStyle: 'italic',
+    backgroundColor: 'rgba(37, 99, 235, 0.35)'
+});
+scCustom.setFontColor('#e2e8f0');   // '' volta à cor do tema
+scCustom.setFontSize(14);
+scCustom.setFontWeight('bold');
+scCustom.setFontStyle('italic');
+scCustom.setBackgroundColor('');
 
 // Com imagem real e menu de contexto
 const scImg = Shortcut({
@@ -1244,6 +1386,11 @@ Desktop.setMenuBarMode("startmenu"); // Mescla menusBarra com menusIniciar no pr
 Desktop.setMenuBarMode("separate");  // Desacopla: restaura o Menu Iniciar original e reexibe a barra separada
 Desktop.setMenuBarPosition("top");   // "top", "bottom", "left", "right" ou "none"
 ```
+
+Botão direito sobre um item que abre tela (campo `screen` ou action `() => openScreen('id')`) emite `menu:screen-context` via `EventBus` com `{ screenId, label, icon, x, y }` (v2.2.0, vale para StartMenu e MenuBar) — o app decide o que oferecer (ex.: abrir, criar atalho). Opt-out por item: `noContextMenu: true`.
+
+> **Contrato (v2.2.0):** `registerStartMenu` guarda os menus **crus**; a mesclagem (modo `startmenu`) acontece só no render. Nunca passe menus já mesclados — cada ciclo duplicaria as opções.
+> **Grade (v2.2.0):** menubar lateral (`left`/`right`) tem grade explícita do `#app` para todas as posições da taskbar (cima, base, ausente, laterais).
 
 #### `MenuBar em Janelas (Window MenuBar)`
 Além da barra de menus global do Desktop, qualquer janela pode possuir sua **própria barra de menus dedicada (Window MenuBar)** posicionada imediatamente abaixo da titlebar, exatamente como nos aplicativos nativos (VS Code, Notepad, navegadores e suites de escritório).
@@ -1438,12 +1585,27 @@ const tbEl = this.getActionToolbar();
 | Propriedade | Tipo | Descrição |
 | :--- | :--- | :--- |
 | `icon` | `String` | Ícone ou emoji exibido no botão (ex: `"💾"`, `"📄"`). |
-| `label` | `String` (Opcional) | Texto opcional ao lado do ícone. |
+| `label` | `String` (Opcional) | Texto do botão e tooltip. Com ícone, exibe só o ícone (estilo Delphi) e o label vira tooltip — ver `showLabel`. |
+| `showLabel` | `Boolean` (v2.2.0) | Exibe o texto ao lado do ícone mesmo quando há ícone (`true`). Padrão: só ícone. |
 | `hint` / `tooltip` | `String` | Dica flutuante (hint/tooltip) exibida ao passar o mouse. |
 | `action` | `Function \| String` | Callback ao clicar: `(instance, event) => { ... }` ou nome de ação. |
 | `variant` | `String` | Estilo visual (ex: `"primary"`, `"danger"`, etc.). |
 | `active` | `Boolean` | Aplica o estado destacado/ativo ao botão se `true`. |
 | `disabled` | `Boolean \| Function` | Desabilita o botão se `true` ou `(instance) => boolean`. |
+
+---
+
+### 7. Padrões de UI Prontos (`ui/patterns.js`, v2.2.0)
+
+Primitivas prontas para telas de listagem e painéis — em vez de reconstruir busca, filtros, estado vazio e KPI em toda tela:
+
+- `FilterBar({ search: { placeholder, value, onInput, onSearch, buttonLabel }, children, actions })`: barra de busca (Enter/botão disparam `onSearch`) + `children` (selects, labels) + `actions` (botões) — sem `onSearch` não cria o botão "Buscar". Aceita nós DOM e **builders** (`ElementBuilder`/`{ el }`) em `children`/`actions`.
+- `EmptyState({ icon, message, hint, action })`: estado vazio ilustrado (substitui os blocos `Nenhum registro encontrado` montados à mão); `action` aceita um nó pronto, um builder (`ElementBuilder`) ou `{ text, onClick, variant }`.
+- `KpiCard({ label, value, icon, color, hint })`: cartão de indicador — rótulo em caixa alta, valor grande (vazio → `—`), ícone e `color` como borda esquerda.
+
+```javascript
+import { FilterBar, EmptyState, KpiCard } from './ui.js';
+```
 
 ---
 
@@ -1841,10 +2003,12 @@ EventBus.on("laf:change", (lafName) => {
 });
 ```
 
-### Catálogo dos 34 Look and Feels Disponíveis
+### Catálogo dos 42 Look and Feels Disponíveis
 
 | Categoria | Identificador | Nome Conceitual | Destaques Estruturais e Visuais |
 | :--- | :--- | :--- | :--- |
+| **Sistemas Modernos** | `"win11"` | Modern Glass (Centro) | Dock centralizado estilo Modern Glass. |
+| **Sistemas Modernos** | `"win11-2"` | Modern Glass 2 (Glass) | Versão sofisticada e translúcida do Modern Glass. |
 | **Modernos & Translúcidos** | `"default"` | Padrão Moderno | Design padrão suave e limpo do DesktopEngine. |
 | **Modernos & Translúcidos** | `"aqua-frosted"` | Aqua Frosted (Vidro Fosco) | Botões semáforo (🔴 🟡 🟢) à **esquerda**, título centralizado e cantos de 12px. |
 | **Modernos & Translúcidos** | `"fluent-acrylic"` | Fluent Acrylic | Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho. |
@@ -1858,7 +2022,8 @@ EventBus.on("laf:change", (lafName) => {
 | **Swing & Java** | `"steel-metal"` | Steel Metal | Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo. |
 | **Swing & Java** | `"ocean-metal"` | Ocean Metal | Gradiente metálico azul acetinado e chanfros suaves Swing. |
 | **Swing & Java** | `"nimbus-vector"` | Nimbus Vector | Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar. |
-| **Swing & Java** | `"flatlaf-ide"` | Modern IDE (Studio) | Estilo moderno de IDE profissional, compacto e limpo. |
+| **Swing & Java** | `"flatlaf-light"` | FlatLaf Light (Studio) | Estilo IDE moderno, compacto, minimalista e profissional (Claro). |
+| **Swing & Java** | `"flatlaf-dark"` | FlatLaf Dark (Studio) | Estilo IDE moderno, compacto, minimalista e profissional (Escuro). |
 | **Swing & Java** | `"modena-soft"` | Modena Soft | Estética neutra cinza, limpa e moderna. |
 | **Swing & Java** | `"caspian-dark"` | Caspian Dark | Vidro escuro azulado elegante. |
 | **Retrô & Clássicos 3D** | `"yellow-tab"` | Yellow Tab | A famosa **aba amarela** no topo esquerdo da janela com botões chanfrados. |
@@ -1869,6 +2034,7 @@ EventBus.on("laf:change", (lafName) => {
 | **Retrô & Clássicos 3D** | `"workbench-boing"` | Workbench Retro | Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes. |
 | **Retrô & Clássicos 3D** | `"platinum-classic"` | Platinum Classic | Pinstripes horizontais na barra, botão de fechar quadrado à esquerda. |
 | **Retrô & Clássicos 3D** | `"brushed-metal"` | Brushed Metal (Classic) | Estilo Metal escovado clássico e iTunes. |
+| **Retrô & Clássicos 3D** | `"brushed-metal-2"` | Brushed Metal 2 (Sophisticated) | Versão moderna e refinada do Metal escovado. |
 | **Retrô & Clássicos 3D** | `"warp-enterprise"` | Warp Enterprise | Visual corporativo azul-acinzentado com moldura chanfrada sólida. |
 | **Desktops Unix & Abertos** | `"aubergine-orange"` | Aubergine Orange | Barra berinjela/grafite com acentos em Laranja e botões circulares de alto contraste. |
 | **Desktops Unix & Abertos** | `"pantheon-pure"` | Pantheon Pure | Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px. |
@@ -2011,6 +2177,553 @@ Desktop.loadConfig({
     taskbarPosition: "left",
     menubarMode: "startmenu" // Integra automaticamente o MenuBar ao Menu Iniciar
 }, true);
+```
+
+---
+
+## 🔐 AuthService — Autenticação Genérica com Provedores Registráveis
+
+O `AuthService` é um serviço de autenticação genérico que permite que a aplicação registre múltiplos provedores de autenticação (email/senha, SSO, LDAP, etc.) e gerencia a sessão, persistência e eventos de autenticação.
+
+### 1. Registrando Provedores
+
+```javascript
+import { AuthService } from './auth-service.js';
+
+// Provedor de email/senha (lógica da sua API)
+AuthService.registerProvider('email', {
+    async login(email, password) {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+        return { user: data.user, token: data.token };
+    },
+    async logout() {
+        // Limpa token
+    }
+});
+```
+
+### 2. Provedores prontos — `auth-providers.js` (meio caminho andado)
+
+O módulo `auth-providers.js` já vem com o fluxo resolvido (navegação, callback,
+troca de token, PKCE, sessão) — você só passa credenciais/endpoints:
+
+```javascript
+import { AuthService } from './auth-service.js';
+import { createOAuthProvider, createSsoProvider, createLdapProvider } from './auth-providers.js';
+
+// OAuth2 / OIDC (Google, Microsoft, GitHub, Keycloak...) — Authorization Code + PKCE
+AuthService.registerProvider('oidc', createOAuthProvider({
+    issuer: 'https://accounts.google.com',          // OIDC Discovery automático
+    // ou endpoints: { authorization, token, userinfo } explícitos
+    clientId: '...',
+    scopes: ['openid', 'profile', 'email'],
+    mapUser: (profile) => ({ id: profile.sub, nome: profile.name }),  // profile → user do app
+}));
+
+// SSO corporativo: o backend inicia o IdP e devolve ?token= na URL
+AuthService.registerProvider('sso', createSsoProvider({
+    loginUrl: '/auth/sso/start',
+    fetchUser: async (token) => (await fetch('/auth/me', {
+        headers: { Authorization: `Bearer ${token}` }
+    })).json(),
+}));
+
+// LDAP: bind validado no backend (o browser nunca fala LDAP)
+AuthService.registerProvider('ldap', createLdapProvider({ endpoint: '/auth/ldap' }));
+
+// No boot, antes de restaurar sessão: processa o retorno do IdP.
+// Retorna null quando a URL não é um callback (não interrompe o app).
+await AuthService.handleCallback('oidc', location.search);
+```
+
+**Fluxo de redirect:** `login()` monta a URL de autorização, salva `state` +
+`code_verifier` no `sessionStorage`, navega para o IdP e **retorna `null`**
+(a página sai). No retorno, `handleCallback()` valida o `state` (proteção
+CSRF), troca o `code` pelo token (PKCE S256), busca o perfil
+(`userinfo_endpoint` ou payload do `id_token`), limpa a URL e cria a sessão
+(persistência + evento `auth:login`).
+
+| Provedor | Opções principais |
+|----------|-------------------|
+| `createOAuthProvider(cfg)` | `clientId` (obrigatório), `issuer` ou `endpoints`, `redirectUri`, `scopes`, `clientSecret`, `extraAuthParams`, `mapUser`, `usePKCE`, `revocationEndpoint`, `fetch`/`navigate` (testes) |
+| `createSsoProvider(cfg)` | `loginUrl` (obrigatório), `callbackParam` (default `token`), `fetchUser(token, params)` (obrigatório), `extraParams`, `logoutUrl`, `mapUser` |
+| `createLdapProvider(cfg)` | `endpoint` (obrigatório), `extract(data) → {token, user}`, `headers`, `logoutUrl`, `mapUser` |
+
+### 3. Usando o AuthService
+
+```javascript
+// Login com email/senha
+await AuthService.login('email', email, password);
+
+// Login com SSO
+await AuthService.login('sso', 'google');
+
+// Verificar se está autenticado
+if (AuthService.isAuthenticated()) {
+    const user = AuthService.getCurrentUser();
+    const token = AuthService.getToken();
+}
+
+// Logout
+await AuthService.logout();
+
+// Inicializar sessão (restaura do localStorage)
+await AuthService.init();
+```
+
+### 4. API Completa
+
+| Método | Descrição |
+|--------|-----------|
+| `registerProvider(name, provider)` | Registra um provedor de autenticação |
+| `removeProvider(name)` | Remove um provedor |
+| `getProvider(name)` | Retorna um provedor |
+| `listProviders()` | Lista todos os provedores |
+| `login(providerName, ...args)` | Login com um provedor específico (redirect providers retornam `null`) |
+| `handleCallback(providerName, ...args)` | Processa o retorno do IdP (`?code=`/`?token=`); cria a sessão ou devolve `null` |
+| `logout()` | Logout com o provedor atual (recebe a sessão para revogação de token) |
+| `isAuthenticated()` | Verifica se está autenticado |
+| `getCurrentUser()` | Retorna usuário atual |
+| `getToken()` | Retorna token de acesso |
+| `getCurrentProvider()` | Retorna provedor atual |
+| `getSession()` | Retorna sessão completa |
+| `init()` | Inicializa sessão (restaura do localStorage) |
+| `updateSession(updates)` | Atualiza sessão |
+
+---
+
+## 🌐 ApiService — Cliente de Dados Genérico com Transportes Registráveis
+
+O `ApiService` é um serviço de dados genérico que permite que a aplicação registre múltiplos transportes (HTTP, WebSocket, Socket.IO, SSE, etc.) e gerencia interceptors, transporte padrão e métodos de conveniência. O transporte HTTP pronto fica no `api-service.js` e os demais prontos — **WebSocket, Socket.IO, SSE e Mock** — no `api-transports.js`; qualquer transporte customizado segue o mesmo contrato `{ request(endpoint, options) => Promise }`.
+
+### 1. Registrando Transportes
+
+```javascript
+import { ApiService, createHttpTransport, ApiError } from './api-service.js';
+import { createWebSocketTransport, createSocketIoTransport, createSseTransport, createMockTransport } from './api-transports.js';
+
+// HTTP pronto: baseUrl, headers JSON, token Bearer (via getToken),
+// query string (params), 204 No Content e erros padronizados em ApiError
+// ({ message, status, data }).
+ApiService.registerTransport('http', createHttpTransport({
+    baseUrl: 'http://localhost:3001',
+    getToken: () => AuthService.getToken(),
+    // headers: { 'X-App': 'demo' },  // headers padrão extras (opcionais)
+    // fetch: myFetch,                 // implementação alternativa (testes)
+}));
+
+// WebSocket pronto: request/response por id de correlação, fila antes do
+// open, timeout em ApiError, reconexão com backoff e subscribe() p/ push
+ApiService.registerTransport('ws', createWebSocketTransport({
+    url: `ws://${location.host}/ws`,
+    getToken: () => AuthService.getToken(),
+    // timeout: 10000, reconnect: true, WebSocket: FakeWS (testes)
+}));
+
+// Socket.IO pronto (adaptador padrão do NestJS): RPC via ack do próprio
+// Socket.IO; a fábrica io vem do import de 'socket.io-client' ou de
+// window.io (o servidor serve em /socket.io/socket.io.js)
+ApiService.registerTransport('socketio', createSocketIoTransport({
+    url: 'http://localhost:3001',
+    getToken: () => AuthService.getToken(),
+    // replyEvent: 'rpc',   // alternativa: resposta por evento com id (estilo NestJS)
+    // events: ['notifica'], // pushes repassados ao subscribe()
+    // io: myIo,             // fábrica alternativa (testes)
+}));
+
+// SSE pronto: subscribe() entrega { event, data, lastEventId }; token e params
+// vão na query (EventSource não aceita headers); eventos 'message' + cfg.events
+ApiService.registerTransport('sse', createSseTransport({
+    baseUrl: 'http://localhost:3001',
+    getToken: () => AuthService.getToken(),
+    events: ['notifica'],
+}));
+
+// Mock pronto: rotas em memória para demo/teste sem backend
+ApiService.registerTransport('mock', createMockTransport({
+    routes: {
+        'GET /ping': { pong: true },
+        'GET /usuarios/:id': (params) => ({ id: params.id, nome: 'Maria' }),
+    },
+    latency: 150, // simula rede
+}));
+
+// Transporte customizado: qualquer objeto com request(endpoint, options)
+ApiService.registerTransport('meu', {
+    async request(endpoint, options) { /* ... */ }
+});
+
+// Define o transporte padrão
+ApiService.setDefaultTransport('http');
+
+// Erros do transporte HTTP são ApiError (status/data disponíveis)
+try {
+    await ApiService.post('/chamados', {});
+} catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+        // sessão expirada
+    }
+}
+```
+
+### 2. Usando o ApiService
+
+```javascript
+// Requisições usando o transporte padrão
+const users = await ApiService.get('/api/users');
+const user = await ApiService.get('/api/users/1');
+const newUser = await ApiService.post('/api/users', { name: 'João' });
+await ApiService.put('/api/users/1', { name: 'João Silva' });
+await ApiService.delete('/api/users/1');
+
+// Requisições usando um transporte específico
+const data = await ApiService.get('/api/data', {}, 'websocket');
+
+// Métodos de conveniência
+ApiService.get('/api/users', { page: 1, limit: 10 });
+ApiService.post('/api/users', { name: 'João' });
+ApiService.put('/api/users/1', { name: 'João Silva' });
+ApiService.delete('/api/users/1');
+
+// Download autenticado (transporte HTTP pronto, com Bearer do getToken):
+// responseType 'blob' | 'arrayBuffer' | 'text' ('json' é o padrão)
+import { downloadFile } from './format.js';
+const pdf = await ApiService.request('/relatorios/123/pdf', { responseType: 'blob' });
+downloadFile('relatorio.pdf', pdf, 'application/pdf');
+```
+
+### 3. Interceptors
+
+```javascript
+// Interceptor de requisição
+ApiService.onRequest((config) => {
+    console.log('Requisição:', config.endpoint);
+    return config;
+});
+
+// Interceptor de resposta
+ApiService.onResponse((result) => {
+    console.log('Resposta:', result);
+    return result;
+});
+
+// Interceptor de erro
+ApiService.onError((error) => {
+    if (error.status === 401) {
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+    }
+});
+```
+
+### 4. Transportes Prontos (`api-transports.js`)
+
+Todos cumprem o contrato `{ request(endpoint, options) => Promise }` — podem ser registrados no `ApiService` ou usados direto.
+
+| Fábrica | O que resolve |
+|---------|---------------|
+| `createHttpTransport(config)` | HTTP (fetch): baseUrl, Bearer, params, 204 e `ApiError` — fica no `api-service.js` |
+| `createWebSocketTransport(config)` | Request/response por id de correlação, fila antes do open, timeout, reconexão com backoff, `subscribe()` (push) e `close()` |
+| `createSocketIoTransport(config)` | Socket.IO (adaptador padrão do NestJS): RPC por **ack** ou por **`replyEvent`** com id, handshake com token, `subscribe()` (push via `cfg.events`), `getSocket()` |
+| `createSseTransport(config)` | Streams SSE: `subscribe(endpoint, handler)` → `{ event, data, lastEventId }`, `request()` resolve ao conectar, `DELETE` fecha o stream, token/params na query |
+| `createMockTransport(config)` | Rotas em memória `'MÉTODO /caminho'` (com `:param`), handlers sync/async, latência simulada, `addRoute`/`removeRoute` |
+
+**Contrato de fio do Socket.IO** (o ack correlaciona; no modo `replyEvent` o `id` do payload):
+
+```text
+→ emit(event, { id, endpoint, method, params?, body? })
+← ack({ data }) | ack({ error: { message, status?, data? } })  modo ack (default)
+← emit(replyEvent, { id, data } | { id, error })               modo replyEvent
+← on(cfg.events, data)                                         push do servidor → subscribe()
+```
+
+```javascript
+// Servidor Socket.IO puro (modo ack)
+io.on('connection', (socket) => {
+    socket.on('chamados', async (payload, ack) => {
+        ack({ data: await listar(payload.params) });
+    });
+});
+
+// NestJS (modo replyEvent — a resposta reemite o id de volta)
+@SubscribeMessage('chamados')
+async onChamados(@MessageBody() payload: any, @ConnectedSocket() client: Socket) {
+    client.emit('rpc', { id: payload.id, data: await this.service.listar(payload.params) });
+}
+```
+
+Sem depender do pacote `socket.io-client`: injete a fábrica `io` (o import ou o bundle que o próprio servidor serve em `/socket.io/socket.io.js` → `window.io`) ou um `socket` já criado. O token vai no handshake (`options.auth`) via `getToken`; reconexão e buffer de envios são internos do Socket.IO.
+
+**Contrato de fio do WebSocket** (JSON):
+
+```text
+→ { id, endpoint, method, params?, body? }
+← { id, data }                               sucesso (data null = sem conteúdo)
+← { id, error: { message, status?, data? } }  falha → ApiError
+← { event, data }                            push do servidor → subscribe()
+```
+
+```javascript
+// WebSocket: push em tempo real
+const ws = createWebSocketTransport({ url: 'ws://host/ws', getToken: () => token });
+const off = ws.subscribe(({ event, data }) => console.log(event, data));
+
+// SSE: assinar os eventos do servidor
+const sse = createSseTransport({ baseUrl: 'http://host', events: ['notifica'] });
+const off2 = sse.subscribe('/events', ({ event, data }) => console.log(event, data));
+
+// Mock: demo sem backend (erro = throw new ApiError)
+const mock = createMockTransport({
+    routes: {
+        'GET /ping': { pong: true },
+        'POST /login': async (params, body) => {
+            if (body.senha !== '123') throw new ApiError('Senha inválida', 401);
+            return { token: 'demo' };
+        },
+    },
+    latency: 200,
+});
+await mock.request('/ping'); // { pong: true }
+mock.addRoute('GET /versao', { build: '1.0' }); // rotas também em tempo de execução
+```
+
+### 5. API Completa
+
+| Método | Descrição |
+|--------|-----------|
+| `createHttpTransport(config)` | Cria o transporte HTTP pronto (`baseUrl`, `getToken`, `headers`, `fetch`) |
+| `createWebSocketTransport(config)` | Cria o transporte WebSocket pronto (correlação por id, timeout, reconexão, `subscribe`/`close`) |
+| `createSocketIoTransport(config)` | Cria o transporte Socket.IO pronto (ack ou `replyEvent`, handshake com token, push, `timeout`/`close`/`getSocket`) |
+| `createSseTransport(config)` | Cria o transporte SSE pronto (`subscribe`, `request` resolve ao conectar, `DELETE` fecha) |
+| `createMockTransport(config)` | Cria o transporte mock (rotas em memória, latência, `addRoute`/`removeRoute`) |
+| `ApiError` | Erro HTTP padronizado (`message`, `status`, `data`) |
+| `registerTransport(name, transport)` | Registra um transporte |
+| `removeTransport(name)` | Remove um transporte |
+| `getTransport(name)` | Retorna um transporte |
+| `listTransports()` | Lista todos os transportes |
+| `setDefaultTransport(name)` | Define o transporte padrão |
+| `getDefaultTransport()` | Retorna o transporte padrão |
+| `onRequest(fn)` | Adiciona interceptor de requisição |
+| `onResponse(fn)` | Adiciona interceptor de resposta |
+| `onError(fn)` | Adiciona interceptor de erro |
+| `clearInterceptors()` | Remove todos os interceptors |
+| `request(endpoint, options, transportName)` | Faz uma requisição |
+| `get(endpoint, params, transportName)` | Requisição GET |
+| `post(endpoint, body, transportName)` | Requisição POST |
+| `put(endpoint, body, transportName)` | Requisição PUT |
+| `patch(endpoint, body, transportName)` | Requisição PATCH |
+| `delete(endpoint, transportName)` | Requisição DELETE |
+
+---
+
+## 📋 ActivityService — Fila de Atividades Assíncronas (export `./activity-service`)
+
+O `ActivityService` gerencia trabalhos que demoram: a aplicação informa como iniciar (`run` local ou `request` HTTP que devolve um `jobId`), como acompanhar (`watch` por poll ou push sobre os transportes do `ApiService`) e onde exibir o resultado (`target`). Fila FIFO com `maxConcurrent` (padrão 3), persistência em `localStorage` com retomada do watch após reload e eventos via `EventBus.emitLocal` (`activity:*`).
+
+```javascript
+import { ActivityService } from './activity-service.js';
+
+ActivityService.init(); // uma vez no boot: restaura o storage e retoma watches
+
+const atv = ActivityService.enqueue({
+    title: 'Relatório de Vendas',
+    icon: '📊',
+    request: { transport: 'http', endpoint: '/relatorios', body: { tipo: 'vendas' } },
+    watch: { endpoint: (jobId) => `/relatorios/${jobId}` }, // poll GET com isDone/isFailed padrão
+    target: 'window',
+    targetOptions: { screen: 'relatorio-view' },
+});
+await atv.promise; // resolve com o resultado (opcional)
+```
+
+### 1. Iniciando e acompanhando
+
+| Campo | Descrição |
+|---|---|
+| `run(act)` | Trabalho executado no cliente (`act.setProgress(v, msg)` atualiza o progresso) |
+| `request` | `{ transport, endpoint, method='POST', body, params }` via `ApiService` — a resposta é o resultado quando não há `watch` |
+| `getJobId(res, act)` | Extrai o id do job (padrão: `res.id ?? res.jobId ?? res.taskId`) |
+| `jobId` | Pula o `request` e vai direto ao `watch` (retomada de job existente) |
+| `watch.mode` | `'auto'` (padrão: push se o transporte tem `subscribe`, senão poll) \| `'poll'` \| `'push'` |
+| `watch.endpoint` | String (`:id` vira o `jobId`) ou função `(jobId, act)` — no push SSE é o stream |
+| `watch.event` / `watch.match(data, act)` | Filtro do push (o handler normalizado entrega `{ event, data }` nos 3 transportes) |
+| `watch.isDone(res)` | Padrão: `status` em `done/completed/success/...` ou `done: true` |
+| `watch.isFailed(res)` | Padrão: `status` em `failed/error/...` ou `success: false` |
+| `watch.progress(res)` | Padrão: `res.progress ?? res.percent`; `watch.message(res, act)` alimenta a linha de status (padrão: campo `message` da resposta) |
+| `watch.extract(res)` | Resultado final (padrão: `res.data ?? res`); `watch.error(res)` monta o erro |
+| `watch.interval` / `watch.maxAttempts` / `watch.timeout` | Padrão `3000ms`/`100` (config); `timeout` (ms) é o watchdog do push |
+
+Erros 4xx no poll (exceto 408/429) falham na hora; erros transitórios contam como tentativa. Sem `isDone` customizado, backends com `{ status }` funcionam direto.
+
+### 2. Exibindo o resultado (`target`)
+
+Duas fases: `track` (durante — `'dock'` padrão, `'none'` oculta) e `target` (no fim — padrão `'toast'`).
+
+| `target` | Efeito na conclusão |
+|---|---|
+| `'dock'` | O item do dock vira a exibição final (fica até `remove`/`clear`) |
+| `'window'` | `Desktop.openScreen(targetOptions.screen, props)` (`props`: objeto mesclado sobre `{ result }` ou função `(result, act)`) |
+| `'modal'` | `Desktop.openModal({ title, icon, children })` (`content`: nó ou `(result, act)`; padrão: texto ou JSON) |
+| `'toast'` | `Desktop.notify(message, 'success')` (`message`: string ou `(result, act)`) |
+| `'none'` | Nada (só eventos) |
+| `função` | Chamada como `(result, act)` |
+
+No sucesso com `target !== 'dock'`, o item de acompanhamento sai do dock (a falha fica visível, com botão ↻ de retry). `ActivityService.present(id)` redispara o target de uma concluída. Falhas geram toast `danger`, salvo `notifyOnError: false`.
+
+### 3. Dock de acompanhamento
+
+`targetOptions.dock.id` iguais entram no mesmo `DockWidget` (badge = pendentes); sem `id`, um dock por atividade. O serviço cria o widget sozinho (opções padrão em `configure({ dock })`, botão 🗑️ limpa concluídas, fecha sozinho quando esvazia); `attachDock(id, dockApi)` usa o dock da app — o serviço usa e **nunca fecha**. Para N docks sem estourar a área de trabalho, use um `DockContainer` (`Desktop.createDockContainer()`, painel do canto com scroll): `ActivityService.attachContainer(api)` (o da app, nunca fechado) ou `configure({ dockContainer: true|{...} })` para o serviço **criar a Central sozinho** (lazy, no 1º dock; destruída no `reset()`/`detachContainer()`, com os docks de volta ao fixo); `attachDock(id, api, { container: true })` hospeda também o dock da app. Clique em concluída reabre o resultado; em falha, retenta.
+
+### 4. Persistência e specs registradas
+
+Funções não serializam: registre o template com `registerSpec(name, template)` e use `enqueue({ name, ... })`. O `init()` restaura o storage (`desktop_engine_activities`): com jobId pula o `request` e reanexa o `watch`; sem spec registrada, atividade ativa vira histórico passivo (`failed`). Progresso de poll não é persistido. Teto de `historyLimit` (padrão 50) terminais.
+
+### 5. Eventos e API completa
+
+Eventos (payload = atividade): `activity:queued|started|progress|done|failed|cancelled|removed` + `activity:changed` em qualquer mutação.
+
+| Método | Descrição |
+|--------|-----------|
+| `configure(partial)` | Mescla config (`maxConcurrent`, `interval`, `maxAttempts`, `persist`, `storageKey`, `historyLimit`, `notifyOnError`, `dock`, `dockContainer`) |
+| `registerSpec(name, template)` / `getSpec(name)` | Templates com funções, referenciados pelo `name` (obrigatório p/ retomada) |
+| `enqueue(spec)` | Enfileira (valida; mesmo `id` ativo → devolve a existente; terminal → reexecuta) |
+| `get(id)` / `list([status])` | Consulta |
+| `cancel(id)` | Cancela (libera o slot; cancelar = dispensar do dock) |
+| `retry(id)` | Reexecuta do zero (limpa `jobId`, volta ao fim da fila) |
+| `present(id)` | (Re)dispara o target de uma concluída |
+| `remove(id)` / `clear()` | Remove uma / remove as terminais |
+| `attachDock(id, dockApi)` / `getDock(id)` / `detachDock(id)` | Dock da app (nunca fechado pelo serviço; `{ container: true }` hospeda na Central) |
+| `attachContainer(api)` / `getContainer()` / `detachContainer()` | Central ativa (da app ou criada pelo serviço — nunca fecha a da app) |
+| `init()` | Restaura o storage e retoma (idempotente; chame no boot) |
+| `reset({ storage = true })` | Cancela tudo e limpa (testes/logout) |
+
+---
+
+## 🔒 ElementPermissionPlugin — Permissões de Elementos de UI
+
+O `ElementPermissionPlugin` é um plugin nativo do framework para permissões de elementos de UI. A aplicação configura a fonte de permissões e o modo edição, e o framework aplica hide/disable nos elementos sem permissão e filtra itens de menu.
+
+### 1. Configurando o Plugin
+
+```javascript
+import { Framework } from './core.js';
+import { ElementPermissionPlugin } from './element-permission-plugin.js';
+
+Framework.use(ElementPermissionPlugin, {
+    // Função que carrega permissões (async)
+    loadPermissoes: async () => {
+        const rows = await ApiService.get('/permissoes/me/elementos').catch(() => []);
+        return Array.isArray(rows) ? rows : [];
+    },
+    
+    // Função que verifica se está em modo edição
+    isEditMode: () => PermissionMode.isEditMode(),
+    
+    // Se permite acesso quando não há permissão (default: true)
+    fallbackAllowed: true
+});
+```
+
+### 2. Usando o Plugin
+
+```javascript
+// O plugin registra hooks automaticamente no framework
+// A aplicação não precisa fazer nada além de configurar
+
+// Verificar se um elemento é permitido
+if (Framework.elementPermissions.isAllowed('minha-tela', 'meu-elemento')) {
+    // Elemento permitido
+}
+
+// Aplicar permissões em um elemento
+Framework.elementPermissions.applyToContent('minha-tela', elemento);
+
+// Recarregar permissões
+await Framework.elementPermissions.refresh();
+
+// Verificar se está carregado
+if (Framework.elementPermissions.isLoaded()) {
+    // Permissões carregadas
+}
+```
+
+### 3. API Completa
+
+| Método | Descrição |
+|--------|-----------|
+| `load(force)` | Carrega permissões da fonte configurada |
+| `clear()` | Limpa o catálogo e marca como não carregado (use no logout, em vez de recarregar sem sessão) |
+| `isAllowed(screenId, key)` | Verifica se um elemento é permitido |
+| `applyToContent(screenId, rootEl)` | Aplica hide/disable nos elementos |
+| `isMenuItemAllowed(screenId, kind, labelPath)` | Verifica se um item de menu é permitido |
+| `rowsForScreen([screenId])` | Retorna as linhas do catálogo de uma tela (ou de todas, sem argumento) — usado pelo inspetor para checar duplicidade/edição |
+| `reapplyOpenWindows()` | Reaplica hide/disable/contornos em todas as janelas abertas (usa o `data-screen-id` carimbado pelo `createWindow`) |
+| `refresh()` | Recarrega o catálogo da fonte **e** reaplica nas janelas abertas — chame após qualquer mutação no catálogo/permissões |
+| `isLoaded()` | Verifica se está carregado |
+
+---
+
+## 🖼️ Plano de Fundo (Wallpaper) & Rótulos da MenuBar
+
+### `Desktop.setWallpaper(value, persist = true, mode = null)`
+
+Define o plano de fundo da área de trabalho (`#desktop`). Aceita:
+
+| Valor | Exemplo | Efeito |
+|---|---|---|
+| URL de imagem | `https://.../bg.jpg`, `/img/wall.png`, `data:image/...` | imagem com o modo de exibição (`cover` por padrão) |
+| `url(...)` | `url("/img/bg.png")` | já formatado, aplicado como imagem |
+| Gradiente CSS | `linear-gradient(135deg, #1e3a8a, #0ea5e9)` | aplicado como `background` |
+| Cor | `#2563eb`, `rebeccapurple` | aplicado como `background` |
+| `null` / `""` | — | restaura o fundo padrão do tema (limpa estilos inline) |
+
+Modos de exibição da imagem (estilo MS Windows) — `getWallpaperModes()` lista com rótulos:
+
+| Modo | Rótulo | CSS aplicado |
+|---|---|---|
+| `cover` (padrão) | Preencher | `cover`, centralizado, sem repetição |
+| `contain` | Ajustar | `contain`, centralizado, sem repetição |
+| `stretch` | Esticar | `100% 100%`, centralizado, sem repetição |
+| `center` | Centralizar | tamanho original, centralizado, sem repetição |
+| `tile` | Lado a lado | tamanho original, `repeat` (mosaico) |
+
+- `getWallpaper()` retorna o valor aplicado; `getWallpaperMode()` retorna o modo.
+- `persist: true` grava em `localStorage["desktop_engine_wallpaper"]` (+ `"..._mode"`) e o `init()` restaura os dois.
+- Evento `desktop:wallpaperchange` (payload: valor aplicado).
+- Dica de app: mantenha `persist: false` e guarde a preferência **por usuário** (ex.: no serviço de layout) quando quiser que cada usuário tenha o seu.
+
+```js
+Desktop.setWallpaper('linear-gradient(135deg, #1e3a8a, #0ea5e9)');
+Desktop.setWallpaper('https://exemplo.com/wall.jpg'); // Preencher
+Desktop.setWallpaper('https://exemplo.com/wall.jpg', true, 'tile'); // Lado a lado
+Desktop.setWallpaper(null); // volta ao padrão do tema
+```
+
+### `Desktop.setMenuBarLabels(mode, persist = true)`
+
+Controla a exibição dos rótulos da MenuBar global — principalmente útil nas
+posições `left`/`right`, onde textos longos ficavam desalinhados.
+
+| Modo | Comportamento |
+|---|---|
+| `auto` (padrão) | Trilho de ícones na lateral: item **com** ícone esconde o rótulo (texto vai para o tooltip `title`); item **sem** ícone mantém o texto |
+| `labels` | Rótulo **sempre visível** ao lado do ícone (para quem não quer texto proibido) |
+
+- `getMenuBarLabels()` retorna o modo atual.
+- `persist: true` grava em `localStorage["desktop_engine_menubar_labels"]` e o `init()` restaura.
+- Evento `menubar:labelschange`.
+
+Nas posições laterais, os rótulos são adaptados no CSS (`css/core.css`): fonte
+12px, quebra em até 2 linhas com elipse e tooltip com o texto completo — itens
+altura automática, sem estourar a barra de 170px.
+
+```js
+Desktop.setMenuBarLabels('labels'); // ícone + texto sempre
+Desktop.setMenuBarLabels('auto');   // trilho de ícones na lateral
 ```
 
 ---

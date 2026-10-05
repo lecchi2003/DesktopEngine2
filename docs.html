@@ -651,6 +651,7 @@
                 <a href="#signals-reatividade">⚡ Signals Nativos (Fine-Grained)</a>
                 <a href="#css-modular">🎨 CSS Modular &amp; Temas Sob Demanda</a>
                 <a href="#ui-modular">📦 Arquitetura Modular de UI (ui/)</a>
+                <a href="#format-dialogos">🧰 Formatação, Exportação &amp; Diálogos</a>
                 <a href="#contexto-reativo">🧬 Reatividade Implícita (UIContext)</a>
                 <a href="#extensibilidade">🧩 Extensibilidade (BaseComponent &amp; Plugins)</a>
                 <a href="#arquitetura-telas">Modularização &amp; Lazy Loading</a>
@@ -713,6 +714,7 @@
                 <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
                 <a href="#export-import-config">Exportar &amp; Importar Configurações (JSON)</a>
                 <a href="#integracao-api">Integração com APIs REST &amp; Backend</a>
+                <a href="#activity-service">ActivityService (Fila de Atividades)</a>
                 <a href="#look-and-feel">Look and Feel (34 Skins)</a>
                 <a href="#contextmenu">ContextMenu &amp; bindContextMenu</a>
                 <a href="#eventbus-p2p">Comunicação Inter-telas (EventBus)</a>
@@ -771,6 +773,8 @@ Desktop.init({
     clock: { format: "pt-BR", showSeconds: true }, // Relógio gerenciado nativamente
     menuBar: globalSystemMenus,          // MenuBar global auto-conectado
     startMenu: nativeStartMenus,         // Menu Iniciar auto-conectado
+    windowMenuPosition: "top",           // Padrão do menubar das janelas (v2.2.0; config da tela tem prioridade)
+    windowToolbarPosition: "top",       // Padrão da toolbar das janelas (v2.2.0; config da tela tem prioridade)
     contextMenu: desktopContextMenus,    // Menu de Contexto da Área de Trabalho
     screens: {                           // Registro declarativo de telas
         dashboard: () => import('./screens/DashboardScreen.js'),
@@ -950,6 +954,9 @@ const MinhaJanela = {
         }
     ],
 
+    // O estado declarado é um TEMPLATE: cada abertura da janela recebe uma
+    // cópia fresca (objetos/arrays clonados) — valores de uma sessão não
+    // vazam para a próxima. `initialProps` do openScreen é mesclado por cima.
     state: {
         usuario: ""
     },
@@ -1090,9 +1097,8 @@ export default {
 
             <div class="code-box">
                 <pre><code>css/
-├── core.css           # (~43 KB) Window Manager, Taskbar, Dock, Desktop e Mobile
-├── components.css     # (~81 KB) Widgets e componentes de interface
-└── themes/            # Mais de 40 temas desacoplados (~5 KB a 15 KB cada)
+├── core.css           # (~140 KB) Window Manager, Taskbar, Dock, Desktop, Mobile, widgets e componentes
+└── themes/            # 42 temas desacoplados (~5 KB a 15 KB cada)
     ├── theme-win11.css
     ├── theme-aqua-frosted.css
     ├── theme-fluent-acrylic.css
@@ -1100,11 +1106,10 @@ export default {
     └── ...</code></pre>
             </div>
 
-            <p>O carregamento inicial baixa apenas a estrutura e o tema ativo (reduzindo a transferência inicial para <strong>~45 KB</strong>):</p>
+            <p>O carregamento inicial baixa apenas a estrutura (<code>core.css</code>) e o tema ativo:</p>
             <div class="code-box">
                 <pre><code>&lt;!-- No cabeçalho HTML --&gt;
 &lt;link rel="stylesheet" href="./css/core.css"&gt;
-&lt;link rel="stylesheet" href="./css/components.css"&gt;
 &lt;link rel="stylesheet" id="desktop-theme-stylesheet" href="./css/themes/theme-win11.css"&gt;</code></pre>
             </div>
 
@@ -1119,14 +1124,66 @@ Desktop.setLookAndFeel("cyberpunk-neon");</code></pre>
             <p>O arquivo <code>ui.js</code> foi dividido em submódulos especializados por domínio dentro do diretório <code>ui/</code>:</p>
             <ul style="padding-left: 20px; line-height: 1.8;">
                 <li><code>ui/core-dom.js</code>: Primitivas (<code>createElement</code>, <code>applyCommonProps</code>, <code>resolveInstance</code>, <code>printElement</code>).</li>
-                <li><code>ui/layout.js</code>: Estrutura (<code>Row</code>, <code>Col</code>, <code>Grid</code>, <code>Card</code>, <code>Splitter</code>).</li>
+                <li><code>ui/layout.js</code>: Estrutura (<code>Row</code>, <code>Col</code>, <code>Grid</code>, <code>Card</code>).</li>
                 <li><code>ui/forms.js</code>: Formulários e inputs com suporte a Signals (<code>Input</code>, <code>Textarea</code>, <code>Button</code>, <code>Select</code>, <code>Checkbox</code>, <code>Toggle</code>, <code>Slider</code>, <code>RadioGroup</code>, <code>Autocomplete</code>, <code>Stepper</code>).</li>
                 <li><code>ui/data.js</code>: Visualização de coleções (<code>Table</code>, <code>Tabs</code>, <code>TreeView</code>, <code>DataGrid</code>, <code>DraggableList</code>, <code>Accordion</code>).</li>
                 <li><code>ui/navigation.js</code>: Barras e menus (<code>ContextMenu</code>, <code>MenuBar</code>, <code>ActionToolbar</code>, <code>StartMenu</code>, <code>Drawer</code>, <code>Breadcrumbs</code>, <code>DockWidget</code>, <code>FloatButton</code>, <code>Shortcut</code>).</li>
                 <li><code>ui/feedback.js</code>: Notificações (<code>Modal</code>, <code>Toast</code>, <code>Alert</code>, <code>Spinner</code>, <code>Tooltip</code>, <code>Badge</code>, <code>ProgressBar</code>, <code>Skeleton</code>).</li>
                 <li><code>ui/media.js</code>: Mídia (<code>WebView</code>, <code>Avatar</code>, <code>Carousel</code>).</li>
+                <li><code>ui/patterns.js</code>: Padrões prontos de tela (<code>FilterBar</code>, <code>EmptyState</code>, <code>KpiCard</code>).</li>
             </ul>
             <p>O arquivo <code>ui.js</code> na raiz atua como <strong>Barrel Export</strong> unificado, mantendo 100% de compatibilidade retroativa para todos os imports existentes.</p>
+
+            <!-- SEÇÃO: FORMATAÇÃO, EXPORTAÇÃO E DIÁLOGOS -->
+            <h2 id="format-dialogos">🧰 Formatação, Exportação e Diálogos Rápidos (v2.2.0)</h2>
+            <h3><code>format.js</code> — apresentação sem código duplicado (export <code>./format</code>)</h3>
+            <div class="code-box">
+                <pre><code>import {
+    formatCurrency, formatNumber, formatDate, formatDateTime, formatBytes,
+    statusColor, buildCsv, downloadFile, downloadCsv,
+} from './format.js'; // ou 'desktop-engine/format'
+
+formatCurrency(1234.5);   // 'R$ 1.234,50' (null/undefined/vazio → '—'; 0 explícito → 'R$ 0,00')
+formatNumber(1234.5);     // '1.234,5'
+formatDate('2026-03-15'); // '15/03/2026'  (vazio/inválido → '—')
+formatDateTime(value);    // '15/03/2026, 14:30' — sem segundos por padrão ({ seconds: true } inclui)
+formatBytes(1536);        // '1,5 KB'
+
+// Badge de status: cores por chave + fallback padrão { bg: '#f3f4f6', color: '#374151' }
+span.style(statusColor(item.status, { PENDENTE: { bg: '#fef3c7', color: '#92400e' } }));
+
+// CSV com BOM UTF-8, delimitador ';', CRLF e escape de aspas automáticos
+downloadCsv('clientes.csv', rows); // rows: array de objetos (chaves = cabeçalho) ou { columns, rows }
+downloadFile('relatorio.txt', texto, 'text/plain;charset=utf-8');</code></pre>
+            </div>
+
+            <h3><code>Desktop.confirm</code> / <code>Desktop.prompt</code> / <code>Desktop.alert</code> — diálogos Promise</h3>
+            <p>Substituem os <code>confirm()</code>/<code>prompt()</code> nativos com o visual do tema ativo. <strong>Escopo:</strong> <code>Desktop.*</code> bloqueiam o Desktop inteiro; <code>win.confirm/prompt/alert</code> (ou <code>{ instance }</code>) bloqueiam <strong>apenas a janela</strong> — use dentro das telas: <code>this.confirm(...)</code> resolve para a janela viva e cai para o modal global se ela não estiver aberta.</p>
+            <div class="code-box">
+                <pre><code>// Janela: bloqueia apenas ela (recomendado dentro de telas)
+if (await this.confirm('Excluir o registro?', { danger: true })) {
+    await api.delete(`/itens/${id}`);
+}
+
+const nome = await win.prompt('Nome do papel:', { value: 'Técnico' });
+if (nome === null) return; // Cancelar / ESC
+
+// Desktop: bloqueia tudo (avisos de sistema)
+await Desktop.alert('Sua sessão vai expirar.');</code></pre>
+            </div>
+            <ul style="padding-left: 20px; line-height: 1.8;">
+                <li><code>Desktop.confirm(msg, opts)</code> / <code>win.confirm(msg, opts)</code> → <code>Promise&lt;boolean&gt;</code> (<code>false</code> em Cancelar/ESC/fechar; <code>{ danger: true }</code> usa o botão destrutivo).</li>
+                <li><code>Desktop.prompt(msg, opts)</code> / <code>win.prompt(msg, opts)</code> → <code>Promise&lt;string|null&gt;</code> (<code>null</code> no cancelar; <code>{ value }</code> pré-preenche; Enter confirma).</li>
+                <li><code>Desktop.alert(msg, opts)</code> / <code>win.alert(msg, opts)</code> → <code>Promise&lt;void&gt;</code> (resolve em OK/ESC/fechar).</li>
+                <li>Todas aceitam <code>{ instance: win }</code> para escopo de janela; se a janela já fechou, o diálogo volta ao escopo global.</li>
+            </ul>
+
+            <h3>Padrões de UI prontos (<code>ui/patterns.js</code>, v2.2.0)</h3>
+            <ul style="padding-left: 20px; line-height: 1.8;">
+                <li><code>FilterBar({ search: { placeholder, value, onInput, onSearch, buttonLabel }, children, actions })</code>: barra de busca (Enter/botão disparam <code>onSearch</code>) + <code>children</code> (selects, labels) + <code>actions</code> (botões) — sem <code>onSearch</code> não cria o botão "Buscar". Aceita nós DOM e <strong>builders</strong> (<code>ElementBuilder</code>/<code>{ el }</code>) em <code>children</code>/<code>actions</code>.</li>
+                <li><code>EmptyState({ icon, message, hint, action })</code>: estado vazio ilustrado; <code>action</code> aceita um nó pronto, um builder ou <code>{ text, onClick, variant }</code>.</li>
+                <li><code>KpiCard({ label, value, icon, color, hint })</code>: cartão de indicador — valor vazio vira <code>—</code> e <code>color</code> é a borda esquerda.</li>
+            </ul>
 
             <h2 id="contexto-reativo">🧬 Contexto Reativo Implícito (Zero-)</h2>
             <p>Nas versões anteriores do framework, para que os componentes vinculassem seu estado reativo (<code>bind: "nome"</code>) ou disparassem actions da janela, o desenvolvedor precisava repassar explicitamente o parâmetro <code>{ }</code> para cada elemento.</p>
@@ -1201,6 +1258,34 @@ const LoggerPlugin = (engine, options) => {
 
 Framework.use(LoggerPlugin, { verbose: true });</code></pre>
             </div>
+
+            <h3>3. Pontos de Extensão Tipados (<code>PluginRegistry</code>) — v2.1.0</h3>
+            <p>Além do <code>Framework.use</code> genérico, o core expõe pontos de extensão tipados para plugins reagirem ao ciclo de vida sem monkey-patch. Sem plugins registrados, o comportamento é idêntico ao anterior:</p>
+
+            <div class="code-box">
+                <pre><code>import { Framework } from './core.js';
+
+const ElementPermissionsPlugin = {
+    install(engine) {
+        // Chamado a cada render de conteúdo (screenId = config.id da tela)
+        engine.registerContentHook(({ screenId, root }) => {
+            root.querySelectorAll('[data-eid]').forEach(el => { /* ... */ });
+        });
+        // Retornar false veta o item (kind: 'menu' | 'toolbar' | 'context')
+        engine.registerMenuItemFilter(({ screenId, kind, labelPath, item }) => {
+            return labelPath !== 'Sistema/Área Restrita';
+        });
+    }
+};
+
+Framework.use(ElementPermissionsPlugin);</code></pre>
+            </div>
+            <p>Notas:</p>
+            <ul>
+                <li>Cada janela carimba <code>w.dataset.screenId</code> para os plugins saberem a origem do conteúdo.</li>
+                <li>O helper fluente <code>.eid('chave')</code> da <code>ElementBuilder</code> marca <code>data-eid</code> — chave estável para localização de elementos por plugins.</li>
+                <li>Ambos os registros retornam função de unregister.</li>
+            </ul>
 
             <!-- SEÇÃO NOVO: ARQUITETURA MODULAR & SCREEN REGISTRY -->
             <h2 id="arquitetura-telas">Padrões e Formas de Criação de Telas</h2>
@@ -1624,8 +1709,8 @@ const TelaCadastro = {
     // 12. INTERCEPTADOR DE FECHAMENTO (Antes de Destruir)
     async beforeClose() {
         if (this.state.temAlteracoesPendentes) {
-            // Pode retornar false ou uma Promise&lt;boolean&gt; para cancelar o fechamento
-            return await Modal.confirm("Você tem dados não salvos. Deseja realmente fechar?");
+            // Diálogo Promise no escopo da janela: "false" cancela o fechamento
+            return await this.confirm("Você tem dados não salvos. Deseja realmente fechar?", { danger: true, okLabel: "Descartar e fechar", cancelLabel: "Continuar editando" });
         }
         return true; // Permite fechar
     },
@@ -2006,7 +2091,13 @@ Table({
     data: [
         { id: 1, nome: "Licença Pro", status: "Ativo" },
         { id: 2, nome: "Suporte 24h", status: "Inativo" }
-    ]
+    ],
+    // v2.2.0 — recursos por linha (opcional):
+    onRowClick: (row, tr, event) => openDetalhe(row.id),  // linha ganha cursor:pointer (classe ui-row-clickable)
+    contextMenu: (row) => [                                // menu de contexto por linha (bindContextMenu na tr)
+        { label: "Abrir", action: () => openDetalhe(row.id) }
+    ],
+    rowEvents: { dblclick: (row, tr) => openDetalhe(row.id) } // listeners extras (dblclick, ...)
 })</code></pre>
             </div>
 
@@ -2269,7 +2360,7 @@ view() {
             </div>
 
             <h2 id="modal">Modal (Diálogos Modais Integrados ao Look and Feel)</h2>
-            <p>Diálogos de confirmação ou formulários de foco bloqueante. O <code>Modal</code> adota nativamente a mesma arquitetura de janelas (<strong>.window</strong>, <strong>.titlebar</strong> com botões de controle e <strong>.windowBody</strong>), herdando 100% da estética, bordas, sombras e botões do <strong>Look and Feel ativo</strong>. Suporta modo <strong>Local</strong> (bloqueando a janela atual via <code>this.openModal</code> ou <code></code>) e modo <strong>Global</strong> (bloqueando todo o Desktop via <code>Desktop.openModal</code> ou <code>global: true</code>).</p>
+            <p>Diálogos de confirmação ou formulários de foco bloqueante. O <code>Modal</code> adota nativamente a mesma arquitetura de janelas (<strong>.window</strong>, <strong>.titlebar</strong> com botões de controle e <strong>.windowBody</strong>), herdando 100% da estética, bordas, sombras e botões do <strong>Look and Feel ativo</strong>. Suporta modo <strong>Local</strong> (bloqueando a janela atual via <code>this.openModal</code> ou <code>win.confirm/prompt/alert</code>) e modo <strong>Global</strong> (bloqueando todo o Desktop — área de trabalho, taskbar, menubar global, start menu e menus de contexto — via <code>Desktop.openModal</code> ou <code>global: true</code>; os toasts seguem visíveis acima do modal).</p>
 
             <div class="code-box">
                 <pre><code>import { Modal, Button, createElement } from './ui.js';
@@ -2416,7 +2507,7 @@ Tooltip({
 
             <!-- SEÇÃO: DOCK WIDGET -->
             <h2 id="dock-widget">DockWidget (Collapsible Bottom Tray &amp; Messenger)</h2>
-            <p>Componente expansível ancorado no rodapé (inspirado na gaveta de mensagens do LinkedIn ou logs de eventos), ideal para monitorar eventos em segundo plano, logs em tempo real, chat e notificações do sistema. Pode ser anexado <strong>globalmente no Desktop</strong> ou <strong>localmente dentro de uma Janela</strong> (com alinhamento e ancoragem automática acima da <code>StatusBar</code>).</p>
+            <p>Componente expansível ancorado no rodapé (inspirado na gaveta de mensagens do LinkedIn ou logs de eventos), ideal para monitorar eventos em segundo plano, logs em tempo real, chat e notificações do sistema. Pode ser anexado <strong>globalmente no Desktop</strong> ou <strong>localmente dentro de uma Janela</strong> (com alinhamento e ancoragem automática acima da <code>StatusBar</code>). Docks globais do mesmo canto <strong>empilham automaticamente</strong> (mais novo acima, sem sobreposição) e o corpo cresce com o conteúdo até o limite da área de trabalho, rolando por dentro depois disso. Para muitos painéis, use o <strong>DockContainer</strong> (<code>Desktop.createDockContainer()</code>): um painel do canto com scroll que hospeda docks (<code>attach/detach</code>, badge com o nº de visíveis).</p>
 
             <table>
                 <thead>
@@ -2651,8 +2742,11 @@ fab.isOpen(); // Retorna booleano indicando se o menu está aberto</code></pre>
                 <tbody>
                     <tr><td><code>container</code></td><td>HTMLElement | string</td><td>null</td><td>Elemento pai ou ID onde o contêiner será montado.</td></tr>
                     <tr><td><code>shortcuts</code></td><td>Shortcut[]</td><td>[]</td><td>Array de elementos <code>Shortcut()</code> iniciais.</td></tr>
-                    <tr><td><code>alignH</code></td><td>string</td><td>'left'</td><td>Alinhamento horizontal: <code>'left'</code> | <code>'center'</code> | <code>'right'</code> | <code>'justify'</code>.</td></tr>
-                    <tr><td><code>alignV</code></td><td>string</td><td>'top'</td><td>Alinhamento vertical: <code>'top'</code> | <code>'center'</code> | <code>'bottom'</code> | <code>'stretch'</code>.</td></tr>
+                    <tr><td><code>alignH</code></td><td>string</td><td>'left'</td><td>Alinhamento horizontal: <code>'left'</code> | <code>'center'</code> | <code>'right'</code> | <code>'justify'</code> — <code>justify-content</code> em <code>row</code>, <code>align-items</code> em <code>column</code>; em <code>column</code> com <code>'right'</code> o fluxo vira <strong>rtl</strong> (as colunas nascem na borda direita e crescem para a esquerda).</td></tr>
+                    <tr><td><code>alignV</code></td><td>string</td><td>'top'</td><td>Alinhamento vertical: <code>'top'</code> | <code>'center'</code> | <code>'bottom'</code> | <code>'stretch'</code> — <code>align-items</code> em <code>row</code>, <code>justify-content</code> em <code>column</code>.</td></tr>
+                    <tr><td><code>direction</code></td><td>string</td><td>'row'</td><td>Direção do layout: <code>'row'</code> | <code>'column'</code> (v2.2.0).</td></tr>
+                    <tr><td><code>reorderable</code></td><td>boolean</td><td>false</td><td>Arrastar para reordenar (v2.2.0).</td></tr>
+                    <tr><td><code>onReorder</code></td><td>function</td><td>null</td><td>Callback com os ids na nova ordem após drop (v2.2.0).</td></tr>
                     <tr><td><code>shortcutSize</code></td><td>string | number</td><td>'80px'</td><td>Tamanho-célula (largura e altura) de cada atalho na grade.</td></tr>
                     <tr><td><code>gap</code></td><td>string | number</td><td>'8px'</td><td>Espaçamento entre atalhos.</td></tr>
                     <tr><td><code>width</code></td><td>string | number</td><td>'100%'</td><td>Largura do contêiner.</td></tr>
@@ -2681,6 +2775,7 @@ fab.isOpen(); // Retorna booleano indicando se o menu está aberto</code></pre>
                     <tr><td><code>clear()</code></td><td>Remove todos os atalhos.</td></tr>
                     <tr><td><code>setAlignH(h)</code></td><td>Altera o alinhamento horizontal em tempo real.</td></tr>
                     <tr><td><code>setAlignV(v)</code></td><td>Altera o alinhamento vertical em tempo real.</td></tr>
+                    <tr><td><code>setDirection(d)</code></td><td>Altera a direção (<code>'row'</code> | <code>'column'</code>) em tempo real (v2.2.0).</td></tr>
                     <tr><td><code>setShortcutSize(size)</code></td><td>Altera o tamanho-célula de todos os atalhos existentes e futuros.</td></tr>
                     <tr><td><code>setVisible(bool)</code></td><td>Mostra ou oculta o contêiner.</td></tr>
                     <tr><td><code>setBorder(bool)</code></td><td>Ativa/desativa a borda.</td></tr>
@@ -2747,6 +2842,10 @@ return ShortcutContainer({
                     <tr><td><code>type</code></td><td>string</td><td>'app'</td><td>Tipo semântico para ordenação: <code>'app'</code> | <code>'folder'</code> | <code>'file'</code> | <code>'link'</code>.</td></tr>
                     <tr><td><code>iconSize</code></td><td>string | number</td><td>'48px'</td><td>Tamanho do ícone/imagem.</td></tr>
                     <tr><td><code>fontSize</code></td><td>string | number</td><td>'11px'</td><td>Tamanho da fonte do label.</td></tr>
+                    <tr><td><code>fontColor</code></td><td>string</td><td>''</td><td>Cor da fonte do label (ex: <code>'#fff'</code>). Vazia = cor do tema.</td></tr>
+                    <tr><td><code>fontWeight</code></td><td>string | number</td><td>''</td><td>Peso da fonte (<code>'bold'</code>, <code>600</code>…). Vazio = cor do tema.</td></tr>
+                    <tr><td><code>fontStyle</code></td><td>string</td><td>''</td><td>Estilo da fonte (<code>'italic'</code>, <code>'normal'</code>). Vazio = cor do tema.</td></tr>
+                    <tr><td><code>backgroundColor</code></td><td>string</td><td>''</td><td>Cor de fundo do atalho. Vazia = cor do tema.</td></tr>
                     <tr><td><code>active</code></td><td>boolean</td><td>false</td><td>Estado inicial selecionado/ativo.</td></tr>
                     <tr><td><code>disabled</code></td><td>boolean</td><td>false</td><td>Desabilita o atalho (não clicável, aparência esmaecida).</td></tr>
                     <tr><td><code>visible</code></td><td>boolean</td><td>true</td><td>Visibilidade inicial.</td></tr>
@@ -2767,6 +2866,11 @@ return ShortcutContainer({
                     <tr><td><code>setVisible(bool)</code></td><td>Mostra ou oculta o atalho.</td></tr>
                     <tr><td><code>setLabel(text)</code></td><td>Atualiza o texto do label.</td></tr>
                     <tr><td><code>setImage(src)</code></td><td>Atualiza o ícone/imagem (URL ou emoji).</td></tr>
+                    <tr><td><code>setFontColor(color)</code></td><td>Altera a cor da fonte do label (<code>''</code> volta ao tema).</td></tr>
+                    <tr><td><code>setFontSize(size)</code></td><td>Altera o tamanho da fonte do label (número = px).</td></tr>
+                    <tr><td><code>setFontWeight(weight)</code></td><td>Altera o peso da fonte (<code>'bold'</code>, número 100–900 ou <code>''</code> = tema).</td></tr>
+                    <tr><td><code>setFontStyle(style)</code></td><td>Altera o estilo da fonte (<code>'italic'</code>, <code>'normal'</code> ou <code>''</code> = tema).</td></tr>
+                    <tr><td><code>setBackgroundColor(color)</code></td><td>Altera a cor de fundo do atalho (<code>''</code> volta ao tema).</td></tr>
                     <tr><td><code>destroy()</code></td><td>Remove o atalho do DOM.</td></tr>
                 </tbody>
             </table>
@@ -2872,6 +2976,16 @@ StartMenu({ buttonId: "startBtn", menus: menusIniciar });
 Desktop.setMenuBarMode("startmenu"); // Mescla menusBarra com menusIniciar no primeiro nível do Menu Iniciar (ou cria o botão Iniciar caso não exista)
 Desktop.setMenuBarMode("separate");  // Desacopla: restaura o Menu Iniciar original e reexibe a barra separada
 Desktop.setMenuBarPosition("top");   // "top", "bottom", "left", "right" ou "none"</code></pre>
+            </div>
+
+            <h3>Menu de contexto em itens de tela (v2.2.0)</h3>
+            <p>Botão direito sobre um item que abre tela (campo <code>screen</code> ou action <code>() =&gt; openScreen('id')</code>) emite <code>menu:screen-context</code> via <code>EventBus</code> com <code>{ screenId, label, icon, x, y }</code> (v2.2.0, vale para StartMenu e MenuBar) — o app decide o que oferecer (ex.: abrir, criar atalho). Opt-out por item: <code>noContextMenu: true</code>.</p>
+            <div class="alert alert-info">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>Contrato (v2.2.0):</strong> <code>registerStartMenu</code> guarda os menus <strong>crus</strong>; a mesclagem (modo <code>startmenu</code>) acontece só no render. Nunca passe menus já mesclados — cada ciclo duplicaria as opções.
+                    <strong>Grade (v2.2.0):</strong> menubar lateral (<code>left</code>/<code>right</code>) tem grade explícita do <code>#app</code> para todas as posições da taskbar.
+                </div>
             </div>
 
             <!-- SEÇÃO: WINDOW MENUBAR -->
@@ -3163,7 +3277,12 @@ const tbEl = this.getActionToolbar();</code></pre>
                         <tr>
                             <td><code>label</code></td>
                             <td>String (Opcional)</td>
-                            <td>Texto opcional ao lado do ícone.</td>
+                            <td>Texto do botão e tooltip. Com ícone, exibe só o ícone (estilo Delphi) e o label vira tooltip — ver <code>showLabel</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>showLabel</code></td>
+                            <td>Boolean (v2.2.0)</td>
+                            <td>Exibe o texto ao lado do ícone mesmo quando há ícone (<code>true</code>). Padrão: só ícone.</td>
                         </tr>
                         <tr>
                             <td><code>hint</code> / <code>tooltip</code></td>
@@ -3531,10 +3650,58 @@ export default {
                 </li>
             </ul>
 
+            <h2 id="activity-service">ActivityService (Fila de Atividades Assíncronas)</h2>
+            <p>O <strong>ActivityService</strong> (<code>activity-service.js</code>, export
+                <code>./activity-service</code>) gerencia trabalhos que demoram: a aplicação informa como iniciar
+                (<code>run</code> local ou <code>request</code> que devolve um <code>jobId</code>), como acompanhar
+                (<code>watch</code> por poll ou push sobre os transportes do <code>ApiService</code>) e onde exibir o
+                resultado (<code>target</code>: dock, janela, modal, toast ou função). Fila FIFO com
+                <code>maxConcurrent</code> (padrão 3), persistência em <code>localStorage</code> com retomada do watch
+                e eventos <code>activity:*</code> via <code>EventBus.emitLocal</code>.</p>
+
+            <h3>1. Enfileirando (duas fases: track durante, target no fim)</h3>
+            <div class="code-block"><pre><code>import { ActivityService } from './activity-service.js';
+
+ActivityService.init(); // uma vez no boot: restaura e retoma
+
+const atv = ActivityService.enqueue({
+    title: 'Relatório de Vendas',
+    icon: '📊',
+    request: { transport: 'http', endpoint: '/relatorios', body: { tipo: 'vendas' } },
+    watch: { endpoint: (jobId) => `/relatorios/${jobId}` }, // poll: isDone/isFailed padrão p/ { status }
+    target: 'window',
+    targetOptions: { screen: 'relatorio-view' }, // props padrão: { result }
+});
+await atv.promise; // opcional: resolve com o resultado</code></pre>
+            </div>
+
+            <h3>2. Targets e dock</h3>
+            <ul>
+                <li><strong>Targets:</strong> <code>dock</code> (o item vira a exibição final),
+                    <code>window</code> (<code>targetOptions.screen</code> + <code>props</code>),
+                    <code>modal</code> (<code>content</code>), <code>toast</code> (<code>message</code>),
+                    <code>none</code> (só eventos) ou <strong>função</strong> <code>(result, act)</code>.</li>
+                <li><strong>Track:</strong> <code>'dock'</code> (padrão) mostra o progresso num DockWidget;
+                    <code>'none'</code> oculta. No sucesso com target fora do dock, o item sai sozinho.</li>
+                <li><strong>Agrupamento:</strong> <code>targetOptions.dock.id</code> iguais entram no mesmo DockWidget
+                    (badge = pendentes); sem <code>id</code>, um dock por atividade (criado e fechado pelo serviço).
+                    <code>attachDock(id, dockApi)</code> usa o dock da app — o serviço usa e nunca fecha.</li>
+                <li><strong>Persistência:</strong> funções não serializam — registre o template com
+                    <code>registerSpec(name, template)</code> e use <code>enqueue({ name, ... })</code>. Sem spec
+                    registrada, atividade ativa restaurada vira histórico passivo.</li>
+                <li><strong>API:</strong> <code>configure</code>, <code>registerSpec/getSpec</code>,
+                    <code>enqueue</code>, <code>get/list</code>, <code>cancel/retry/present/remove/clear</code>,
+                    <code>attachDock/getDock/detachDock</code>, <code>init</code>, <code>reset</code>.</li>
+            </ul>
+
             <h2 id="look-and-feel">Sistema de Look and Feel (L&amp;F / Design Systems)</h2>
             <p>O DesktopEngine possui um subsistema nativo e modular de <strong>Look and Feel (L&amp;F)</strong> que
                 permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela,
                 tipografia, cantos e molduras do ambiente desktop em tempo de execução.</p>
+            <p>Ao criar um tema, declare a <strong>fonte assinatura</strong> na raiz — <code>[data-laf="meu-tema"] { --font-family: 'Minha Fonte', sans-serif; }</code>.
+                O <code>core.css</code> aplica <code>var(--font-family)</code> no <code>body</code>, então a área de trabalho, os
+                <strong>atalhos</strong> e qualquer elemento sem <code>font-family</code> explícito herdam a fonte do tema (regras de
+                componentes, como <code>.window</code> ou <code>#taskbar</code>, continuam com precedência sobre a herança).</p>
 
             <h3>API do Desktop para Look and Feel &amp; Botão Iniciar Dinâmico</h3>
             <div class="code-box">
@@ -3577,8 +3744,8 @@ EventBus.on("laf:change", (lafName) => {
 });</code></pre>
             </div>
 
-            <h3>Catálogo dos 34 Look and Feels Disponíveis</h3>
-            <p>O framework oferece 34 sistemas conceituais de design de interface (Skins de Look and Feel) integrados nativamente.</p>
+            <h3>Catálogo dos 42 Look and Feels Disponíveis</h3>
+            <p>O framework oferece 42 sistemas conceituais de design de interface (Skins de Look and Feel) integrados nativamente.</p>
             <table>
                 <thead>
                     <tr>
@@ -3589,6 +3756,18 @@ EventBus.on("laf:change", (lafName) => {
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td><strong>Sistemas Modernos</strong></td>
+                        <td><code>"win11"</code></td>
+                        <td>Modern Glass (Centro)</td>
+                        <td>Dock centralizado estilo Modern Glass.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sistemas Modernos</strong></td>
+                        <td><code>"win11-2"</code></td>
+                        <td>Modern Glass 2 (Glass)</td>
+                        <td>Versão sofisticada e translúcida do Modern Glass.</td>
+                    </tr>
                     <tr>
                         <td><strong>Modernos &amp; Translúcidos</strong></td>
                         <td><code>"default"</code></td>
@@ -3669,9 +3848,15 @@ EventBus.on("laf:change", (lafName) => {
                     </tr>
                     <tr>
                         <td><strong>Swing &amp; Java</strong></td>
-                        <td><code>"flatlaf-ide"</code></td>
-                        <td>Modern IDE (Studio)</td>
-                        <td>Estilo moderno de IDE profissional, compacto e limpo.</td>
+                        <td><code>"flatlaf-light"</code></td>
+                        <td>FlatLaf Light (Studio)</td>
+                        <td>Estilo IDE moderno, compacto, minimalista e profissional (Claro).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Swing &amp; Java</strong></td>
+                        <td><code>"flatlaf-dark"</code></td>
+                        <td>FlatLaf Dark (Studio)</td>
+                        <td>Estilo IDE moderno, compacto, minimalista e profissional (Escuro).</td>
                     </tr>
                     <tr>
                         <td><strong>Swing &amp; Java</strong></td>
@@ -3732,6 +3917,12 @@ EventBus.on("laf:change", (lafName) => {
                         <td><code>"brushed-metal"</code></td>
                         <td>Brushed Metal (Classic)</td>
                         <td>Estilo Metal escovado clássico e iTunes.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Retrô &amp; Clássicos 3D</strong></td>
+                        <td><code>"brushed-metal-2"</code></td>
+                        <td>Brushed Metal 2 (Sophisticated)</td>
+                        <td>Versão moderna e refinada do Metal escovado.</td>
                     </tr>
                     <tr>
                         <td><strong>Retrô &amp; Clássicos 3D</strong></td>

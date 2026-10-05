@@ -235,6 +235,149 @@ select {
     height: 100% !important;
 }
 
+/* ===== Menubar lateral (left/right) × taskbar em cima/baixo/ausente =====
+   Grade explícita: sem ela o #app vira flex-row e a taskbar (width:100%)
+   quebra o layout. Desktop não encolhe além da área (min-width/height: 0). */
+#app[data-menubar="left"],
+#app[data-menubar="right"] {
+    display: grid !important;
+    flex-direction: unset !important;
+}
+
+#app[data-menubar="left"]>#desktop,
+#app[data-menubar="right"]>#desktop {
+    min-width: 0;
+    min-height: 0;
+    width: auto !important;
+    height: auto !important;
+}
+
+/* --- taskbar no topo --- */
+#app[data-menubar="left"][data-taskbar="top"] {
+    grid-template-columns: 170px 1fr;
+    grid-template-rows: auto 1fr;
+}
+#app[data-menubar="right"][data-taskbar="top"] {
+    grid-template-columns: 1fr 170px;
+    grid-template-rows: auto 1fr;
+}
+#app[data-menubar="left"][data-taskbar="top"]>#taskbar,
+#app[data-menubar="right"][data-taskbar="top"]>#taskbar {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100% !important;
+    height: auto !important;
+}
+#app[data-menubar="left"][data-taskbar="top"]>#menubar,
+#app[data-menubar="left"][data-taskbar="top"]>.ui-menubar {
+    grid-column: 1;
+    grid-row: 2;
+}
+#app[data-menubar="right"][data-taskbar="top"]>#menubar,
+#app[data-menubar="right"][data-taskbar="top"]>.ui-menubar {
+    grid-column: 2;
+    grid-row: 2;
+}
+#app[data-menubar="left"][data-taskbar="top"]>#desktop {
+    grid-column: 2;
+    grid-row: 2;
+}
+#app[data-menubar="right"][data-taskbar="top"]>#desktop {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+/* --- taskbar na base (ou ausente = base) --- */
+#app[data-menubar="left"][data-taskbar="bottom"],
+#app[data-menubar="left"]:not([data-taskbar]) {
+    grid-template-columns: 170px 1fr;
+    grid-template-rows: 1fr auto;
+}
+#app[data-menubar="right"][data-taskbar="bottom"],
+#app[data-menubar="right"]:not([data-taskbar]) {
+    grid-template-columns: 1fr 170px;
+    grid-template-rows: 1fr auto;
+}
+#app[data-menubar="left"][data-taskbar="bottom"]>#taskbar,
+#app[data-menubar="left"]:not([data-taskbar])>#taskbar,
+#app[data-menubar="right"][data-taskbar="bottom"]>#taskbar,
+#app[data-menubar="right"]:not([data-taskbar])>#taskbar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100% !important;
+    height: auto !important;
+}
+#app[data-menubar="left"][data-taskbar="bottom"]>#menubar,
+#app[data-menubar="left"][data-taskbar="bottom"]>.ui-menubar,
+#app[data-menubar="left"]:not([data-taskbar])>#menubar,
+#app[data-menubar="left"]:not([data-taskbar])>.ui-menubar {
+    grid-column: 1;
+    grid-row: 1;
+}
+#app[data-menubar="right"][data-taskbar="bottom"]>#menubar,
+#app[data-menubar="right"][data-taskbar="bottom"]>.ui-menubar,
+#app[data-menubar="right"]:not([data-taskbar])>#menubar,
+#app[data-menubar="right"]:not([data-taskbar])>.ui-menubar {
+    grid-column: 2;
+    grid-row: 1;
+}
+#app[data-menubar="left"][data-taskbar="bottom"]>#desktop,
+#app[data-menubar="left"]:not([data-taskbar])>#desktop {
+    grid-column: 2;
+    grid-row: 1;
+}
+#app[data-menubar="right"][data-taskbar="bottom"]>#desktop,
+#app[data-menubar="right"]:not([data-taskbar])>#desktop {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+/* --- taskbar também lateral: 3 colunas --- */
+#app[data-menubar="left"][data-taskbar="left"] {
+    grid-template-columns: 68px 170px 1fr;
+    grid-template-rows: 1fr;
+}
+#app[data-menubar="left"][data-taskbar="left"]>#taskbar { grid-column: 1; grid-row: 1; }
+#app[data-menubar="left"][data-taskbar="left"]>#menubar,
+#app[data-menubar="left"][data-taskbar="left"]>.ui-menubar { grid-column: 2; grid-row: 1; }
+#app[data-menubar="left"][data-taskbar="left"]>#desktop { grid-column: 3; grid-row: 1; }
+
+#app[data-menubar="left"][data-taskbar="right"] {
+    grid-template-columns: 1fr 170px 68px;
+    grid-template-rows: 1fr;
+}
+#app[data-menubar="left"][data-taskbar="right"]>#desktop { grid-column: 1; grid-row: 1; }
+#app[data-menubar="left"][data-taskbar="right"]>#menubar,
+#app[data-menubar="left"][data-taskbar="right"]>.ui-menubar { grid-column: 2; grid-row: 1; }
+#app[data-menubar="left"][data-taskbar="right"]>#taskbar { grid-column: 3; grid-row: 1; }
+
+#app[data-menubar="right"][data-taskbar="left"] {
+    grid-template-columns: 68px 1fr 170px;
+    grid-template-rows: 1fr;
+}
+#app[data-menubar="right"][data-taskbar="left"]>#taskbar { grid-column: 1; grid-row: 1; }
+#app[data-menubar="right"][data-taskbar="left"]>#desktop { grid-column: 2; grid-row: 1; }
+#app[data-menubar="right"][data-taskbar="left"]>#menubar,
+#app[data-menubar="right"][data-taskbar="left"]>.ui-menubar { grid-column: 3; grid-row: 1; }
+
+#app[data-menubar="right"][data-taskbar="right"] {
+    grid-template-columns: 1fr 170px 68px;
+    grid-template-rows: 1fr;
+}
+#app[data-menubar="right"][data-taskbar="right"]>#desktop { grid-column: 1; grid-row: 1; }
+#app[data-menubar="right"][data-taskbar="right"]>#menubar,
+#app[data-menubar="right"][data-taskbar="right"]>.ui-menubar { grid-column: 2; grid-row: 1; }
+#app[data-menubar="right"][data-taskbar="right"]>#taskbar { grid-column: 3; grid-row: 1; }
+
+/* --- taskbar lateral dentro da grade: altura total, sem width:100% herdado --- */
+#app[data-menubar="left"][data-taskbar="left"]>#taskbar,
+#app[data-menubar="left"][data-taskbar="right"]>#taskbar,
+#app[data-menubar="right"][data-taskbar="left"]>#taskbar,
+#app[data-menubar="right"][data-taskbar="right"]>#taskbar {
+    width: auto !important;
+    height: 100% !important;
+}
+
 #menubar,
 #app>.ui-menubar {
     order: 10;
@@ -688,10 +831,54 @@ select {
     white-space: nowrap;
 }
 
+/* MenuBar lateral: itens adaptados — altura automática, texto quebrado em
+   até 2 linhas com elipse (tooltip title mantém o texto completo). */
 .ui-menubar[data-position="left"] .menubar-item,
 .ui-menubar[data-position="right"] .menubar-item {
-    height: 32px;
+    height: auto;
+    min-height: 30px;
     width: 100%;
+    padding: 5px 8px;
+    font-size: 12px;
+    line-height: 1.3;
+    white-space: normal;
+    word-break: break-word;
+}
+.ui-menubar[data-position="left"] .menubar-item .menubar-item-label,
+.ui-menubar[data-position="right"] .menubar-item .menubar-item-label {
+    white-space: normal;
+    min-width: 0;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Trilho de ícones: na lateral, itens com ícone escondem o rótulo
+   (o texto completo vai para o tooltip via title). Sem ícone, mantém texto. */
+.ui-menubar[data-position="left"] .menubar-item:has(.menubar-item-icon) .menubar-item-label,
+.ui-menubar[data-position="right"] .menubar-item:has(.menubar-item-icon) .menubar-item-label {
+    display: none;
+}
+.ui-menubar[data-position="left"] .menubar-item:has(.menubar-item-icon),
+.ui-menubar[data-position="right"] .menubar-item:has(.menubar-item-icon) {
+    justify-content: center;
+    padding: 0;
+}
+
+/* Modo "labels": rótulo sempre visível ao lado do ícone (desfaz o trilho
+   de ícones) — para quem prefere texto mesmo nas posições laterais. */
+.ui-menubar[data-labels="labels"] .menubar-item {
+    justify-content: flex-start !important;
+    padding: 5px 8px !important;
+}
+.ui-menubar[data-labels="labels"] .menubar-item .menubar-item-label {
+    display: inline-block !important;
+}
+.ui-menubar[data-labels="labels"] .menubar-item .menubar-item-icon {
+    flex: 0 0 auto;
+    margin-right: 6px;
 }
 
 .menubar-item:hover,
@@ -1840,6 +2027,10 @@ textarea:focus,
     background: rgba(128, 128, 128, 0.08);
 }
 
+.ui-table tbody tr.ui-row-clickable {
+    cursor: pointer;
+}
+
 .ui-table tr:last-child td {
     border-bottom: none;
 }
@@ -1997,13 +2188,32 @@ textarea:focus,
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 400000;
+    /* Hierarquia do shell: taskbar 100000, context menu 300000, start menu 400000,
+       menubar global + dropdowns 500000/500002. O modal global precisa ficar
+       ACIMA de tudo do shell (inclusive o menubar) — toasts (999999) seguem
+       visíveis por cima. O modal local (win.confirm/openModal) é filho da
+       janela: o valor é relativo ao contexto de empilhamento dela. */
+    z-index: 600000;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
 .ui-modal-overlay.show {
     opacity: 1;
+}
+
+/* Diálogo no escopo da janela (win.confirm/prompt/alert ou openModal):
+   o overlay cobre só a janela e o diálogo se ajusta aos limites dela. */
+.window > .ui-modal-overlay {
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.window > .ui-modal-overlay .ui-modal-dialog {
+    min-width: 0;
+    width: min(90%, 520px);
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .ui-modal-dialog.window,
@@ -3460,6 +3670,59 @@ select option {
         display: none !important;
     }
 
+    /* MenuBar lateral (left/right) no viewport estreito: trilho de 48px —
+       espelho das regras #app.mobile-mode[...] deste arquivo (que exigem a
+       classe); aqui valem sem ela, como o resto desta media query (F12/
+       responsivo). */
+    #app[data-menubar="left"][data-taskbar="top"],
+    #app[data-menubar="left"][data-taskbar="bottom"],
+    #app[data-menubar="left"]:not([data-taskbar]) {
+        grid-template-columns: 48px 1fr !important;
+    }
+    #app[data-menubar="right"][data-taskbar="top"],
+    #app[data-menubar="right"][data-taskbar="bottom"],
+    #app[data-menubar="right"]:not([data-taskbar]) {
+        grid-template-columns: 1fr 48px !important;
+    }
+    #app[data-menubar="left"][data-taskbar="left"] {
+        grid-template-columns: 68px 48px 1fr !important;
+    }
+    #app[data-menubar="left"][data-taskbar="right"] {
+        grid-template-columns: 1fr 48px 68px !important;
+    }
+    #app[data-menubar="right"][data-taskbar="left"] {
+        grid-template-columns: 68px 1fr 48px !important;
+    }
+    #app[data-menubar="right"][data-taskbar="right"] {
+        grid-template-columns: 1fr 48px 68px !important;
+    }
+
+    /* A barra lateral mantém a altura total da célula (a regra geral acima é
+       para a faixa horizontal de 48px) e o ☰ ganha alvo de toque confortável. */
+    #app[data-menubar="left"]>#menubar:not([data-position="none"]),
+    #app[data-menubar="left"]>.ui-menubar:not(.window-menubar):not([data-position="none"]),
+    #app[data-menubar="right"]>#menubar:not([data-position="none"]),
+    #app[data-menubar="right"]>.ui-menubar:not(.window-menubar):not([data-position="none"]) {
+        width: 100% !important;
+        height: 100% !important;
+        flex: 0 0 auto !important;
+        padding: 4px 2px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+
+    #app[data-menubar="left"] #menubar .menubar-mobile-hamburger,
+    #app[data-menubar="left"] .ui-menubar:not(.window-menubar) .menubar-mobile-hamburger,
+    #app[data-menubar="right"] #menubar .menubar-mobile-hamburger,
+    #app[data-menubar="right"] .ui-menubar:not(.window-menubar) .menubar-mobile-hamburger {
+        min-width: 44px !important;
+        min-height: 44px !important;
+        font-size: 22px !important;
+    }
+
     /* Container de Desktop e Janelas */
     #desktop {
         position: relative !important;
@@ -3858,6 +4121,63 @@ select option {
     height: 48px !important;
     flex: 0 0 48px !important;
     overflow: hidden !important;
+}
+
+/* MenuBar lateral no mobile: trilho estreito de 48px na lateral escolhida.
+   A coluna de 170px do desktop estourava a tela estreita, mas a faixa no topo
+   descartava a posição esquerda/direita do usuário — então só encolhemos a
+   coluna e mantemos o desenho do desktop (a taskbar segue onde foi configurada).
+   Espelho sem a classe dentro de @media (max-width: 768px) (F12/responsivo). */
+#app.mobile-mode[data-menubar="left"][data-taskbar="top"],
+#app.mobile-mode[data-menubar="left"][data-taskbar="bottom"],
+#app.mobile-mode[data-menubar="left"]:not([data-taskbar]) {
+    grid-template-columns: 48px 1fr !important;
+}
+#app.mobile-mode[data-menubar="right"][data-taskbar="top"],
+#app.mobile-mode[data-menubar="right"][data-taskbar="bottom"],
+#app.mobile-mode[data-menubar="right"]:not([data-taskbar]) {
+    grid-template-columns: 1fr 48px !important;
+}
+#app.mobile-mode[data-menubar="left"][data-taskbar="left"] {
+    grid-template-columns: 68px 48px 1fr !important;
+}
+#app.mobile-mode[data-menubar="left"][data-taskbar="right"] {
+    grid-template-columns: 1fr 48px 68px !important;
+}
+#app.mobile-mode[data-menubar="right"][data-taskbar="left"] {
+    grid-template-columns: 68px 1fr 48px !important;
+}
+#app.mobile-mode[data-menubar="right"][data-taskbar="right"] {
+    grid-template-columns: 1fr 48px 68px !important;
+}
+
+/* A barra mantém a altura total da célula: anula o height/flex-basis/padding da
+   regra mobile acima (feita para a faixa horizontal) e o width:170px do desktop. */
+#app.mobile-mode[data-menubar="left"]>#menubar:not([data-position="none"]),
+#app.mobile-mode[data-menubar="left"]>.ui-menubar:not(.window-menubar),
+#app.mobile-mode[data-menubar="right"]>#menubar:not([data-position="none"]),
+#app.mobile-mode[data-menubar="right"]>.ui-menubar:not(.window-menubar) {
+    width: 100% !important;
+    height: 100% !important;
+    flex: 0 0 auto !important;
+    padding: 4px 2px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+/* Hambúrguer (☰) no topo da coluna: mantém o comportamento mobile padrão —
+   o botão abre o drawer de menus e os itens ficam ocultos (regra mobile
+   geral). Aqui só garantimos alvo de toque confortável. */
+#app.mobile-mode[data-menubar="left"] #menubar .menubar-mobile-hamburger,
+#app.mobile-mode[data-menubar="left"] .ui-menubar:not(.window-menubar) .menubar-mobile-hamburger,
+#app.mobile-mode[data-menubar="right"] #menubar .menubar-mobile-hamburger,
+#app.mobile-mode[data-menubar="right"] .ui-menubar:not(.window-menubar) .menubar-mobile-hamburger {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    font-size: 22px !important;
 }
 
 #app.mobile-mode[data-menubar="none"]>#menubar,
@@ -4385,6 +4705,7 @@ select option {
     border: 1px solid transparent;
     position: relative;
     text-align: center;
+    direction: ltr; /* rótulos sempre LTR mesmo quando o contêiner vira rtl (column à direita) */
     min-width: 64px;
     min-height: 80px;
     height: auto;
@@ -4409,7 +4730,7 @@ select option {
 
 .ui-shortcut__label {
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1.25;
     max-width: 100%;
     width: 100%;
@@ -4417,7 +4738,6 @@ select option {
     overflow-wrap: break-word;
     text-align: center;
     color: var(--text-primary, #fff);
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.9);
     pointer-events: none;
     /* Truncar suavemente em até 3 linhas */
     display: -webkit-box;
@@ -4467,6 +4787,16 @@ select option {
     cursor: not-allowed;
     pointer-events: none;
     filter: grayscale(40%);
+}
+
+.ui-shortcut.dragging {
+    opacity: 0.4;
+    cursor: grabbing;
+}
+
+.ui-shortcut.drop-before {
+    outline: 2px dashed var(--primary-color, #7c3aed);
+    outline-offset: 2px;
 }
 
 .ui-shortcut::after {
@@ -4841,12 +5171,208 @@ select option {
     background: var(--menu-hover, rgba(0, 0, 0, 0.08));
 }
 
+/* --- ActivityService: itens da fila de atividades no dock --- */
+.ui-activity-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--bg-secondary, rgba(0, 0, 0, 0.04));
+    border: 1px solid var(--win-border, rgba(0, 0, 0, 0.1));
+    border-radius: 6px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--text-primary);
+}
+
+.ui-activity-icon {
+    flex: 0 0 auto;
+    font-size: 15px;
+    line-height: 1;
+}
+
+.ui-activity-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.ui-activity-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ui-activity-sub {
+    font-size: 11.5px;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ui-activity-sub .ui-progress-wrap {
+    margin-top: 4px;
+}
+
+.ui-activity-side {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ui-activity-btn {
+    border: 1px solid var(--win-border, rgba(0, 0, 0, 0.15));
+    background: var(--bg-primary, #ffffff);
+    color: var(--text-primary);
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.ui-activity-btn:hover {
+    background: var(--menu-hover, rgba(0, 0, 0, 0.08));
+}
+
+.ui-activity-pre {
+    margin: 0;
+    max-height: 320px;
+    overflow: auto;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 .ui-float-button-wrap {
     position: fixed;
     z-index: 100001;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* --- DockContainer: painel do canto que hospeda docks com scroll --- */
+.ui-dock-container {
+    position: fixed;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    background: var(--win-bg, #ffffff);
+    border: 1px solid var(--win-border, rgba(0, 0, 0, 0.15));
+    box-shadow: var(--win-shadow, 0 12px 32px rgba(0, 0, 0, 0.25));
+    backdrop-filter: var(--win-blur, blur(16px));
+    -webkit-backdrop-filter: var(--win-blur, blur(16px));
+    font-family: inherit;
+    color: var(--text-primary, #111827);
+    box-sizing: border-box;
+}
+
+.ui-dock-container.pos-bottom-right {
+    bottom: 34px;
+    right: 20px;
+    border-radius: 10px 10px 0 0;
+    border-bottom: none;
+}
+
+#app[data-taskbar="top"] .ui-dock-container.pos-bottom-right {
+    bottom: 0;
+}
+
+#app[data-taskbar="right"] .ui-dock-container.pos-bottom-right {
+    right: 68px;
+    bottom: 0;
+}
+
+#app[data-taskbar="left"] .ui-dock-container.pos-bottom-right {
+    bottom: 0;
+}
+
+.ui-dock-container.pos-bottom-left {
+    bottom: 34px;
+    left: 20px;
+    border-radius: 10px 10px 0 0;
+    border-bottom: none;
+}
+
+#app[data-taskbar="top"] .ui-dock-container.pos-bottom-left {
+    bottom: 0;
+}
+
+#app[data-taskbar="left"] .ui-dock-container.pos-bottom-left {
+    left: 68px;
+    bottom: 0;
+}
+
+#app[data-taskbar="right"] .ui-dock-container.pos-bottom-left {
+    bottom: 0;
+}
+
+.ui-dock-container.pos-top-right {
+    top: 0;
+    right: 20px;
+    border-radius: 0 0 10px 10px;
+    border-top: none;
+}
+
+#app[data-taskbar="top"] .ui-dock-container.pos-top-right {
+    top: 34px;
+}
+
+#app[data-taskbar="right"] .ui-dock-container.pos-top-right {
+    right: 68px;
+    top: 0;
+}
+
+.ui-dock-container.pos-top-left {
+    top: 0;
+    left: 20px;
+    border-radius: 0 0 10px 10px;
+    border-top: none;
+}
+
+#app[data-taskbar="top"] .ui-dock-container.pos-top-left {
+    top: 34px;
+}
+
+#app[data-taskbar="left"] .ui-dock-container.pos-top-left {
+    left: 68px;
+    top: 0;
+}
+
+.ui-dock-container-body {
+    display: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    box-sizing: border-box;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--win-bg, #ffffff);
+    color: var(--text-primary);
+    max-height: var(--dock-container-max, calc(100vh - 140px));
+}
+
+.ui-dock-container.expanded .ui-dock-container-body {
+    display: flex;
+}
+
+.ui-dock-container-empty {
+    padding: 12px;
+    font-size: 12px;
+    opacity: 0.7;
+    text-align: center;
+}
+
+/* Dock hospedado: vira item empilhado do scroll (sem posição fixa) */
+.ui-dock-widget.is-stacked {
+    position: static !important;
+    width: auto !important;
+    flex: 0 0 auto;
+    border-radius: 10px !important;
+    border-bottom: 1px solid var(--win-border, rgba(0, 0, 0, 0.15)) !important;
 }
 
 .ui-float-button-wrap.pos-bottom-right {
@@ -5316,4 +5842,126 @@ select option {
 
 #windows > .ui-shortcut-container .ui-shortcut {
     pointer-events: auto;
+}
+
+/* ---- Padrões de tela: filtro, estados vazios, KPI e diálogos ---- */
+.ui-filter-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    background: var(--panel-bg, rgba(255, 255, 255, 0.03));
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 6px;
+}
+
+.ui-filter-search {
+    flex: 1;
+    min-width: 220px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color, #ccc);
+    background: var(--input-bg, #fff);
+    color: inherit;
+    font-size: 13px;
+}
+
+.ui-filter-search:focus {
+    outline: none;
+    border-color: var(--btn-primary, #3b82f6);
+}
+
+.ui-empty-state {
+    padding: 40px 16px;
+    text-align: center;
+    opacity: 0.75;
+}
+
+.ui-empty-state .ui-empty-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.ui-empty-state .ui-empty-message {
+    margin: 0 0 4px;
+    font-size: 14px;
+}
+
+.ui-empty-state .ui-empty-hint {
+    margin: 0;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.ui-empty-state .ui-btn {
+    margin-top: 12px;
+}
+
+.ui-kpi-card {
+    --kpi-accent: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    background: var(--panel-bg, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-left: 3px solid var(--kpi-accent);
+    border-radius: 8px;
+}
+
+.ui-kpi-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    opacity: 0.75;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ui-kpi-value {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.ui-kpi-hint {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.ui-dialog-message {
+    padding: 4px 2px 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-line;
+}
+
+.ui-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+}
+
+.ui-dialog-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    border-radius: 6px;
+    border: 1px solid var(--input-border, #ccc);
+    background: var(--input-bg, #fff);
+    color: inherit;
+    font-size: 14px;
+}
+
+.ui-btn-danger {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+}
+
+.ui-btn-danger:hover {
+    background: #b91c1c;
 }

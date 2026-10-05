@@ -765,3 +765,11 @@
 [data-laf="comic-doodle"] .ui-tab-btn.active {
     background: #cce3fd !important;
 }
+
+/* Fonte do tema: alimenta var(--font-family) do core (herança no body) para
+   que a área de trabalho, os atalhos e os demais elementos sem fonte
+   explícita usem a fonte do tema. Componentes com fonte própria continuam
+   valendo pela precedência das regras abaixo. */
+[data-laf="comic-doodle"] {
+    --font-family: 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+}

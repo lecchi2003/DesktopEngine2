@@ -1,0 +1,44 @@
+{
+  "name": "desktop-engine",
+  "version": "2.2.0",
+  "description": "DesktopEngine — framework vanilla JS (ES Modules) para SPAs estilo desktop: window manager, menus, taskbar, signals reativos, segurança zero-trust (RBAC), autenticação genérica e permissões de elementos.",
+  "type": "module",
+  "main": "./ui.js",
+  "exports": {
+    ".": "./ui.js",
+    "./core": "./core.js",
+    "./desktop": "./desktop.js",
+    "./element-builder": "./ElementBuilder.js",
+    "./auth-service": "./auth-service.js",
+    "./auth-providers": "./auth-providers.js",
+    "./api-service": "./api-service.js",
+    "./api-transports": "./api-transports.js",
+    "./activity-service": "./activity-service.js",
+    "./format": "./format.js",
+    "./element-permission-plugin": "./element-permission-plugin.js"
+  },
+  "files": [
+    "core.js",
+    "desktop.js",
+    "ElementBuilder.js",
+    "auth-service.js",
+    "auth-providers.js",
+    "api-service.js",
+    "api-transports.js",
+    "activity-service.js",
+    "format.js",
+    "element-permission-plugin.js",
+    "ui.js",
+    "ui/",
+    "css/",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "vitest run"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "jsdom": "^30.1.1",
+    "vitest": "^5.0.2"
+  }
+}
