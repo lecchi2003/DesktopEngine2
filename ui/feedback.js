@@ -50,8 +50,8 @@ export function Modal({
                 console.error("Erro no hook beforeClose do Modal:", err);
             }
         }
-        if (onClose && instance) instance.runAction(onClose);
-        else if (typeof onClose === 'function') onClose();
+        if (typeof onClose === 'function') onClose();
+        else if (onClose && instance) instance.runAction(onClose);
 
         const animClose = closeAnimation || animation;
         if (animClose && animClose !== 'none') {

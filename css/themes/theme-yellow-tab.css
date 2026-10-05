@@ -314,3 +314,11 @@
     --menu-bg: #e8e8e8 !important;
     --menu-text: #000000 !important;
 }
+
+/* Fonte do tema: alimenta var(--font-family) do core (herança no body) para
+   que a área de trabalho, os atalhos e os demais elementos sem fonte
+   explícita usem a fonte do tema. Componentes com fonte própria continuam
+   valendo pela precedência das regras abaixo. */
+[data-laf="yellow-tab"] {
+    --font-family: 'Trebuchet MS', sans-serif;
+}

@@ -332,3 +332,11 @@
     height: 24px !important;
     box-shadow: 0 0 6px rgba(0, 255, 204, 0.3) !important;
 }
+
+/* Fonte do tema: alimenta var(--font-family) do core (herança no body) para
+   que a área de trabalho, os atalhos e os demais elementos sem fonte
+   explícita usem a fonte do tema. Componentes com fonte própria continuam
+   valendo pela precedência das regras abaixo. */
+[data-laf="cyberpunk-neon"] {
+    --font-family: 'Orbitron', monospace, sans-serif;
+}

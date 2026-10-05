@@ -323,13 +323,18 @@ export class BaseComponent {
         if (!this.el || !this.el.parentNode) return;
         const oldEl = this.el;
 
-        // Salvar estado de foco antes de recriar o DOM
+        // Salvar estado de foco antes de recriar o DOM — aceita id, data-bind
+        // (campo ligado ao estado) e data-eid (chave estável do ElementBuilder),
+        // senão um campo sem data-bind perdia o foco a cada tecla.
         const activeElement = document.activeElement;
-        let focusedId = null;
+        let focusAttr = null;
+        let focusValue = null;
         let selStart = null;
         let selEnd = null;
         if (activeElement && oldEl.contains(activeElement)) {
-            focusedId = activeElement.id || activeElement.dataset?.bind || null;
+            if (activeElement.id) { focusAttr = 'id'; focusValue = activeElement.id; }
+            else if (activeElement.dataset?.bind) { focusAttr = 'data-bind'; focusValue = activeElement.dataset.bind; }
+            else if (activeElement.dataset?.eid) { focusAttr = 'data-eid'; focusValue = activeElement.dataset.eid; }
             if (typeof activeElement.selectionStart === 'number') {
                 selStart = activeElement.selectionStart;
                 selEnd = activeElement.selectionEnd;
@@ -342,8 +347,8 @@ export class BaseComponent {
             this.el = newEl;
 
             // Restaurar foco e posição do cursor sem perder a digitação
-            if (focusedId) {
-                const elToFocus = newEl.querySelector(`#${focusedId}, [data-bind="${focusedId}"]`);
+            if (focusAttr) {
+                const elToFocus = newEl.querySelector(`[${focusAttr}="${focusValue}"]`);
                 if (elToFocus) {
                     elToFocus.focus();
                     if (selStart !== null && typeof elToFocus.setSelectionRange === 'function') {
@@ -377,24 +382,26 @@ export class BaseComponent {
 // --- Core Engine ---
 // Registry global compartilhado — garante singleton mesmo se o módulo for carregado
 // múltiplas vezes (ex: caminhos relativos diferentes ou query strings variadas).
-if (!window.__DE_registry) {
-    window.__DE_registry = { components: {}, plugins: [] };
+// Guarda `typeof window` para o módulo importar em Node puro (SSR/tooling).
+const _globalScope = (typeof window !== 'undefined') ? window : globalThis;
+if (!_globalScope.__DE_registry) {
+    _globalScope.__DE_registry = { components: {}, plugins: [] };
 }
 
 export const Framework = {
-    get _components() { return window.__DE_registry.components; },
-    get _plugins()    { return window.__DE_registry.plugins; },
+    get _components() { return _globalScope.__DE_registry.components; },
+    get _plugins()    { return _globalScope.__DE_registry.plugins; },
 
     /** Registra um novo componente no framework para uso declarativo e programático */
     defineComponent(name, componentDef) {
         if (!name || !componentDef) throw new Error("Nome e definição do componente são obrigatórios.");
-        window.__DE_registry.components[name] = componentDef;
+        _globalScope.__DE_registry.components[name] = componentDef;
         return this;
     },
 
     /** Retorna um componente previamente registrado */
     getComponent(name) {
-        return window.__DE_registry.components[name];
+        return _globalScope.__DE_registry.components[name];
     },
 
     /** Registra e executa um plugin que estende o framework */
@@ -408,8 +415,17 @@ export const Framework = {
         this._plugins.push({ plugin, options });
         return this;
     },
+
+    /** Ponto de extensão: fn({ screenId, root }) a cada render de conteúdo */
+    registerContentHook(fn) {
+        return registerContentHook(fn);
+    },
+
+    /** Ponto de extensão: fn({ screenId, kind, labelPath, item }) → false veta */
+    registerMenuItemFilter(fn) {
+        return registerMenuItemFilter(fn);
+    },
     createWindow(config, instanceId, desktopManager) {
-        let isSilentStateUpdate = false;
         const _signalsMap = {};
 
         // Objeto de estado reativo via Proxy
@@ -419,11 +435,16 @@ export const Framework = {
             },
             set(target, prop, value) {
                 const oldValue = target[prop];
+                // Mesmo valor: não re-renderiza (evita cursor jump quando o
+                // handler do desenvolvedor reassina o estado já atualizado pelo
+                // _setSilentState do binding).
+                const sameValue = Object.is(oldValue, value);
                 target[prop] = value;
                 if (_signalsMap[prop] && _signalsMap[prop].peek() !== value) {
                     _signalsMap[prop].value = value;
                 }
-                if (instance.update && !isSilentStateUpdate && instance.el) {
+                // Verifica isSilentStateUpdate como propriedade do instance (não variável local)
+                if (!sameValue && instance && instance.update && !instance._isSilentStateUpdate && instance.el) {
                     instance.update(prop, value, oldValue);
                 }
                 return true;
@@ -453,6 +474,7 @@ export const Framework = {
             config,
             el: null, // Elemento raiz (conteúdo da janela)
             windowEl: null, // Elemento físico da janela (container)
+            _isSilentStateUpdate: false, // Flag para evitar re-renderização durante _setSilentState
 
             // [CORE-001] Sistema de rastreamento de effects reativos da janela
             _effectCleanups: [],
@@ -489,12 +511,12 @@ export const Framework = {
             },
             
             _setSilentState(prop, value) {
-                isSilentStateUpdate = true;
+                this._isSilentStateUpdate = true;
                 this.state[prop] = value;
                 if (_signalsMap[prop] && _signalsMap[prop].peek() !== value) {
                     _signalsMap[prop].value = value;
                 }
-                isSilentStateUpdate = false;
+                this._isSilentStateUpdate = false;
 
                 // Sincroniza outros campos da mesma janela vinculados à mesma propriedade sem recriar o DOM
                 if (this.el) {
@@ -549,14 +571,22 @@ export const Framework = {
                     let node;
                     if (typeof config.view === 'function') {
                         node = config.view.call(this);
+                    } else if (typeof config.render === 'function') {
+                        node = config.render.call(this);
                     } else {
                         // [CORE-003] Fallback para conteúdo estático: sanitizado antes de inserir no DOM
                         const div = document.createElement('div');
-                        safeSetHTML(div, config.view || '');
+                        safeSetHTML(div, config.view || config.content || '');
                         node = div;
                     }
                     if (node && node instanceof Element) {
                         applySecurityPolicies(node);
+                        // Ponto de extensão: plugins de conteúdo (ex.: permissões
+                        // de elementos criadas em tempo de uso). Ver PluginRegistry.
+                        try {
+                            const sid = this.config?.id;
+                            if (sid) runContentHooks({ screenId: sid, root: node });
+                        } catch (e) { console.error("Erro em plugin de conteúdo:", e); }
                     }
                     this.el = node;
                     return node;
@@ -572,12 +602,23 @@ export const Framework = {
                     if (this.el && this.el.parentNode) {
                         // Salvar o foco atual e posições de seleção/cursor
                         const activeElement = document.activeElement;
-                        let focusedBind = null;
+                        let focusAttr = null; // atributo que identifica o campo focado
+                        let focusValue = null;
                         let selStart = null;
                         let selEnd = null;
 
-                        if (activeElement && activeElement.dataset && activeElement.dataset.bind) {
-                            focusedBind = activeElement.dataset.bind;
+                        // Só restaura o foco se o elemento ativo pertence a esta janela.
+                        // Aceita data-bind (campo ligado ao estado), data-eid (chave estável
+                        // do ElementBuilder) e id — antes um input sem data-bind (só data-eid)
+                        // era recriado pelo re-render e o usuário perdia o foco a cada tecla.
+                        if (activeElement && this.el.contains(activeElement)) {
+                            if (activeElement.dataset && activeElement.dataset.bind) {
+                                focusAttr = 'data-bind'; focusValue = activeElement.dataset.bind;
+                            } else if (activeElement.dataset && activeElement.dataset.eid) {
+                                focusAttr = 'data-eid'; focusValue = activeElement.dataset.eid;
+                            } else if (activeElement.id) {
+                                focusAttr = 'id'; focusValue = activeElement.id;
+                            }
                             if (typeof activeElement.selectionStart === "number") {
                                 selStart = activeElement.selectionStart;
                                 selEnd = activeElement.selectionEnd;
@@ -590,8 +631,8 @@ export const Framework = {
                         this.el = newEl;
                         
                         // Restaurar foco e cursor sem perder a posição de digitação
-                        if (focusedBind) {
-                            const elToFocus = newEl.querySelector(`[data-bind="${focusedBind}"]`);
+                        if (focusAttr) {
+                            const elToFocus = newEl.querySelector(`[${focusAttr}="${focusValue}"]`);
                             if (elToFocus) {
                                 elToFocus.focus();
                                 if (selStart !== null && typeof elToFocus.setSelectionRange === "function") {
@@ -607,6 +648,18 @@ export const Framework = {
                 });
             },
             
+            safeUpdate() {
+                if (typeof this.update === 'function') {
+                    this.update();
+                }
+            },
+
+            safeClose(resultData = undefined) {
+                if (typeof this.close === 'function') {
+                    return this.close(resultData);
+                }
+            },
+
             setStatus(msg) {
                 if (this.windowEl) {
                     const sb = this.windowEl.querySelector('.statusbar');
@@ -654,6 +707,27 @@ export const Framework = {
                     return dm.openDialog(childScreenOrId, this, initialProps);
                 }
                 return Promise.reject(new Error("DesktopManager não disponível para abrir janela modal filha."));
+            },
+
+            // --- Diálogos Promise no escopo da janela (bloqueiam apenas ela) ---
+            // `instance: this` faz o Desktop resolver o Modal local; se a janela
+            // já estiver fechada, o diálogo volta ao escopo global.
+            confirm(message, options = {}) {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.confirm === 'function') return dm.confirm(message, { ...options, instance: this });
+                return Promise.resolve(false);
+            },
+
+            prompt(message, options = {}) {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.prompt === 'function') return dm.prompt(message, { ...options, instance: this });
+                return Promise.resolve(null);
+            },
+
+            alert(message, options = {}) {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.alert === 'function') return dm.alert(message, { ...options, instance: this });
+                return Promise.resolve();
             },
 
             openChildWindow(childScreenOrId, initialProps = {}) {
@@ -796,6 +870,19 @@ export const Framework = {
 
         // Vincula e delega métodos personalizados do config para a instância
         if (config && typeof config === 'object') {
+            config._instance = instance;
+            config.update = (...args) => {
+                if (instance && typeof instance.update === 'function') return instance.update(...args);
+            };
+            config.safeUpdate = (...args) => {
+                if (instance && typeof instance.update === 'function') return instance.update(...args);
+            };
+            config.close = (...args) => {
+                if (instance && typeof instance.close === 'function') return instance.close(...args);
+            };
+            config.safeClose = (...args) => {
+                if (instance && typeof instance.close === 'function') return instance.close(...args);
+            };
             for (const [key, val] of Object.entries(config)) {
                 if (typeof val === 'function' && !(key in instance)) {
                     instance[key] = val.bind(instance);
@@ -868,6 +955,10 @@ export const SecurityService = {
         return this._permissions.value.has(permission);
     },
 
+    hasPermission(permission) {
+        return this.can(permission);
+    },
+
     /**
      * Verifica se o usuário autenticado possui determinado papel (role).
      * @param {string} role
@@ -893,6 +984,52 @@ export const SecurityService = {
         }
     }
 };
+
+/**
+ * Registro de plugins do framework (pontos de extensão).
+ *
+ * Permite ao app (ou a plugins externos) reagir ao ciclo de vida sem alterar
+ * o core. Ex.: um sistema de permissões de elementos registra um content hook
+ * que oculta nós e um menu-item filter que remove itens por papel.
+ *
+ * - Content hook: fn({ screenId, root }) — chamado a cada render de conteúdo.
+ * - Menu-item filter: fn({ screenId, kind, labelPath, item }) → `false` remove
+ *   o item (`kind`: 'menu' | 'toolbar' | 'context'; `labelPath`: "Pai/Filho").
+ */
+export const PluginRegistry = {
+    contentHooks: [],
+    menuItemFilters: [],
+};
+
+export function registerContentHook(fn) {
+    if (typeof fn === 'function') PluginRegistry.contentHooks.push(fn);
+    return () => {
+        const i = PluginRegistry.contentHooks.indexOf(fn);
+        if (i >= 0) PluginRegistry.contentHooks.splice(i, 1);
+    };
+}
+
+export function registerMenuItemFilter(fn) {
+    if (typeof fn === 'function') PluginRegistry.menuItemFilters.push(fn);
+    return () => {
+        const i = PluginRegistry.menuItemFilters.indexOf(fn);
+        if (i >= 0) PluginRegistry.menuItemFilters.splice(i, 1);
+    };
+}
+
+export function runContentHooks(ctx) {
+    for (const fn of [...PluginRegistry.contentHooks]) {
+        fn(ctx);
+    }
+}
+
+/** @returns `true` se algum filtro registrado vetar o item. */
+export function isMenuItemVetoed(ctx) {
+    for (const fn of [...PluginRegistry.menuItemFilters]) {
+        if (fn(ctx) === false) return true;
+    }
+    return false;
+}
 
 /**
  * Higieniza elementos que possuem atributos declarativos de segurança (data-permission e data-role)

@@ -86,6 +86,13 @@ export function createElement(tag, arg2, arg3) {
             el.appendChild(child);
         } else if (Array.isArray(child)) {
             child.forEach(appendChild);
+        } else if (child && typeof child.build === 'function') {
+            // ElementBuilder (ou compatível): aceita o builder direto e usa o nó
+            // pronto — as telas passam builders para os padrões (FilterBar etc.) e
+            // antes eles eram descartados silenciosamente.
+            appendChild(child.build());
+        } else if (child && child.el instanceof Node) {
+            appendChild(child.el);
         }
     };
 

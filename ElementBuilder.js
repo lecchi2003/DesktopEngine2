@@ -117,6 +117,18 @@ export class ElementBuilder {
         return this;
     }
 
+    /**
+     * Marca o elemento com uma chave estável de permissão (data-eid).
+     * O ElementGuard localiza por ela antes do seletor CSS de fallback,
+     * e o inspetor do Modo Edição a sugere como chave do catálogo.
+     * @param {string} key - Ex: 'filtro-status'
+     */
+    eid(key) {
+        if (this._isRestricted || !this.el || !this.el.setAttribute) return this;
+        if (key) this.el.setAttribute('data-eid', key);
+        return this;
+    }
+
     /** Define o texto do elemento (suporta string, número ou Signal reativo atômico) */
     text(txtOrSignal) {
         if (this._isRestricted || !this.el || !('textContent' in this.el)) return this;
@@ -233,6 +245,21 @@ export class ElementBuilder {
     /** Adiciona um listener de evento */
     on(event, handler, options) {
         if (this._isRestricted || !this.el.addEventListener) return this;
+        // [FIX] Inputs com data-bind usam _setSilentState (sem re-render/cursor jump)
+        // e TAMBÉM executam o handler do desenvolvedor — antes o handler era
+        // substituído e efeitos colaterais (ex.: recalcular campos, safeUpdate)
+        // se perdiam silenciosamente.
+        if ((event === 'input' || event === 'change') && this.el.dataset && this.el.dataset.bind) {
+            const bindProp = this.el.dataset.bind;
+            const inst = UIContext.getCurrent();
+            if (inst && typeof inst._setSilentState === 'function') {
+                this.el.addEventListener(event, (e) => {
+                    inst._setSilentState(bindProp, e.target.value);
+                    if (typeof handler === 'function') handler(e);
+                }, options);
+                return this;
+            }
+        }
         this.el.addEventListener(event, handler, options);
         return this;
     }
@@ -624,8 +651,9 @@ export const UI = {
     /** Instancia um componente customizado registrado via Framework.defineComponent */
     custom(name, props = {}) {
         // Busca via Framework e também diretamente no registry global (fallback para múltiplas instâncias de módulo)
+        const _scope = (typeof window !== 'undefined') ? window : globalThis;
         const compDef = Framework.getComponent(name)
-            ?? (window.__DE_registry?.components?.[name]);
+            ?? (_scope.__DE_registry?.components?.[name]);
         if (!compDef) {
             throw new Error(`Componente customizado '${name}' não está registrado.`);
         }

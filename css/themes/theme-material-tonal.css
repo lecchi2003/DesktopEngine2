@@ -278,3 +278,11 @@
     border-radius: 50% !important;
     opacity: 0.9 !important;
 }
+
+/* Fonte do tema: alimenta var(--font-family) do core (herança no body) para
+   que a área de trabalho, os atalhos e os demais elementos sem fonte
+   explícita usem a fonte do tema. Componentes com fonte própria continuam
+   valendo pela precedência das regras abaixo. */
+[data-laf="material-tonal"] {
+    --font-family: 'Roboto', -apple-system, sans-serif;
+}

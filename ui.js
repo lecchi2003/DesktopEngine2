@@ -8,3 +8,4 @@ export * from './ui/data.js';
 export * from './ui/navigation.js';
 export * from './ui/feedback.js';
 export * from './ui/media.js';
+export * from './ui/patterns.js';

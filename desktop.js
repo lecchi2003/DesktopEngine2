@@ -1,8 +1,25 @@
 // desktop.js
 //Autor: Gildasio Lecchi Cravo
-import { EventBus, Framework, SecurityService, applySecurityPolicies } from './core.js';
-import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js';
+import { EventBus, Framework, SecurityService, applySecurityPolicies, isSignal } from './core.js';
+import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, DockContainer, FloatButton, createElement } from './ui.js';
 import { safeHTML } from './ui/sanitize.js';
+
+/**
+ * Clona o estado DECLARADO de uma tela para a nova janela (objetos/arrays
+ * planos em profundidade; funções, Signals e instâncias vão por referência).
+ * É o que garante "estado fresco" a cada abertura: o template fica guardado
+ * no registro (`config._declaredState`) e nunca é mutado pelas janelas.
+ */
+function cloneState(value) {
+    if (isSignal(value)) return value; // Signals/objetos reativos vão por referência
+    if (Array.isArray(value)) return value.map(cloneState);
+    if (value && typeof value === 'object' && (value.constructor === Object || value.constructor === undefined)) {
+        const out = {};
+        for (const [k, v] of Object.entries(value)) out[k] = cloneState(v);
+        return out;
+    }
+    return value;
+}
 
 export const Desktop = {
     windowsEl: null,
@@ -16,7 +33,6 @@ export const Desktop = {
     isMobileActive: false,
     _clockTimer: null,
     _contextMenuController: null,
-
     _ensureShell(options = {}) {
         const target = options.target || options.rootContainer || "#app";
         let app = typeof target === 'string' ? document.querySelector(target) : target;
@@ -172,6 +188,22 @@ export const Desktop = {
             }
         } catch (e) {
             this.setMenuBarPosition(this.options.menubarPosition || "top", false);
+        }
+
+        // Carrega modo de rótulos da MenuBar persistido ou padrão
+        try {
+            const savedLabels = localStorage.getItem("desktop_engine_menubar_labels");
+            this.setMenuBarLabels(savedLabels === "labels" ? "labels" : "auto", false);
+        } catch (e) {
+            this.setMenuBarLabels("auto", false);
+        }
+
+        // Carrega plano de fundo persistido ou padrão do tema
+        try {
+            this.setWallpaper(localStorage.getItem("desktop_engine_wallpaper"), false,
+                localStorage.getItem("desktop_engine_wallpaper_mode"));
+        } catch (e) {
+            this.setWallpaper(null, false);
         }
 
         this.windowsEl = document.getElementById(this.options.windowsContainerId);
@@ -379,6 +411,8 @@ export const Desktop = {
         const w = document.createElement("div");
         w.className = "window";
         w.dataset.id = instance.id;
+        // Identificador da tela para o ElementGuard (permissões de elementos em tempo de uso)
+        w.dataset.screenId = (config && config.id) || instance.id;
         instance.windowEl = w;
         this.windows[instance.id] = instance;
 
@@ -465,14 +499,16 @@ export const Desktop = {
         // --- Inicializa Window MenuBar se configurado na tela ---
         const windowMenus = config.menubar || config.menus || config.menu;
         if (windowMenus && Array.isArray(windowMenus) && windowMenus.length > 0) {
-            const initialPos = config.menubarPosition || config.menuBarPosition || config.menuPosition || "top";
+            const initialPos = config.menubarPosition || config.menuBarPosition || config.menuPosition
+                || this.options?.windowMenuPosition || "top";
             this.setWindowMenuBar(instance, windowMenus, initialPos);
         }
 
         // --- Inicializa Window Action Toolbar se configurado na tela ---
         const windowActions = config.actionToolbar || config.toolbar || config.actionMenu || config.menuActions || (Array.isArray(config.actions) ? config.actions : null);
         if (windowActions && Array.isArray(windowActions) && windowActions.length > 0) {
-            const initialActionPos = config.actionToolbarPosition || config.toolbarPosition || config.actionsPosition || "top";
+            const initialActionPos = config.actionToolbarPosition || config.toolbarPosition || config.actionsPosition
+                || this.options?.windowToolbarPosition || "top";
             this.setWindowActionToolbar(instance, windowActions, initialActionPos);
         }
 
@@ -511,6 +547,9 @@ export const Desktop = {
             w.style.top = top + "px";
         } else {
             this.windowsEl.appendChild(w);
+            // `centered: true` — abre sempre centralizada na superfície
+            // (ex.: autenticação), ignorando a cascata padrão.
+            if (config.centered) this.centerWindow(instance);
         }
 
         // Taskbar button
@@ -566,6 +605,29 @@ export const Desktop = {
             }, 80);
         }
 
+        return w;
+    },
+
+    /**
+     * Centraliza uma janela na superfície do Desktop (ou no `surface`
+     * informado). Usa as dimensões declaradas (`config.width/height`) com
+     * fallback para o tamanho real — funciona mesmo antes do layout assentar.
+     * @param {Object|Node} input - Instância (`{ windowEl, config }`) ou elemento
+     * @param {Node} [surface] - Hospedeiro de referência (padrão: a superfície)
+     * @returns {Node|null} O elemento posicionado
+     */
+    centerWindow(input, surface = null) {
+        const w = input?.windowEl instanceof Node ? input.windowEl : input;
+        if (!(w instanceof Node)) return null;
+        const host = surface instanceof Node ? surface
+            : (this.windowsEl || document.getElementById("desktop") || document.body);
+        const cfg = input?.config || {};
+        const childW = cfg.width || w.offsetWidth || 420;
+        const childH = cfg.height || w.offsetHeight || 300;
+        const hostW = host.clientWidth || host.offsetWidth || 0;
+        const hostH = host.clientHeight || host.offsetHeight || 0;
+        w.style.left = Math.max(0, (hostW - childW) / 2) + "px";
+        w.style.top = Math.max(0, (hostH - childH) / 2) + "px";
         return w;
     },
 
@@ -711,8 +773,8 @@ export const Desktop = {
         }
     },
 
-    async closeWindow(instance, w, task, resultData = undefined) {
-        if (instance && typeof instance.beforeClose === 'function') {
+    async closeWindow(instance, w, task, resultData = undefined, { force = false } = {}) {
+        if (!force && instance && typeof instance.beforeClose === 'function') {
             try {
                 const canClose = await instance.beforeClose();
                 if (canClose === false) return false; // Bloqueia o fechamento da janela
@@ -724,7 +786,7 @@ export const Desktop = {
         // Se esta janela tiver uma janela modal filha aberta, fecha a filha primeiro
         if (instance && instance._modalChildWindow) {
             const child = instance._modalChildWindow;
-            await this.closeWindow(child, child.windowEl, child.taskEl);
+            await this.closeWindow(child, child.windowEl, child.taskEl, undefined, { force });
         }
 
         // Se esta janela for filha modal de outra, remove o bloqueio/overlay da janela mãe
@@ -773,6 +835,26 @@ export const Desktop = {
         }
         
         if (task) task.remove();
+        return true;
+    },
+
+    /**
+     * Fecha todas as janelas abertas. Uso típico: logout/encerramento de
+     * sessão (nada da aplicação pode ficar visível sem sessão).
+     * @param {Object} [options]
+     * @param {boolean} [options.force=false] - true pula o `beforeClose`
+     * (fecha mesmo com alterações não salvas)
+     * @returns {Promise<boolean>} true se todas fecharam; false se alguma
+     * bloqueou (só acontece sem `force`)
+     */
+    async closeAllWindows({ force = false } = {}) {
+        // Snapshot: fechar modifica this.windows durante a iteração.
+        const open = Object.values(this.windows || {});
+        for (const instance of open) {
+            if (!instance || this.windows[instance.id] !== instance) continue; // já fechada (ex.: filha modal)
+            const ok = await this.closeWindow(instance, instance.windowEl, instance.taskEl, undefined, { force });
+            if (ok === false) return false;
+        }
         return true;
     },
 
@@ -1532,6 +1614,169 @@ export const Desktop = {
         return this.options?.taskbarPosition || app?.dataset.taskbar || "bottom";
     },
 
+    // --- Plano de fundo da área de trabalho (wallpaper) ---
+
+    /**
+     * Detecta se o valor representa uma imagem (URL/arquivo) e não cor/gradiente.
+     * @param {string} v
+     * @returns {boolean}
+     * @private
+     */
+    _isWallpaperImage(v) {
+        if (/^url\(/i.test(v)) return true;
+        if (/^(https?:|data:image\/|blob:|file:)/i.test(v)) return true;
+        if (/^(\/|\.\/|\.\.\/)/.test(v)) return true;
+        if (/\.(png|jpe?g|gif|webp|svg|bmp|avif)(\?|#|$)/i.test(v)) return true;
+        return false;
+    },
+
+    /**
+     * Modos de exibição do papel de parede (só para imagem; cor/gradiente ignoram).
+     * - `cover` (Preencher): cobre a tela, corta o excedente (padrão, como antes).
+     * - `contain` (Ajustar): mostra a imagem inteira, sem corte.
+     * - `stretch` (Esticar): estica até as bordas (pode distorcer).
+     * - `center` (Centralizar): tamanho original, centralizada.
+     * - `tile` (Lado a lado): repete a imagem (mosaico).
+     * @returns {Array<{id,label}>}
+     */
+    getWallpaperModes() {
+        return [
+            { id: "cover", label: "Preencher" },
+            { id: "contain", label: "Ajustar" },
+            { id: "stretch", label: "Esticar" },
+            { id: "center", label: "Centralizar" },
+            { id: "tile", label: "Lado a lado" },
+        ];
+    },
+
+    /**
+     * Normaliza o modo de exibição (aceita apelidos em PT).
+     * @param {string} mode
+     * @returns {string} id válido (default "cover")
+     * @private
+     */
+    _normalizeWallpaperMode(mode) {
+        const aliases = {
+            cover: "cover", preencher: "cover", fill: "cover",
+            contain: "contain", ajustar: "contain", fit: "contain",
+            stretch: "stretch", esticar: "stretch",
+            center: "center", centralizar: "center", centre: "center",
+            tile: "tile", "lado-a-lado": "tile", lado_a_lado: "tile", repetir: "tile", repeat: "tile",
+        };
+        const key = String(mode || "cover").trim().toLowerCase();
+        return aliases[key] || "cover";
+    },
+
+    /**
+     * Define o plano de fundo da área de trabalho.
+     * @param {string|null} value - URL de imagem, `url(...)`, gradiente CSS ou
+     *   cor. `null`/vazio restaura o fundo padrão do tema.
+     * @param {boolean} persist - Persiste em localStorage (default true)
+     * @param {string} mode - Exibição da imagem: `cover` (padrão) | `contain` |
+     *   `stretch` | `center` | `tile`
+     * @returns {string|null} Valor aplicado
+     */
+    setWallpaper(value = null, persist = true, mode = null) {
+        const desktopEl = document.getElementById(this.options?.desktopContainerId || "desktop");
+        if (!desktopEl) return null;
+
+        const v = typeof value === "string" ? value.trim() : "";
+        const m = this._normalizeWallpaperMode(mode || this._wallpaperMode || "cover");
+        const st = desktopEl.style;
+
+        // Restaura o fundo padrão do tema (limpa estilos inline)
+        st.background = "";
+        st.backgroundImage = "";
+        st.backgroundSize = "";
+        st.backgroundPosition = "";
+        st.backgroundRepeat = "";
+
+        if (v) {
+            if (this._isWallpaperImage(v)) {
+                // Escapa aspas/barra para não quebrar a função url()
+                const safe = v.replace(/(["'\\])/g, "\\$1");
+                st.backgroundImage = /^url\(/i.test(v) ? v : `url("${safe}")`;
+                // Modos estilo MS Windows (Preencher/Ajustar/Esticar/Centralizar/Lado a lado)
+                const css = {
+                    cover: ["cover", "center", "no-repeat"],
+                    contain: ["contain", "center", "no-repeat"],
+                    stretch: ["100% 100%", "center", "no-repeat"],
+                    center: ["auto", "center", "no-repeat"],
+                    tile: ["auto", "left top", "repeat"],
+                }[m] || ["cover", "center", "no-repeat"];
+                st.backgroundSize = css[0];
+                st.backgroundPosition = css[1];
+                st.backgroundRepeat = css[2];
+            } else {
+                // Cor sólida ou gradiente CSS (CSSOM descarta valores inválidos)
+                st.background = v;
+            }
+        }
+
+        this._wallpaper = v || null;
+        this._wallpaperMode = m;
+        if (persist) {
+            try {
+                if (v) {
+                    localStorage.setItem("desktop_engine_wallpaper", v);
+                    localStorage.setItem("desktop_engine_wallpaper_mode", m);
+                } else {
+                    localStorage.removeItem("desktop_engine_wallpaper");
+                    localStorage.removeItem("desktop_engine_wallpaper_mode");
+                }
+            } catch (e) { /* ignore */ }
+        }
+        EventBus.emit("desktop:wallpaperchange", this._wallpaper);
+        return this._wallpaper;
+    },
+
+    /**
+     * Retorna o plano de fundo atual.
+     * @returns {string|null}
+     */
+    getWallpaper() {
+        return this._wallpaper || null;
+    },
+
+    /**
+     * Retorna o modo de exibição do papel de parede.
+     * @returns {"cover"|"contain"|"stretch"|"center"|"tile"}
+     */
+    getWallpaperMode() {
+        return this._wallpaperMode || "cover";
+    },
+
+    // --- Exibição dos rótulos da MenuBar ---
+
+    /**
+     * Define como os rótulos da MenuBar são exibidos (útil na lateral).
+     * - `auto` (padrão): itens com ícone viram trilho de ícones (rótulo vai
+     *   para o tooltip); itens sem ícone mantêm o texto.
+     * - `labels`: rótulo sempre visível ao lado do ícone (com quebra em 2
+     *   linhas nas posições laterais).
+     * @param {"auto"|"labels"} mode
+     * @param {boolean} persist - Persiste em localStorage (default true)
+     */
+    setMenuBarLabels(mode = "auto", persist = true) {
+        if (!["auto", "labels"].includes(mode)) return;
+        this.options.menubarLabels = mode;
+        const bar = document.getElementById("menubar") || document.querySelector("#app > .ui-menubar");
+        if (bar) bar.dataset.labels = mode;
+        if (persist) {
+            try { localStorage.setItem("desktop_engine_menubar_labels", mode); } catch (e) { /* ignore */ }
+        }
+        EventBus.emit("menubar:labelschange", mode);
+    },
+
+    /**
+     * Retorna o modo de rótulos da MenuBar.
+     * @returns {"auto"|"labels"}
+     */
+    getMenuBarLabels() {
+        const bar = document.getElementById("menubar") || document.querySelector("#app > .ui-menubar");
+        return this.options?.menubarLabels || bar?.dataset.labels || "auto";
+    },
+
     // --- Registro e Sincronização Inteligente de Menus (MenuBar & StartMenu) ---
     _globalMenuBarMenus: [],
     _registeredStartMenus: [],
@@ -1541,15 +1786,24 @@ export const Desktop = {
 
     registerMenuBarMenus(menus = []) {
         this._globalMenuBarMenus = Array.isArray(menus) ? menus : [];
+        const pos = this.getMenuBarPosition();
+        if (pos !== "none") {
+            this.setMenuBar(this._globalMenuBarMenus, pos);
+        }
         this.syncTaskbarMenus();
     },
 
     registerStartMenu(config = {}) {
         this._startMenuRegistered = true;
-        this._registeredStartMenus = Array.isArray(config.menus) ? config.menus : [];
+        const menus = Array.isArray(config) ? config : (config.menus || []);
+        this._registeredStartMenus = menus;
         if (config.instance) {
             this._startMenuInstance = config.instance;
         }
+        const targetBtnId = config.buttonId || this.options?.startButtonId || "startBtn";
+        // Passa os menus crus: a mesclagem acontece só no render (getEffectiveStartMenus).
+        // Passar o efetivo aqui realimentaria _registeredStartMenus e duplicaria a cada ciclo.
+        this.setStartMenu(menus, targetBtnId);
         this.syncTaskbarMenus();
     },
 
@@ -1782,14 +2036,52 @@ export const Desktop = {
 
     // --- Sistema de Roteamento e Registro de Telas (Screen Registry) ---
     registerScreen(id, loaderOrConfig) {
+        if (loaderOrConfig && typeof loaderOrConfig === 'object') this._normalizeScreen(loaderOrConfig);
         this.screens[id] = loaderOrConfig;
     },
 
     registerScreens(screensMap = {}) {
-        Object.assign(this.screens, screensMap);
+        for (const [id, cfg] of Object.entries(screensMap)) this.registerScreen(id, cfg);
     },
 
-    async openScreen(idOrConfig, initialProps = {}) {
+    /**
+     * Garante que o objeto-tela tenha update/safeUpdate/close/safeClose mesmo
+     * antes da primeira janela: os stubs delegam para config._instance quando
+     * existe e viram no-op enquanto não existe. Assim chamadas diretas no
+     * estilo `Tela.metodo()` nunca quebram por método inexistente.
+     *
+     * Também instala confirm/prompt/alert no objeto-tela: com a janela aberta
+     * o diálogo fica no escopo dela (bloqueia só a janela); sem janela, cai
+     * para o diálogo global do Desktop. Telas podem sobrescrever.
+     */
+    _normalizeScreen(config) {
+        if (!config || typeof config !== 'object' || config._normalized) return config;
+        config._normalized = true;
+        // Guarda o estado DECLARADO (template) para cada abertura partir dele —
+        // sem isso, `config.state = windowInstance.state` (abaixo) apontaria para
+        // o estado vivo da última janela e os valores digitados vazariam para a
+        // próxima abertura (inputs mantinham o conteúdo após fechar a tela).
+        config._declaredState = cloneState(config.state || {});
+        for (const method of ['update', 'safeUpdate', 'close', 'safeClose']) {
+            if (typeof config[method] === 'function') continue; // método próprio da tela
+            config[method] = (...args) => {
+                const inst = config._instance;
+                if (inst && typeof inst[method] === 'function') return inst[method](...args);
+                return undefined;
+            };
+        }
+        for (const method of ['confirm', 'prompt', 'alert']) {
+            if (typeof config[method] === 'function') continue; // método próprio da tela
+            config[method] = (...args) => {
+                const inst = config._instance;
+                if (inst && typeof inst[method] === 'function') return inst[method](...args);
+                return Desktop[method](...args); // sem janela: diálogo global do Desktop
+            };
+        }
+        return config;
+    },
+
+    openScreen(idOrConfig, initialProps = {}) {
         let config = null;
         let screenId = null;
 
@@ -1803,15 +2095,17 @@ export const Desktop = {
             }
 
             if (typeof registered === 'function') {
-                try {
-                    const res = await registered(initialProps);
+                // Tela lazy (função) - retorna Promise
+                return registered(initialProps).then(res => {
                     config = res.default || res;
-                } catch (err) {
+                    return this._finishOpenScreen(config, screenId, initialProps);
+                }).catch(err => {
                     this.notify(`Erro ao carregar módulo da tela "${screenId}".`, "danger");
                     console.error(`Erro no carregamento dinâmico da tela "${screenId}":`, err);
                     return null;
-                }
+                });
             } else {
+                // Tela registrada como objeto - retorna síncrono
                 config = registered;
             }
         } else if (typeof idOrConfig === 'object') {
@@ -1819,7 +2113,18 @@ export const Desktop = {
             screenId = config.id || `win_${Date.now()}`;
         }
 
+        return this._finishOpenScreen(config, screenId, initialProps);
+    },
+
+    /**
+     * Completa a abertura de forma SÍNCRONA (guards, singleInstance, criação).
+     * Permite `const win = Desktop.openScreen('x'); win.setAlgo(...)` sem await
+     * para telas registradas como objeto (o caso comum). Telas lazy (função)
+     * continuam assíncronas — `await` funciona nos dois casos.
+     */
+    _finishOpenScreen(config, screenId, initialProps = {}) {
         if (!config) return null;
+        this._normalizeScreen(config);
 
         // --- Security Guard: Verificação de Permissão e Role da Tela ---
         if (config.permission && !SecurityService.can(config.permission)) {
@@ -1851,14 +2156,23 @@ export const Desktop = {
             }
         }
 
-        // Clona a configuração e mescla initialProps no state
+        // Clona a configuração e mescla initialProps no state.
+        // A base é o estado DECLARADO (template), não o estado vivo da janela
+        // anterior — garante estado fresco a cada abertura.
         const instanceConfig = {
             ...config,
-            state: { ...(config.state || {}), ...(initialProps || {}) }
+            state: { ...cloneState(config._declaredState || config.state || {}), ...(initialProps || {}) }
         };
 
         const instanceId = config.singleInstance ? screenId : `${screenId}_${this.nextId}`;
         const windowInstance = Framework.createWindow(instanceConfig, instanceId, this);
+
+        // Mantém o objeto-tela original "vivo": estado compartilhado com a
+        // instância + delegação de update/close — chamadas diretas
+        // `Tela.metodo()` (menus/contexto) enxergam e re-renderizam o mesmo estado.
+        config._instance = windowInstance;
+        config.state = windowInstance.state;
+
         this.open(windowInstance);
         return windowInstance;
     },
@@ -1890,14 +2204,22 @@ export const Desktop = {
 
                 if (!config) return resolve(null);
 
+                // Normaliza antes de montar a instância para que config._declaredState
+                // (template do estado) exista e a abertura parta dele.
+                this._normalizeScreen(config);
+
                 const instanceConfig = {
                     ...config,
                     singleInstance: false, // Diálogos são instâncias específicas
-                    state: { ...(config.state || {}), ...(initialProps || {}) }
+                    state: { ...cloneState(config._declaredState || config.state || {}), ...(initialProps || {}) }
                 };
 
                 const instanceId = `${screenId}_dlg_${++this.nextId}`;
                 const childInstance = Framework.createWindow(instanceConfig, instanceId, this);
+
+                // Mesma ligação "objeto-tela → instância" das janelas normais
+                config._instance = childInstance;
+                config.state = childInstance.state;
 
                 // Vincula o resolver da Promise ao fechamento
                 childInstance._dialogResolver = resolve;
@@ -1999,12 +2321,102 @@ export const Desktop = {
     setMenuBar(menus, position) {
         if (!menus) return null;
         const pos = position || this.options?.menubarPosition || "top";
-        return MenuBar({ containerId: "menubar", menus, position: pos });
+        const bar = MenuBar({ containerId: "menubar", menus, position: pos });
+        // Reaplica o modo de rótulos após o render (innerHTML zera o conteúdo,
+        // mas o dataset do elemento persiste — garante mesmo assim)
+        if (this.options?.menubarLabels) {
+            const el = bar || document.getElementById("menubar") || document.querySelector("#app > .ui-menubar");
+            if (el) el.dataset.labels = this.options.menubarLabels;
+        }
+        return bar;
     },
 
     setStartMenu(menus, buttonId = "startBtn") {
         if (!menus) return null;
         return StartMenu({ buttonId: this.options?.startButtonId || buttonId, menus });
+    },
+
+    // --- Menus padrão do ambiente (área de trabalho + Iniciar) ---
+    // Todo projeto repete o mesmo básico (LaF, janelas, sobre); os builders
+    // abaixo entregam essa estrutura pronta e a app injeta o que é dela
+    // (itens de sessão, itens de LaF, tela de Aparência) — sem reescrever
+    // o boilerplate em cada `main.js`.
+
+    /**
+     * Itens padrão da seção Janelas (organizar, mostrar área de trabalho,
+     * alternar mobile). Compartilhados pelo Iniciar e pelo papel de parede.
+     * @returns {Array} itens de menu prontos
+     */
+    getDefaultWindowItems() {
+        return [
+            { label: "Organizar Janelas em Grade", icon: "📐", action: () => this.arrangeWindows() },
+            { label: "Mostrar / Ocultar Área de Trabalho", icon: "🖥️", action: () => this.showDesktop() },
+            "separator",
+            { label: "Alternar Modo Mobile / Desktop", icon: "📱", action: () => this.toggleMobileMode() },
+        ];
+    },
+
+    /**
+     * Monta o menu de contexto padrão da área de trabalho (botão direito no
+     * papel de parede): atalhos da app + Look and Feel + janelas + sobre.
+     * @param {Object} [opts]
+     * @param {Array|Function} [opts.extraItems] - Atalhos da app no topo
+     *   (ou função que os devolve — útil p/ variar logado/deslogado)
+     * @param {Array} [opts.lafItems] - Itens do submenu Look and Feel (da app)
+     * @param {boolean} [opts.includeWindows] - Seção de janelas (default true)
+     * @param {string} [opts.appName] - Nome exibido no item Sobre
+     * @param {Function} [opts.onAbout] - Ação do Sobre (default: notify)
+     * @returns {Array} itens prontos p/ `setContextMenu`/`bindContextMenu`
+     */
+    getDesktopContextItems({ extraItems = [], lafItems = null, includeWindows = true, appName = "a aplicação", onAbout = null } = {}) {
+        const items = [];
+        const extra = typeof extraItems === "function" ? extraItems() : extraItems;
+        if (Array.isArray(extra) && extra.length) items.push(...extra, "separator");
+        if (Array.isArray(lafItems) && lafItems.length) {
+            items.push({ label: "🎨 Look and Feel", items: lafItems });
+        }
+        if (includeWindows) items.push(...this.getDefaultWindowItems());
+        if (items.length && items[items.length - 1] !== "separator") items.push("separator");
+        items.push({
+            label: `ℹ️ Sobre ${appName}`,
+            action: typeof onAbout === "function" ? onAbout : () => this.notify(`${appName} — Powered by DesktopEngine`, "info"),
+        });
+        return items;
+    },
+
+    /**
+     * Monta as seções de AMBIENTE do Menu Iniciar (sessão, LaF, janelas,
+     * ajuda). A app soma as seções operacionais dela via `appMenus`.
+     * @param {Object} [opts]
+     * @param {Array} [opts.sessionItems] - Itens da seção Sistema (login/out)
+     * @param {Array} [opts.lafItems] - Itens do submenu Look and Feel (da app)
+     * @param {Array|null} [opts.windowItems] - Substitui os itens de Janelas
+     * @param {boolean} [opts.includeWindows] - Seção de janelas (default true)
+     * @param {Array|null} [opts.aboutItems] - Substitui os itens de Ajuda
+     * @param {string} [opts.appName] - Nome exibido no item Sobre
+     * @param {Function} [opts.onAbout] - Ação do Sobre (default: notify)
+     * @returns {Array} seções prontas p/ `setStartMenu`
+     */
+    getEnvironmentMenus({ sessionItems = [], lafItems = null, windowItems = null, includeWindows = true, aboutItems = null, appName = "a aplicação", onAbout = null } = {}) {
+        const menus = [];
+        if (Array.isArray(sessionItems) && sessionItems.length) {
+            menus.push({ label: "📊 Sistema", items: sessionItems });
+        }
+        if (Array.isArray(lafItems) && lafItems.length) {
+            menus.push({ label: "🎨 Look and Feel", items: lafItems });
+        }
+        if (includeWindows) {
+            menus.push({ label: "🖥️ Janelas", items: Array.isArray(windowItems) ? windowItems : this.getDefaultWindowItems() });
+        }
+        menus.push({
+            label: "ℹ️ Ajuda",
+            items: Array.isArray(aboutItems) ? aboutItems : [{
+                label: `Sobre ${appName}`,
+                icon: "ℹ️",
+                action: typeof onAbout === "function" ? onAbout : () => this.notify(`${appName} — Powered by DesktopEngine`, "info"),
+            }],
+        });
+        return menus;
     },
 
     setClock(options = true) {
@@ -2060,9 +2472,118 @@ export const Desktop = {
         return Modal({ ...options, global: true });
     },
 
+    // --- Diálogos Promise (alternativa temática a confirm()/prompt() nativos) ---
+    /**
+     * Resolve o escopo do diálogo: com `instance` de uma janela aberta,
+     * bloqueia apenas ela (`Modal` local); sem instância (ou janela já
+     * fechada), cai para o Desktop inteiro. Atalhos por janela:
+     * `win.confirm/prompt/alert` (ver createWindow).
+     */
+    _dialogScope(instance = null) {
+        const scoped = (instance && instance.windowEl && document.body.contains(instance.windowEl)) ? instance : null;
+        return { instance: scoped, global: !scoped };
+    },
+
+    /**
+     * Caixa de confirmação em Promise: resolve(true) em Confirmar,
+     * false em Cancelar/ESC/fechar. Substitui o confirm() nativo.
+     * options: { title, okLabel, cancelLabel, danger, icon, width, instance }
+     * — `instance` limita o bloqueio à janela informada (modal local);
+     * sem ele o modal bloqueia o Desktop inteiro.
+     */
+    confirm(message, { title = "Confirmar", okLabel = "Confirmar", cancelLabel = "Cancelar", danger = false, icon = "❓", width = 440, instance = null } = {}) {
+        return new Promise((resolve) => {
+            let settled = false;
+            const settle = (v) => { if (!settled) { settled = true; resolve(v); } };
+
+            const ok = createElement("button", `ui-btn ${danger ? "ui-btn-danger" : "ui-btn-primary"}`, [okLabel]);
+            const cancel = createElement("button", "ui-btn", [cancelLabel]);
+
+            const overlay = Modal({
+                title, icon, width, ...this._dialogScope(instance),
+                children: [
+                    createElement("div", "ui-dialog-message", [String(message ?? "")]),
+                    createElement("div", "ui-dialog-actions", [cancel, ok]),
+                ],
+                onClose: () => settle(false),
+            });
+            ok.onclick = () => { settle(true); overlay.close(); };
+            cancel.onclick = () => overlay.close();
+        });
+    },
+
+    /**
+     * Caixa de entrada em Promise: resolve com o texto digitado ou null em
+     * Cancelar/ESC/fechar. Enter confirma. Substitui o prompt() nativo.
+     * options: { title, value, placeholder, okLabel, cancelLabel, icon, width, instance }
+     * — `instance` limita o bloqueio à janela informada (modal local);
+     * sem ele o modal bloqueia o Desktop inteiro.
+     */
+    prompt(message, { title = "Entrada", value = "", placeholder = "", okLabel = "OK", cancelLabel = "Cancelar", icon = "✏️", width = 440, instance = null } = {}) {
+        return new Promise((resolve) => {
+            let settled = false;
+            const settle = (v) => { if (!settled) { settled = true; resolve(v); } };
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.className = "ui-dialog-input";
+            input.placeholder = placeholder;
+            input.value = value;
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") { e.preventDefault(); settle(input.value); overlay.close(); }
+            });
+
+            const ok = createElement("button", "ui-btn ui-btn-primary", [okLabel]);
+            const cancel = createElement("button", "ui-btn", [cancelLabel]);
+
+            const overlay = Modal({
+                title, icon, width, ...this._dialogScope(instance),
+                children: [
+                    createElement("div", "ui-dialog-message", [String(message ?? "")]),
+                    input,
+                    createElement("div", "ui-dialog-actions", [cancel, ok]),
+                ],
+                onClose: () => settle(null),
+            });
+            ok.onclick = () => { settle(input.value); overlay.close(); };
+            cancel.onclick = () => overlay.close();
+
+            // Foca e seleciona o conteúdo para digitação imediata
+            setTimeout(() => { input.focus(); input.select(); }, 0);
+        });
+    },
+
+    /**
+     * Caixa de aviso em Promise: resolve ao confirmar (OK).
+     * options: { title, okLabel, icon, width, instance }
+     * — `instance` limita o bloqueio à janela informada (modal local);
+     * sem ele o modal bloqueia o Desktop inteiro.
+     */
+    alert(message, { title = "Aviso", okLabel = "OK", icon = "ℹ️", width = 440, instance = null } = {}) {
+        return new Promise((resolve) => {
+            let settled = false;
+            const settle = () => { if (!settled) { settled = true; resolve(); } };
+
+            const ok = createElement("button", "ui-btn ui-btn-primary", [okLabel]);
+            const overlay = Modal({
+                title, icon, width, ...this._dialogScope(instance),
+                children: [
+                    createElement("div", "ui-dialog-message", [String(message ?? "")]),
+                    createElement("div", "ui-dialog-actions", [ok]),
+                ],
+                onClose: () => settle(),
+            });
+            ok.onclick = () => overlay.close();
+        });
+    },
+
     // --- Helpers Programáticos de Widgets Globais ---
     createDockWidget(options = {}) {
         return DockWidget(options);
+    },
+
+    createDockContainer(options = {}) {
+        return DockContainer(options);
     },
 
     createFloatButton(options = {}) {

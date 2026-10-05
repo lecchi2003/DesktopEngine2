@@ -428,3 +428,11 @@
     --menu-bg: #c0c0c0 !important;
     --menu-text: #000000 !important;
 }
+
+/* Fonte do tema: alimenta var(--font-family) do core (herança no body) para
+   que a área de trabalho, os atalhos e os demais elementos sem fonte
+   explícita usem a fonte do tema. Componentes com fonte própria continuam
+   valendo pela precedência das regras abaixo. */
+[data-laf="retro-3d"] {
+    --font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+}

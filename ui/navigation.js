@@ -2,15 +2,162 @@
 // DesktopEngine V2.0
 import { createElement, applyCommonProps, resolveInstance } from './core-dom.js';
 import { Desktop } from '../desktop.js';
-import { EventBus, UIContext, SecurityService } from '../core.js';
+import { EventBus, UIContext, SecurityService, isMenuItemVetoed } from '../core.js';
 import { safeSetHTML } from './sanitize.js';
 
 /**
- * Remove recursivamente itens e submenus cujas permissions ou roles não sejam atendidas pelo SecurityService
+ * Resolve a tela dona de um elemento (para permissões de elementos).
+ * Fora de janelas (menus globais, desktop): 'global'.
+ */
+function resolveGuardScreen(el) {
+    try {
+        return (el && el.closest && el.closest('.window')?.dataset.screenId) || 'global';
+    } catch {
+        return 'global';
+    }
+}
+
+function guardDeniesItem(guardCtx, labelPath, item = null) {
+    try {
+        if (!guardCtx || !labelPath) return false;
+        return isMenuItemVetoed({
+            screenId: guardCtx.screenId,
+            kind: guardCtx.kind,
+            labelPath,
+            item,
+        });
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Extrai o screenId de actions no formato `() => openScreen('id')`.
+ * Aceita aspas simples ou duplas (bundlers normalizam para duplas).
+ * Usado para oferecer ações contextuais em itens de menu de tela.
+ */
+export function extractScreenId(action) {
+    try {
+        const src = typeof action === 'function' ? action.toString() : '';
+        const m = src.match(/openScreen\((['"])([^'"]+)\1\)/);
+        return m ? m[2] : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Emite o evento de contexto de item de tela (botão direito em
+ * StartMenu, MenuBar, toolbar-contextos). Retorna true se emitiu.
+ * O app ouve `menu:screen-context` e decide o que oferecer.
+ */
+export function emitScreenContext(e, subItem) {
+    try {
+        if (!subItem || subItem.disabled || subItem.noContextMenu) return false;
+        const screenId = subItem.screen || extractScreenId(subItem.action);
+        if (!screenId) return false;
+        e.preventDefault();
+        e.stopPropagation();
+        EventBus.emit('menu:screen-context', {
+            screenId,
+            label: subItem.label || '',
+            icon: subItem.icon || '',
+            x: e.clientX,
+            y: e.clientY,
+        });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export function resetPopupPosition(nested) {
+    if (!nested || !nested.classList) return;
+    nested.classList.remove("open-left", "open-top");
+    [
+        "left", "right", "top", "bottom",
+        "margin-left", "margin-right", "margin-top", "margin-bottom",
+        "max-height", "max-width", "overflow-y", "overflow-x",
+    ].forEach((prop) => nested.style.removeProperty(prop));
+}
+
+export function resolvePopupBounds(windowInstance = null) {
+    const vw = window.innerWidth || document.documentElement.clientWidth;
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const bounds = { right: vw, bottom: vh, left: 0, top: 0 };
+    if (windowInstance && (windowInstance.element || windowInstance.windowEl)) {
+        const el = windowInstance.element || windowInstance.windowEl;
+        const winRect = el.getBoundingClientRect();
+        bounds.right = winRect.right;
+        bounds.bottom = winRect.bottom;
+        bounds.left = winRect.left;
+        bounds.top = winRect.top;
+    }
+    return bounds;
+}
+
+export function positionPopupSubmenu(nested, opt, bounds = null) {
+    if (!nested) return;
+    resetPopupPosition(nested);
+    nested.style.display = "flex";
+    nested.style.flexDirection = "column";
+
+    const b = bounds || resolvePopupBounds();
+    const pad = 10;
+    const rect = nested.getBoundingClientRect();
+
+    // 1. Inversão Horizontal Inteligente (se ultrapassar a borda direita)
+    if (rect.right > b.right - pad) {
+        nested.classList.add("open-left");
+        nested.style.setProperty("left", "auto", "important");
+        nested.style.setProperty("right", "100%", "important");
+        nested.style.setProperty("margin-left", "0", "important");
+        nested.style.setProperty("margin-right", "-4px", "important");
+
+        const rectLeft = nested.getBoundingClientRect();
+        if (rectLeft.left < b.left + pad) {
+            nested.classList.remove("open-left");
+            nested.style.setProperty("left", "auto", "important");
+            nested.style.setProperty("right", "0", "important");
+            nested.style.setProperty("max-width", `${b.right - b.left - 2 * pad}px`, "important");
+        }
+    }
+
+    // 2. Ajuste Vertical Inteligente (se ultrapassar a borda inferior)
+    const curRect = nested.getBoundingClientRect();
+    if (curRect.bottom > b.bottom - pad) {
+        const optRect = opt ? opt.getBoundingClientRect() : { top: 0, bottom: 0, height: 0 };
+        const spaceAbove = optRect.top - b.top - pad;
+        const spaceBelow = b.bottom - optRect.bottom - pad;
+
+        if (spaceAbove > spaceBelow && spaceAbove >= curRect.height) {
+            nested.classList.add("open-top");
+            nested.style.setProperty("top", "auto", "important");
+            nested.style.setProperty("bottom", "0", "important");
+            nested.style.setProperty("margin-top", "0", "important");
+            nested.style.setProperty("margin-bottom", "-4px", "important");
+        } else {
+            const overflow = curRect.bottom - (b.bottom - pad);
+            const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - b.top - pad));
+            nested.style.setProperty("top", `${-shiftY}px`, "important");
+            if (curRect.height > b.bottom - b.top - 2 * pad) {
+                nested.style.setProperty("max-height", `${b.bottom - b.top - 2 * pad}px`, "important");
+                nested.style.setProperty("overflow-y", "auto", "important");
+                nested.style.setProperty("overflow-x", "hidden", "important");
+            }
+        }
+    }
+}
+
+/**
+ * Remove recursivamente itens e submenus cujas permissions ou roles não sejam atendidas pelo SecurityService.
+ * Plugins registrados via registerMenuItemFilter podem vetar itens por
+ * caminho de rótulos — opcional, sem eles o comportamento é o anterior.
  * @param {Array} items
+ * @param {Object|null} guardCtx - { screenId, kind, path: [] }
  * @returns {Array}
  */
-export function filterAuthorizedMenuItems(items = []) {
+export function filterAuthorizedMenuItems(items = [], guardCtx = null) {
     if (!Array.isArray(items)) return [];
     const filtered = [];
     for (const item of items) {
@@ -24,15 +171,19 @@ export function filterAuthorizedMenuItems(items = []) {
             if (item.permission && !SecurityService.can(item.permission)) continue;
             if (item.role && !SecurityService.hasRole(item.role)) continue;
 
+            const labelPath = [...(guardCtx?.path || []), item.label ?? ''].filter(Boolean).join('/');
+            if (guardDeniesItem(guardCtx, labelPath, item)) continue;
+
             const cloned = { ...item };
+            const childCtx = guardCtx ? { ...guardCtx, path: [...(guardCtx.path || []), item.label ?? ''].filter(Boolean) } : null;
             if (Array.isArray(cloned.items)) {
-                cloned.items = filterAuthorizedMenuItems(cloned.items);
+                cloned.items = filterAuthorizedMenuItems(cloned.items, childCtx);
             }
             if (Array.isArray(cloned.submenu)) {
-                cloned.submenu = filterAuthorizedMenuItems(cloned.submenu);
+                cloned.submenu = filterAuthorizedMenuItems(cloned.submenu, childCtx);
             }
             if (Array.isArray(cloned.menus)) {
-                cloned.menus = filterAuthorizedMenuItems(cloned.menus);
+                cloned.menus = filterAuthorizedMenuItems(cloned.menus, childCtx);
             }
             filtered.push(cloned);
         }
@@ -44,8 +195,8 @@ export function filterAuthorizedMenuItems(items = []) {
 }
 
 
-export function ContextMenu({ x, y, items = [] }) {
-    items = filterAuthorizedMenuItems(items);
+export function ContextMenu({ x, y, items = [], guardCtx = null }) {
+    items = filterAuthorizedMenuItems(items, guardCtx);
     document.querySelectorAll(".ui-context-menu, .ui-bottom-sheet-backdrop").forEach(el => el.remove());
 
     const isMobileMode = (typeof window !== 'undefined' && window.Desktop && typeof window.Desktop.isMobile === 'function')
@@ -196,57 +347,7 @@ export function ContextMenu({ x, y, items = [] }) {
                     opt.appendChild(nested);
 
                     const positionSub = () => {
-                        nested.style.display = "flex";
-                        nested.style.flexDirection = "column";
-                        nested.classList.remove("open-left", "open-top");
-                        nested.style.removeProperty("left");
-                        nested.style.removeProperty("right");
-                        nested.style.removeProperty("top");
-                        nested.style.removeProperty("bottom");
-                        nested.style.removeProperty("margin-left");
-                        nested.style.removeProperty("margin-right");
-                        nested.style.removeProperty("margin-top");
-                        nested.style.removeProperty("margin-bottom");
-                        nested.style.removeProperty("max-height");
-                        nested.style.removeProperty("max-width");
-                        nested.style.removeProperty("overflow-y");
-
-                        const vw = window.innerWidth || document.documentElement.clientWidth;
-                        const vh = window.innerHeight || document.documentElement.clientHeight;
-                        const pad = 10;
-                        const rect = nested.getBoundingClientRect();
-
-                        if (rect.right > vw - pad) {
-                            nested.classList.add("open-left");
-                            nested.style.setProperty("left", "auto", "important");
-                            nested.style.setProperty("right", "100%", "important");
-                            nested.style.setProperty("margin-left", "0", "important");
-                            nested.style.setProperty("margin-right", "-4px", "important");
-                        }
-
-                        const curRect = nested.getBoundingClientRect();
-                        if (curRect.bottom > vh - pad) {
-                            const optRect = opt.getBoundingClientRect();
-                            const spaceAbove = optRect.top - pad;
-                            const spaceBelow = vh - optRect.bottom - pad;
-
-                            if (spaceAbove > spaceBelow && spaceAbove >= curRect.height) {
-                                nested.classList.add("open-top");
-                                nested.style.setProperty("top", "auto", "important");
-                                nested.style.setProperty("bottom", "0", "important");
-                                nested.style.setProperty("margin-top", "0", "important");
-                                nested.style.setProperty("margin-bottom", "-4px", "important");
-                            } else {
-                                const overflow = curRect.bottom - (vh - pad);
-                                const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
-                                nested.style.setProperty("top", `${-shiftY}px`, "important");
-                                if (curRect.height > vh - 2 * pad) {
-                                    nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
-                                    nested.style.setProperty("overflow-y", "auto", "important");
-                                    nested.style.setProperty("overflow-x", "hidden", "important");
-                                }
-                            }
-                        }
+                        positionPopupSubmenu(nested, opt, typeof windowInstance !== "undefined" ? resolvePopupBounds(windowInstance) : undefined);
                     };
 
                     opt.addEventListener("mouseenter", () => {
@@ -255,18 +356,7 @@ export function ContextMenu({ x, y, items = [] }) {
 
                     opt.addEventListener("mouseleave", () => {
                         nested.style.display = "none";
-                        nested.classList.remove("open-left", "open-top");
-                        nested.style.removeProperty("left");
-                        nested.style.removeProperty("right");
-                        nested.style.removeProperty("top");
-                        nested.style.removeProperty("bottom");
-                        nested.style.removeProperty("margin-left");
-                        nested.style.removeProperty("margin-right");
-                        nested.style.removeProperty("margin-top");
-                        nested.style.removeProperty("margin-bottom");
-                        nested.style.removeProperty("max-height");
-                        nested.style.removeProperty("max-width");
-                        nested.style.removeProperty("overflow-y");
+                        resetPopupPosition(nested);
                     });
 
                     opt.onclick = (e) => {
@@ -368,7 +458,7 @@ export function bindContextMenu(element, items = [], options = {}) {
         const menuItems = typeof currentItems === 'function' ? currentItems(e) : currentItems;
         if (!menuItems || menuItems.length === 0) return;
 
-        ContextMenu({ x: e.clientX, y: e.clientY, items: menuItems });
+        ContextMenu({ x: e.clientX, y: e.clientY, items: menuItems, guardCtx: { screenId: resolveGuardScreen(element), kind: 'context' } });
     };
 
     element.addEventListener("contextmenu", onContextMenu);
@@ -573,7 +663,10 @@ export function openMobileMenuDrawer({ menus = [], title = "📱 Menu Principal"
 }
 
 export function MenuBar({ containerId, element, position, menus = [], windowInstance = null } = {}) {
-    menus = filterAuthorizedMenuItems(menus);
+    menus = filterAuthorizedMenuItems(menus, {
+        screenId: (windowInstance && windowInstance.config && windowInstance.config.id) || resolveGuardScreen(element),
+        kind: 'menu',
+    });
     let bar;
     if (element && (element.nodeType || element instanceof HTMLElement)) {
         bar = element;
@@ -592,9 +685,9 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
     const app = document.getElementById("app");
     const isGlobalBar = app && (bar.id === "menubar" || (containerId === "menubar" && !bar.closest(".window")));
 
-    // Registra globalmente os menus no Desktop se for a barra de menus global
-    if (isGlobalBar && typeof Desktop !== 'undefined' && typeof Desktop.registerMenuBarMenus === 'function') {
-        Desktop.registerMenuBarMenus(menus);
+    // Atualiza estado interno dos menus globais no Desktop se for a barra de menus global
+    if (isGlobalBar && typeof Desktop !== 'undefined') {
+        Desktop._globalMenuBarMenus = menus;
     }
 
     let effectivePosition = position;
@@ -840,18 +933,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                     });
                     opt.addEventListener("mouseleave", () => {
                         nested.style.display = "none";
-                        nested.classList.remove("open-left", "open-top");
-                        nested.style.removeProperty("left");
-                        nested.style.removeProperty("right");
-                        nested.style.removeProperty("top");
-                        nested.style.removeProperty("bottom");
-                        nested.style.removeProperty("margin-left");
-                        nested.style.removeProperty("margin-right");
-                        nested.style.removeProperty("margin-top");
-                        nested.style.removeProperty("margin-bottom");
-                        nested.style.removeProperty("max-height");
-                        nested.style.removeProperty("max-width");
-                        nested.style.removeProperty("overflow-y");
+                        resetPopupPosition(nested);
                     });
 
                     opt.onclick = (e) => {
@@ -880,6 +962,13 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                         bar.querySelectorAll(".menubar-dropdown, .dropdown").forEach(d => { d.style.display = "none"; });
                         isMenuOpen = false;
                     };
+                    opt.addEventListener('contextmenu', (e) => {
+                        if (emitScreenContext(e, subItem)) {
+                            bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
+                            bar.querySelectorAll(".menubar-dropdown, .dropdown").forEach(d => { d.style.display = "none"; });
+                            isMenuOpen = false;
+                        }
+                    });
                 }
                 container.appendChild(opt);
             }
@@ -897,6 +986,9 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
         itemChildren.push(createElement("span", "menubar-item-label", [menu.label || ""]));
 
         const item = createElement("div", "menubar-item", itemChildren);
+        if (menu.hint || menu.tooltip || menu.label) {
+            item.title = menu.hint || menu.tooltip || menu.label;
+        }
         if (menu.items && menu.items.length > 0) {
             const dropdown = buildMenu(menu.items);
             item.appendChild(dropdown);
@@ -942,6 +1034,14 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                 activateItem();
             }
         };
+
+        item.addEventListener('contextmenu', (e) => {
+            if (emitScreenContext(e, menu)) {
+                bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
+                bar.querySelectorAll(".menubar-dropdown, .dropdown").forEach(d => { d.style.display = "none"; });
+                isMenuOpen = false;
+            }
+        });
 
         bar.appendChild(item);
     });
@@ -1004,13 +1104,19 @@ export function ActionToolbar({ containerId, element, position = "top", actions 
         if (act && typeof act === 'object') {
             if (act.permission && !SecurityService.can(act.permission)) return;
             if (act.role && !SecurityService.hasRole(act.role)) return;
+            // Permissões de elementos (Modo Edição): filtra por rótulo da ação
+            if (act.label && guardDeniesItem({
+                screenId: (windowInstance && windowInstance.config && windowInstance.config.id) || resolveGuardScreen(bar),
+                kind: 'toolbar',
+            }, String(act.label).trim(), act)) return;
         }
 
+        // Estilo Delphi: só ícone; o label vira tooltip (hint). Opt-out: showLabel: true.
         const btnChildren = [];
         if (act.icon) {
             btnChildren.push(createElement("span", "action-toolbar-icon", [act.icon]));
         }
-        if (act.label) {
+        if (act.label && (!act.icon || act.showLabel === true)) {
             btnChildren.push(createElement("span", "action-toolbar-label", [act.label]));
         }
 
@@ -1032,7 +1138,8 @@ export function ActionToolbar({ containerId, element, position = "top", actions 
             if (btn.disabled) return;
             e.stopPropagation();
             if (typeof act.action === 'function') {
-                act.action(windowInstance, e);
+                const targetThis = windowInstance || act;
+                act.action.call(targetThis, windowInstance, e);
             } else if (typeof act.action === 'string' && windowInstance && typeof windowInstance.runAction === 'function') {
                 windowInstance.runAction(act.action, e);
             }
@@ -1045,12 +1152,12 @@ export function ActionToolbar({ containerId, element, position = "top", actions 
 }
 
 export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
-    menus = filterAuthorizedMenuItems(menus);
+    menus = filterAuthorizedMenuItems(menus, { screenId: 'global', kind: 'menu' });
     let btn = document.getElementById(buttonId);
 
-    // Registra a configuração inicial no Desktop
-    if (typeof Desktop !== 'undefined' && typeof Desktop.registerStartMenu === 'function') {
-        Desktop.registerStartMenu({ buttonId, menus });
+    // Atualiza estado interno no Desktop se disponível
+    if (typeof Desktop !== 'undefined') {
+        Desktop._registeredStartMenus = menus;
     }
 
     let menuEl = document.querySelector(".ui-start-menu");
@@ -1105,56 +1212,13 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
                     opt.appendChild(nested);
 
                     const positionStartSub = () => {
-                        nested.style.display = "flex";
-                        nested.style.flexDirection = "column";
-                        nested.classList.remove("open-left", "open-top");
-                        nested.style.removeProperty("left");
-                        nested.style.removeProperty("right");
-                        nested.style.removeProperty("top");
-                        nested.style.removeProperty("bottom");
-                        nested.style.removeProperty("margin-left");
-                        nested.style.removeProperty("margin-right");
-                        nested.style.removeProperty("max-height");
-                        nested.style.removeProperty("overflow-y");
-
-                        const vw = window.innerWidth || document.documentElement.clientWidth;
-                        const vh = window.innerHeight || document.documentElement.clientHeight;
-                        const pad = 10;
-                        const rect = nested.getBoundingClientRect();
-
-                        if (rect.right > vw - pad) {
-                            nested.classList.add("open-left");
-                            nested.style.setProperty("left", "auto", "important");
-                            nested.style.setProperty("right", "100%", "important");
-                            nested.style.setProperty("margin-left", "0", "important");
-                            nested.style.setProperty("margin-right", "-4px", "important");
-                        }
-                        const curRect = nested.getBoundingClientRect();
-                        if (curRect.bottom > vh - pad) {
-                            const overflow = curRect.bottom - (vh - pad);
-                            const optRect = opt.getBoundingClientRect();
-                            const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
-                            nested.style.setProperty("top", `${-shiftY}px`, "important");
-                            if (curRect.height > vh - 2 * pad) {
-                                nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
-                                nested.style.setProperty("overflow-y", "auto", "important");
-                                nested.style.setProperty("overflow-x", "hidden", "important");
-                            }
-                        }
+                        positionPopupSubmenu(nested, opt);
                     };
 
                     opt.addEventListener("mouseenter", positionStartSub);
                     opt.addEventListener("mouseleave", () => {
                         nested.style.display = "none";
-                        nested.classList.remove("open-left", "open-top");
-                        nested.style.removeProperty("left");
-                        nested.style.removeProperty("right");
-                        nested.style.removeProperty("top");
-                        nested.style.removeProperty("bottom");
-                        nested.style.removeProperty("margin-left");
-                        nested.style.removeProperty("margin-right");
-                        nested.style.removeProperty("max-height");
-                        nested.style.removeProperty("overflow-y");
+                        resetPopupPosition(nested);
                     });
 
                     opt.onclick = (e) => {
@@ -1180,6 +1244,13 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
                         }
                         closeStartMenu();
                     };
+                    // Ponto de extensão: botão direito sobre item de tela emite
+                    // evento para o app oferecer ações (ex.: abrir, criar atalho).
+                    if (subItem.screen || extractScreenId(subItem.action)) {
+                        opt.addEventListener('contextmenu', (e) => {
+                            if (emitScreenContext(e, subItem)) closeStartMenu();
+                        });
+                    }
                 }
                 container.appendChild(opt);
             }
@@ -1398,6 +1469,86 @@ export function Breadcrumbs({ items = [], separator = "/" }) {
     return nav;
 }
 
+// --- Empilhamento automático de docks globais ---
+// Docks globais do mesmo canto dividem a âncora do CSS (ex.: bottom-right) e
+// ficariam um sobre o outro. O framework empilha: o mais novo acima do
+// anterior, medindo a altura viva de cada um; ocultos/minimizados não ocupam
+// espaço. Docks locais (dentro de janelas) não participam.
+const DOCK_STACK_GAP = 12;
+const dockStacks = new Map(); // position -> [dockEl] em ordem de criação
+let dockStackResizeBound = false;
+
+function dockStackKey(position) {
+    return position || 'bottom-right';
+}
+
+function bindDockStackResize() {
+    if (dockStackResizeBound || typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
+    dockStackResizeBound = true;
+    window.addEventListener('resize', () => {
+        for (const key of dockStacks.keys()) layoutDockStack(key);
+    });
+}
+
+function registerDockStack(dock, position) {
+    const key = dockStackKey(position);
+    if (!dockStacks.has(key)) dockStacks.set(key, []);
+    const stack = dockStacks.get(key);
+    if (!stack.includes(dock)) stack.push(dock);
+    bindDockStackResize();
+    layoutDockStack(key);
+}
+
+function unregisterDockStack(dock, position) {
+    const key = dockStackKey(position);
+    const stack = dockStacks.get(key);
+    if (!stack) return;
+    const i = stack.indexOf(dock);
+    if (i >= 0) stack.splice(i, 1);
+    layoutDockStack(key);
+}
+
+/** Remove o elemento de qualquer pilha de canto (ex.: ao hospedar num container). */
+function unregisterDockStackFromAll(dock) {
+    for (const key of [...dockStacks.keys()]) {
+        const stack = dockStacks.get(key);
+        const i = stack ? stack.indexOf(dock) : -1;
+        if (i >= 0) {
+            stack.splice(i, 1);
+            layoutDockStack(key);
+        }
+    }
+}
+
+/**
+ * Reposiciona a pilha de um canto (ancoragem inferior ou superior), com o
+ * mais novo acima do anterior. O primeiro visível mantém a base do CSS
+ * (taskbar etc.); os demais recebem deslocamento inline medido.
+ */
+function layoutDockStack(key) {
+    const fromBottom = key.startsWith('bottom');
+    const fromTop = !fromBottom && key.startsWith('top');
+    if (!fromBottom && !fromTop) return;
+    const stack = (dockStacks.get(key) || []).filter((el) => el && el.isConnected);
+    dockStacks.set(key, stack);
+    const prop = fromBottom ? 'bottom' : 'top';
+    let cursor = null;
+    let prevH = 0;
+    for (const el of stack) {
+        if (el.style.display === 'none' || el.classList.contains('minimized-to-tray')) continue;
+        if (cursor === null) {
+            // Re-lê a base do CSS (limpa deslocamento anterior de quem virou primeiro).
+            el.style[prop] = '';
+            const base = parseFloat(getComputedStyle(el)[prop]);
+            cursor = Number.isFinite(base) ? base : 0;
+        } else {
+            cursor += prevH + DOCK_STACK_GAP;
+        }
+        el.style[prop] = `${cursor}px`;
+        prevH = el.offsetHeight || 0;
+    }
+}
+
 export function DockWidget({
     title = "Mensagens",
     icon = "💬",
@@ -1414,6 +1565,7 @@ export function DockWidget({
     content = [],       // Array de elementos, nós DOM ou função () => []
     instance = null,
     targetContainer = null,
+    container = null,   // DockContainer (api com .body) ou elemento: o dock mora dentro dele (empilhado, com scroll)
     allowMinimizeToTray = true, // Mantido para retrocompatibilidade. Use controls.minimize preferencialmente.
     controls = { minimize: true, expand: true, close: false },
     trayTooltip = null,
@@ -1426,9 +1578,18 @@ export function DockWidget({
     const isLocal = !!instance && !targetContainer;
     let target = targetContainer || (instance?.element) || document.getElementById("app") || document.body;
 
+    // Corpo hospedeiro: DockContainer (api com .body) ou elemento direto.
+    const containerBody = container && typeof container === 'object'
+        ? (container.body instanceof Node ? container.body : (container instanceof Node ? container : null))
+        : null;
+    const stacked = !!containerBody;
+
     // Contêiner principal do Dock
-    const dock = createElement("div", `ui-dock-widget pos-${position} ${isLocal ? 'is-local' : 'is-global'}`);
-    dock.style.width = typeof width === 'number' ? `${width}px` : width;
+    const dock = createElement("div", `ui-dock-widget pos-${position} ${isLocal ? 'is-local' : 'is-global'}${stacked ? ' is-stacked' : ''}`);
+    if (!stacked) {
+        dock.style.width = typeof width === 'number' ? `${width}px` : width;
+    }
+    dock.dataset.dockPosition = position;
 
     let isExp = expanded;
     if (bindExpanded && instance?.state && instance.state[bindExpanded] !== undefined) {
@@ -1521,7 +1682,9 @@ export function DockWidget({
 
     // Corpo / Conteúdo expansível
     const body = createElement("div", "ui-dock-body");
-    body.style.maxHeight = typeof height === 'number' ? `${height}px` : height;
+    // Cresce com o conteúdo até o limite da área de trabalho; depois rola por dentro.
+    const bodyMax = typeof height === 'number' ? `${height}px` : height;
+    body.style.maxHeight = `min(${bodyMax}, calc(100vh - 160px))`;
 
     const renderContent = () => {
         body.innerHTML = "";
@@ -1562,6 +1725,7 @@ export function DockWidget({
             if (typeof onCollapse === 'function') onCollapse(dockApi);
             if (typeof onToggle === 'function') onToggle(false, dockApi);
         }
+        relayoutStack();
     };
 
     if (controls.expand !== false) {
@@ -1607,6 +1771,7 @@ export function DockWidget({
         }
 
         if (typeof onMinimizeToTray === 'function') onMinimizeToTray(dockApi);
+        relayoutStack();
     };
 
     const restoreFromTray = (andExpand = true) => {
@@ -1619,6 +1784,13 @@ export function DockWidget({
             toggle(true);
         }
         if (typeof onRestoreFromTray === 'function') onRestoreFromTray(dockApi);
+        relayoutStack();
+    };
+
+    // Empilhamento: docks globais avulsos do mesmo canto se revezam na âncora.
+    // (Hospedados em container não participam — o container rola por dentro.)
+    const relayoutStack = () => {
+        if (!isLocal && !stacked) layoutDockStack(dockStackKey(position));
     };
 
     // API pública do componente
@@ -1638,6 +1810,7 @@ export function DockWidget({
         close: () => {
             if (trayIconBtn) trayIconBtn.remove();
             dock.remove();
+            unregisterDockStack(dock, position);
         },
         setBadge(val, variant) {
             currentBadge = val;
@@ -1674,10 +1847,12 @@ export function DockWidget({
         setContent(newContent) {
             content = newContent;
             renderContent();
+            relayoutStack();
         },
         clear() {
             content = [];
             renderContent();
+            relayoutStack();
         },
         addItem(item, prepend = false) {
             const node = typeof item === 'string' ? createElement("div", "ui-dock-text-item", [item]) : item;
@@ -1686,10 +1861,12 @@ export function DockWidget({
             } else {
                 body.appendChild(node);
             }
+            relayoutStack();
         },
         destroy() {
             if (trayIconBtn) trayIconBtn.remove();
             dock.remove();
+            unregisterDockStack(dock, position);
         }
     };
 
@@ -1698,15 +1875,293 @@ export function DockWidget({
     dock.dockApi = dockApi;
 
     // Anexa ao target se for global ou configurado
-    if (!instance || targetContainer) {
+    if (containerBody) {
+        containerBody.appendChild(dock);
+    } else if (!instance || targetContainer) {
         target.appendChild(dock);
     }
+
+    // Docks globais avulsos entram na pilha do canto (empilhamento automático)
+    if (!isLocal && !stacked) registerDockStack(dock, position);
 
     if (startMinimized) {
         minimizeToTray();
     }
 
     return dockApi;
+}
+
+/**
+ * Container de docks: painel fixo do canto com barra de rolagem que hospeda
+ * vários DockWidgets empilhados (cada um com seu header expansível). Evita que
+ * N docks avulsos estourem a área de trabalho — o container cresce até o teto
+ * da viewport e rola por dentro. Docks entram via `attach()` ou nascendo com
+ * `container` (`DockWidget({ container })` / api do container / elemento).
+ */
+export function DockContainer({
+    title = "Painéis",
+    icon = "🗂️",
+    badge = null,
+    badgeVariant = "info",
+    position = "bottom-right", // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
+    width = 340,
+    maxHeight = null,      // nº/string (excede o teto CSS) ou null (CSS: 100vh - 140px)
+    expanded = true,
+    headerActions = [],    // [{ icon, title, action: (api, e) => {} }]
+    controls = { minimize: true, expand: true, close: false },
+    emptyMessage = "Nenhum painel.",
+    autoBadge = true,      // badge = nº de docks visíveis
+    autoExpand = true,     // 0→1 dock: expande sozinho
+    autoCollapse = true,   // →0 dock: recolhe sozinho
+    trayTooltip = null,
+    onToggle = null,
+    onExpand = null,
+    onCollapse = null,
+    onMinimizeToTray = null,
+    onRestoreFromTray = null,
+    onClose = null,
+    contextMenu = null // null (padrão: vazio = removível) | true (sempre removível) | array | (api) => array
+} = {}) {
+    const target = document.getElementById("app") || document.body;
+
+    const container = createElement("div", `ui-dock-container pos-${position} ${expanded ? 'expanded' : ''}`);
+    container.style.width = typeof width === 'number' ? `${width}px` : width;
+    if (maxHeight != null) {
+        container.style.setProperty('--dock-container-max', typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight);
+    }
+    container.dataset.dockPosition = position;
+
+    // Header (reusa as classes do DockWidget)
+    const header = createElement("div", "ui-dock-header");
+    const headerLeft = createElement("div", "ui-dock-header-left");
+    if (icon) headerLeft.appendChild(createElement("span", "ui-dock-icon", [icon]));
+    const titleEl = createElement("span", "ui-dock-title", [title]);
+    headerLeft.appendChild(titleEl);
+    let currentBadge = badge;
+    const badgeEl = createElement("span", `ui-dock-badge badge-${badgeVariant}`, [String(currentBadge || "")]);
+    if (!currentBadge) badgeEl.style.display = "none";
+    headerLeft.appendChild(badgeEl);
+    header.appendChild(headerLeft);
+
+    const headerRight = createElement("div", "ui-dock-header-right");
+    headerActions.forEach(act => {
+        const actBtn = createElement("button", "ui-dock-action-btn");
+        if (act.title) actBtn.title = act.title;
+        if (typeof act.icon === 'string') actBtn.textContent = act.icon;
+        else if (act.icon instanceof Node) actBtn.appendChild(act.icon);
+        actBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (typeof act.action === 'function') act.action(containerApi, e);
+        };
+        headerRight.appendChild(actBtn);
+    });
+
+    let trayIconBtn = null;
+    const showMinimize = controls.minimize !== undefined ? controls.minimize : true;
+    if (showMinimize) {
+        const minTrayBtn = createElement("button", "ui-dock-action-btn ui-dock-tray-btn", ["_"]);
+        minTrayBtn.title = "Minimizar para a Barra de Tarefas";
+        minTrayBtn.onclick = (e) => {
+            e.stopPropagation();
+            minimizeToTray();
+        };
+        headerRight.appendChild(minTrayBtn);
+    }
+    if (controls.expand !== false) {
+        const chevronBtn = createElement("button", "ui-dock-chevron-btn", [expanded ? "▼" : "▲"]);
+        chevronBtn.title = expanded ? "Recolher" : "Expandir";
+        headerRight.appendChild(chevronBtn);
+    }
+    header.appendChild(headerRight);
+    container.appendChild(header);
+
+    // Corpo rolável (hospeda os docks)
+    const bodyEl = createElement("div", "ui-dock-container-body");
+    const emptyEl = createElement("div", "ui-dock-container-empty", [emptyMessage]);
+    bodyEl.appendChild(emptyEl);
+    container.appendChild(bodyEl);
+
+    const visibleDocks = () => [...bodyEl.children].filter((n) =>
+        n.nodeType === 1 && n.classList.contains("ui-dock-widget") &&
+        n.style.display !== "none" && !n.classList.contains("minimized-to-tray"));
+
+    let lastCount = -1;
+    let lastExpanded = null;
+    const sync = () => {
+        const n = visibleDocks().length;
+        const exp = container.classList.contains("expanded");
+        if (n === lastCount && exp === lastExpanded) return; // idempotente (sem loop do observer)
+        const prev = lastCount;
+        lastCount = n;
+        lastExpanded = exp;
+        if (autoBadge) setBadge(n || null);
+        emptyEl.style.display = n ? "none" : "";
+        if (n === 0 && autoCollapse && exp) toggle(false);
+        else if (n > 0 && autoExpand && !exp && prev === 0) toggle(true);
+    };
+    const observer = new MutationObserver(sync);
+    observer.observe(bodyEl, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
+
+    const toggle = (forceState) => {
+        const next = typeof forceState === 'boolean' ? forceState : !container.classList.contains("expanded");
+        container.classList.toggle("expanded", next);
+        const chevronBtn = container.querySelector(".ui-dock-chevron-btn");
+        if (chevronBtn) {
+            chevronBtn.textContent = next ? "▼" : "▲";
+            chevronBtn.title = next ? "Recolher" : "Expandir";
+        }
+        lastExpanded = next;
+        if (next) {
+            if (typeof onExpand === 'function') onExpand(containerApi);
+            if (typeof onToggle === 'function') onToggle(true, containerApi);
+        } else {
+            if (typeof onCollapse === 'function') onCollapse(containerApi);
+            if (typeof onToggle === 'function') onToggle(false, containerApi);
+        }
+    };
+
+    if (controls.expand !== false) {
+        header.onclick = () => toggle();
+    }
+
+    const minimizeToTray = () => {
+        container.classList.add("minimized-to-tray");
+        container.style.display = "none";
+        if (!trayIconBtn) {
+            trayIconBtn = createElement("button", "ui-dock-tray-icon");
+            trayIconBtn.title = trayTooltip || `${title} (Minimizado)`;
+            trayIconBtn.appendChild(createElement("span", "ui-dock-tray-icon-symbol", [typeof icon === 'string' ? icon : '🗂️']));
+            trayIconBtn.onclick = (e) => {
+                e.stopPropagation();
+                restoreFromTray();
+            };
+            // Botão direito no ícone: Restaurar + Remover painel
+            bindContextMenu(trayIconBtn, () => [
+                { label: 'Restaurar painel', icon: '🔼', action: () => restoreFromTray() },
+                'separator',
+                { label: 'Remover painel', icon: '🗑️', action: () => containerApi.close() },
+            ]);
+            const taskbar = document.getElementById("taskbar");
+            if (taskbar) taskbar.appendChild(trayIconBtn);
+            else document.body.appendChild(trayIconBtn);
+        } else {
+            trayIconBtn.style.display = "inline-flex";
+        }
+        if (typeof onMinimizeToTray === 'function') onMinimizeToTray(containerApi);
+    };
+
+    const restoreFromTray = (andExpand = true) => {
+        container.classList.remove("minimized-to-tray");
+        container.style.display = "";
+        if (trayIconBtn) trayIconBtn.style.display = "none";
+        if (andExpand) toggle(true);
+        if (typeof onRestoreFromTray === 'function') onRestoreFromTray(containerApi);
+    };
+
+    function setBadge(val, variant) {
+        currentBadge = val;
+        if (val === null || val === undefined || val === 0 || val === "") {
+            badgeEl.style.display = "none";
+            badgeEl.textContent = "";
+        } else {
+            badgeEl.style.display = "inline-flex";
+            badgeEl.textContent = String(val);
+        }
+        if (variant) badgeEl.className = `ui-dock-badge badge-${variant}`;
+    }
+
+    const resolveEl = (input) => {
+        if (!input) return null;
+        if (input instanceof Node) return input;
+        if (input.element instanceof Node) return input.element;
+        return null;
+    };
+
+    const containerApi = {
+        element: container,
+        body: bodyEl,
+        getCount: () => visibleDocks().length,
+        getBadge: () => currentBadge || 0,
+        getTitle: () => title,
+        setBadge,
+        setTitle(t) {
+            title = t;
+            titleEl.textContent = t;
+            if (trayIconBtn) trayIconBtn.title = trayTooltip || `${t} (Minimizado)`;
+        },
+        toggle: (state) => toggle(state),
+        expand: () => toggle(true),
+        collapse: () => toggle(false),
+        isExpanded: () => container.classList.contains("expanded"),
+        minimizeToTray: () => minimizeToTray(),
+        restoreFromTray: (andExpand) => restoreFromTray(andExpand),
+        isMinimizedToTray: () => container.classList.contains("minimized-to-tray"),
+        /** Hospeda um dock (elemento ou dockApi): sai da pilha fixa, entra no scroll. */
+        attach(input) {
+            const el = resolveEl(input);
+            if (!el || !el.classList.contains("ui-dock-widget")) {
+                throw new Error("[DockContainer] attach exige elemento ou dockApi de DockWidget");
+            }
+            unregisterDockStackFromAll(el);
+            el.classList.add("is-stacked");
+            el.style.top = "";
+            el.style.bottom = "";
+            bodyEl.appendChild(el);
+            sync();
+            return el;
+        },
+        /** Devolve o dock ao fluxo fixo do canto. */
+        detach(input, { position = null } = {}) {
+            const el = resolveEl(input);
+            if (!el || el.parentNode !== bodyEl) return null;
+            const pos = position || el.dataset.dockPosition || "bottom-right";
+            el.classList.remove("is-stacked");
+            el.dataset.dockPosition = pos;
+            (document.getElementById("app") || document.body).appendChild(el);
+            registerDockStack(el, pos);
+            sync();
+            return el;
+        },
+        close: () => {
+            if (ctxCtrl && typeof ctxCtrl.destroy === 'function') ctxCtrl.destroy();
+            if (trayIconBtn) trayIconBtn.remove();
+            observer.disconnect();
+            unregisterDockStack(container, position);
+            container.remove();
+            if (typeof onClose === 'function') onClose(containerApi);
+        },
+        destroy: () => {
+            if (ctxCtrl && typeof ctxCtrl.destroy === 'function') ctxCtrl.destroy();
+            if (trayIconBtn) trayIconBtn.remove();
+            observer.disconnect();
+            unregisterDockStack(container, position);
+            container.remove();
+        },
+        /** Define/substitui o menu de contexto (botão direito). `true` = sempre removível. */
+        setContextMenu(items) {
+            contextItems = items;
+            if (ctxCtrl && typeof ctxCtrl.destroy === 'function') ctxCtrl.destroy();
+            ctxCtrl = bindContextMenu(container, () => resolveContextItems());
+            return containerApi;
+        }
+    };
+
+    const resolveContextItems = () => {
+        const empty = containerApi.getCount() === 0;
+        const raw = typeof contextItems === 'function' ? contextItems(containerApi) : contextItems;
+        const removeItem = { label: 'Remover painel', icon: '🗑️', action: () => containerApi.close() };
+        if (raw === true) return [removeItem]; // sempre removível
+        if (raw == null) return empty ? [removeItem] : []; // padrão: vazio = removível
+        const items = Array.isArray(raw) ? raw : [];
+        return empty ? [...items, ...(items.length ? ['separator'] : []), removeItem] : items;
+    };
+    let contextItems = contextMenu;
+    let ctxCtrl = bindContextMenu(container, () => resolveContextItems());
+
+    target.appendChild(container);
+    registerDockStack(container, position);
+    sync();
+    return containerApi;
 }
 
 export function FloatButton({
@@ -1923,8 +2378,8 @@ export function FloatButton({
  * @param {object} options
  * @param {HTMLElement|string} [options.container]           - Elemento‑pai ou ID do contêiner‑pai.
  * @param {Shortcut[]}         [options.shortcuts=[]]        - Array de elementos Shortcut() iniciais.
- * @param {string}             [options.alignH='left']       - Alinhamento horizontal: 'left'|'center'|'right'|'justify'.
- * @param {string}             [options.alignV='top']        - Alinhamento vertical: 'top'|'center'|'bottom'|'stretch'.
+ * @param {string}             [options.alignH='left']       - Alinhamento horizontal: 'left'|'center'|'right'|'justify' (justify-content em 'row', align-items em 'column'; em 'column' com 'right' o fluxo das linhas vira da direita para a esquerda — rtl).
+ * @param {string}             [options.alignV='top']        - Alinhamento vertical: 'top'|'center'|'bottom'|'stretch' (align-items em 'row', justify-content em 'column').
  * @param {string|number}      [options.shortcutSize='80px'] - Tamanho-célula dos atalhos na grade.
  * @param {string}             [options.gap='8px']           - Espaço entre atalhos.
  * @param {string|number}      [options.width='100%']        - Largura do contêiner.
@@ -1949,6 +2404,7 @@ export function ShortcutContainer(options = {}) {
         shortcuts = [],
         alignH = 'left',
         alignV = 'top',
+        direction = 'row',
         shortcutSize = '80px',
         gap = '8px',
         width = '100%',
@@ -1980,11 +2436,35 @@ export function ShortcutContainer(options = {}) {
     const widthPx = typeof width === 'number' ? `${width}px` : width;
     const heightPx = typeof height === 'number' ? `${height}px` : height;
 
+    // Estado de alinhamento mutável (setAlignH/setAlignV/setDirection re-aplicam)
+    let curAlignH = alignH;
+    let curAlignV = alignV;
+    let curDirection = direction === 'column' ? 'column' : 'row';
+
+    // Alinhamento segue os eixos, não a direção: em 'row' o eixo principal é
+    // horizontal (alignH → justify-content) e o cruzado vertical (alignV →
+    // align-items/align-content); em 'column' os eixos trocam. Assim
+    // alignH/alignV mantêm sempre a semântica horizontal/vertical documentada.
+    // Em 'column' alinhado à direita o fluxo vira RTL: as colunas quebradas pelo
+    // wrap nascem encostadas na borda direita e crescem para a esquerda (o
+    // preenchimento acontece da direita para a esquerda). Em rtl o eixo cruzado
+    // inverte — flex-start = direita, flex-end = esquerda.
+    function applyAlign() {
+        const col = curDirection === 'column';
+        const rtl = col && curAlignH === 'right';
+        const hX = rtl ? { ...hMap, left: hMap.right, right: hMap.left } : hMap;
+        const mainVal = col ? curAlignV : curAlignH;
+        const crossVal = col ? curAlignH : curAlignV;
+        el.style.direction = rtl ? 'rtl' : '';
+        el.style.justifyContent = (col ? vMap : hMap)[mainVal] || mainVal || 'flex-start';
+        el.style.alignContent = (col ? hX : vMap)[crossVal] || crossVal || 'flex-start';
+        el.style.alignItems = (col ? hX : vMap)[crossVal] || crossVal || 'flex-start';
+    }
+
     el.style.display = 'flex';
+    el.style.flexDirection = curDirection;
     el.style.flexWrap = 'wrap';
-    el.style.justifyContent = hMap[alignH] || 'flex-start';
-    el.style.alignContent = vMap[alignV] || 'flex-start';
-    el.style.alignItems = vMap[alignV] || 'flex-start';
+    applyAlign();
     el.style.gap = gapPx;
     el.style.padding = gapPx;
     el.style.boxSizing = 'border-box';
@@ -2040,6 +2520,71 @@ export function ShortcutContainer(options = {}) {
         children.forEach(c => el.appendChild(c));
     }
 
+    // ---- Reordenação por arrastar (drag & drop) ----
+    // Opção `reorderable: true` + `onReorder(ids)` com os ids na nova ordem.
+    // Direção (linha/coluna) detectada do flex-direction computado.
+    if (options.reorderable) {
+        const onReorderCb = typeof options.onReorder === 'function' ? options.onReorder : null;
+
+        const scOf = (t) => (t && t.closest ? t.closest('.ui-shortcut') : null);
+
+        el.querySelectorAll('.ui-shortcut').forEach((sc) => { sc.draggable = true; });
+
+        el.addEventListener('dragstart', (e) => {
+            const sc = scOf(e.target);
+            if (!sc || !el.contains(sc)) return;
+            sc.classList.add('dragging');
+            if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = 'move';
+                try { e.dataTransfer.setData('text/plain', sc.id || ''); } catch { /* ignore */ }
+            }
+        });
+
+        el.addEventListener('dragend', () => {
+            el.querySelectorAll('.ui-shortcut.dragging').forEach((sc) => sc.classList.remove('dragging'));
+            el.querySelectorAll('.ui-shortcut.drop-before').forEach((sc) => sc.classList.remove('drop-before'));
+        });
+
+        el.addEventListener('dragover', (e) => {
+            const dragging = el.querySelector('.ui-shortcut.dragging');
+            if (!dragging) return;
+            e.preventDefault();
+            if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+
+            const vertical = getComputedStyle(el).flexDirection === 'column'
+                || getComputedStyle(el).flexDirection === 'column-reverse';
+            const pos = vertical ? e.clientY : e.clientX;
+
+            let after = null;
+            el.querySelectorAll('.ui-shortcut:not(.dragging)').forEach((sc) => {
+                sc.classList.remove('drop-before');
+                const rect = sc.getBoundingClientRect();
+                const mid = vertical ? rect.top + rect.height / 2 : rect.left + rect.width / 2;
+                if (pos < mid && !after) after = sc;
+            });
+
+            el.querySelectorAll('.ui-shortcut.drop-before').forEach((sc) => {
+                if (sc !== after) sc.classList.remove('drop-before');
+            });
+            if (after) {
+                after.classList.add('drop-before');
+                el.insertBefore(dragging, after);
+            } else {
+                el.appendChild(dragging);
+            }
+        });
+
+        el.addEventListener('drop', (e) => {
+            e.preventDefault();
+            el.querySelectorAll('.ui-shortcut.drop-before').forEach((sc) => sc.classList.remove('drop-before'));
+            if (onReorderCb) {
+                try {
+                    onReorderCb(Array.from(el.querySelectorAll('.ui-shortcut')).map((sc) => sc.id || ''));
+                } catch { /* ignore */ }
+            }
+        });
+    }
+
     // ---- Auto-resize: observa mudanças de tamanho ----
     let _resizeObserver = null;
     function _applyAutoResize() {
@@ -2065,6 +2610,7 @@ export function ShortcutContainer(options = {}) {
         scEl.style.width = shortcutSizePx;
         scEl.style.minHeight = shortcutSizePx;
         scEl.style.height = 'auto';
+        if (options.reorderable) scEl.draggable = true;
         // Garante clicabilidade individual quando o container está em modo passthrough
         if (passthroughPointer) scEl.style.pointerEvents = 'auto';
         el.appendChild(scEl);
@@ -2113,11 +2659,19 @@ export function ShortcutContainer(options = {}) {
         /** Remove todos os atalhos. */
         clear() { el.querySelectorAll('.ui-shortcut').forEach(sc => sc.remove()); return this; },
 
-        /** Altera alinhamento horizontal. */
-        setAlignH(h) { el.style.justifyContent = hMap[h] || h; return this; },
+        /** Altera alinhamento horizontal (eixo horizontal em qualquer direction). */
+        setAlignH(h) { curAlignH = h; applyAlign(); return this; },
 
-        /** Altera alinhamento vertical. */
-        setAlignV(v) { el.style.alignContent = el.style.alignItems = vMap[v] || v; return this; },
+        /** Altera alinhamento vertical (eixo vertical em qualquer direction). */
+        setAlignV(v) { curAlignV = v; applyAlign(); return this; },
+
+        /** Altera a direção do layout ('row' | 'column') — os eixos de alinhamento trocam junto. */
+        setDirection(d) {
+            curDirection = d === 'column' ? 'column' : 'row';
+            el.style.flexDirection = curDirection;
+            applyAlign();
+            return this;
+        },
 
         /** Altera o tamanho-célula dos atalhos. */
         setShortcutSize(size) {
@@ -2184,6 +2738,10 @@ export function ShortcutContainer(options = {}) {
  * @param {string}          [options.type='app']       - Tipo: 'app'|'folder'|'file'|'link' (para ordenação).
  * @param {number|string}   [options.iconSize='48px']  - Tamanho do ícone/imagem.
  * @param {number|string}   [options.fontSize='11px']  - Tamanho da fonte do label.
+ * @param {string}          [options.fontColor='']     - Cor da fonte do label (ex: '#fff'); vazio = cor do tema.
+ * @param {string}          [options.fontWeight='']    - Peso da fonte ('normal', 'bold', 600…); vazio = tema.
+ * @param {string}          [options.fontStyle='']     - Estilo da fonte ('normal', 'italic'); vazio = tema.
+ * @param {string}          [options.backgroundColor=''] - Cor de fundo do atalho; vazia = cor do tema.
  * @param {boolean}         [options.active=false]     - Estado ativo inicial (selecionado).
  * @param {boolean}         [options.disabled=false]   - Desativado (não clicável, aparência faded).
  * @param {boolean}         [options.visible=true]     - Visibilidade.
@@ -2192,7 +2750,7 @@ export function ShortcutContainer(options = {}) {
  * @param {string}          [options.className]        - Classes extras.
  * @param {string}          [options.style]            - Estilos inline extras.
  * @param {object}          [options.contextMenu]      - Menu de contexto do atalho.
- * @returns {HTMLElement}  O elemento do atalho (com API: setActive, setDisabled, setVisible, setLabel, setImage…)
+ * @returns {HTMLElement}  O elemento do atalho (com API: setActive, setDisabled, setVisible, setLabel, setImage, setFontColor, setFontSize, setFontWeight, setFontStyle, setBackgroundColor…)
  */
 
 export function Shortcut(options = {}) {
@@ -2205,6 +2763,10 @@ export function Shortcut(options = {}) {
         type = 'app',
         iconSize = '40px',
         fontSize = '11px',
+        fontColor = '',
+        fontWeight = '',
+        fontStyle = '',
+        backgroundColor = '',
         active = false,
         disabled = false,
         visible = true,
@@ -2261,8 +2823,9 @@ export function Shortcut(options = {}) {
     el.appendChild(imgEl);
 
     // ---- Label ----
+    let lbl = null;
     if (label) {
-        const lbl = document.createElement('span');
+        lbl = document.createElement('span');
         lbl.className = 'ui-shortcut__label';
         lbl.textContent = label;
         lbl.style.fontSize = typeof fontSize === 'number' ? `${fontSize}px` : fontSize;
@@ -2278,6 +2841,13 @@ export function Shortcut(options = {}) {
         if (typeof style === 'string') el.style.cssText += ';' + style;
         else Object.assign(el.style, style);
     }
+
+    // ---- Visual: cor da fonte, tamanho, peso, estilo e fundo ----
+    // Aplicados após o `style` genérico: as opções dedicadas têm precedência.
+    if (backgroundColor) el.style.backgroundColor = backgroundColor;
+    if (fontColor && lbl) lbl.style.color = fontColor;
+    if (fontWeight && lbl) lbl.style.fontWeight = fontWeight;
+    if (fontStyle && lbl) lbl.style.fontStyle = fontStyle;
 
     // ---- Clique ----
     el.addEventListener('click', (e) => {
@@ -2356,6 +2926,40 @@ export function Shortcut(options = {}) {
             return this;
         },
 
+        /** Altera a cor da fonte do label (`''` volta à cor do tema). */
+        setFontColor(color) {
+            const target = el.querySelector('.ui-shortcut__label');
+            if (target) target.style.color = color || '';
+            return this;
+        },
+
+        /** Altera o tamanho da fonte do label (número = px). */
+        setFontSize(size) {
+            const target = el.querySelector('.ui-shortcut__label');
+            if (target) target.style.fontSize = typeof size === 'number' ? `${size}px` : (size || '');
+            return this;
+        },
+
+        /** Altera o peso da fonte do label — 'bold', número (100–900) ou '' p/ tema. */
+        setFontWeight(weight) {
+            const target = el.querySelector('.ui-shortcut__label');
+            if (target) target.style.fontWeight = weight || '';
+            return this;
+        },
+
+        /** Altera o estilo da fonte do label — 'italic', 'normal' ou '' p/ tema. */
+        setFontStyle(styleValue) {
+            const target = el.querySelector('.ui-shortcut__label');
+            if (target) target.style.fontStyle = styleValue || '';
+            return this;
+        },
+
+        /** Altera a cor de fundo do atalho (`''` volta à cor do tema). */
+        setBackgroundColor(color) {
+            el.style.backgroundColor = color || '';
+            return this;
+        },
+
         /** Altera ou define o menu de contexto do atalho em tempo real. */
         setContextMenu(items) {
             if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
@@ -2373,4 +2977,3 @@ export function Shortcut(options = {}) {
 
     return el;
 }
-

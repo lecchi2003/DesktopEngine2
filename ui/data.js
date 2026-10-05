@@ -4,30 +4,71 @@ import { createElement, applyCommonProps, resolveInstance } from './core-dom.js'
 import { Button } from './forms.js';
 import { UIContext } from '../core.js';
 import { safeSetHTML } from './sanitize.js';
+import { bindContextMenu } from './navigation.js';
 
 
 export function Table(options = {}) {
-    const { columns = [], data = [] } = options;
+    const {
+        columns = [], data = [],
+        onRowClick = null, onRowContext = null,
+        contextMenu = null, rowEvents = null,
+        ...commonProps
+    } = options;
     const thead = createElement("thead", "", [
-        createElement("tr", "", columns.map(c => createElement("th", "", [c.label || c])))
+        createElement("tr", "", columns.map(c => {
+            const conf = (c && typeof c === 'object') ? c : null;
+            const th = createElement("th", "", [conf ? (conf.label || conf.key || "") : c]);
+            if (conf && conf.width) th.style.width = conf.width;
+            if (conf && conf.align) th.style.textAlign = conf.align;
+            return th;
+        }))
     ]);
     const rows = data.map(row => {
-        return createElement("tr", "", columns.map(c => {
-            const val = typeof c === 'string' ? row[c] : row[c.key];
-            if (c.render) {
+        const tr = document.createElement("tr");
+        // Eventos e menu por linha (v2.2.0): clique, contextmenu, listeners extras e menu declarativo
+        if (onRowClick || (rowEvents && (rowEvents.click || rowEvents.dblclick))) {
+            tr.classList.add("ui-row-clickable");
+        }
+        if (onRowClick) {
+            tr.addEventListener("click", (e) => onRowClick(row, tr, e));
+        }
+        if (onRowContext) {
+            tr.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                onRowContext(row, tr, e);
+            });
+        }
+        if (contextMenu) {
+            const items = typeof contextMenu === 'function' ? contextMenu(row) : contextMenu;
+            if (items) tr._contextMenuController = bindContextMenu(tr, items, {});
+        }
+        if (rowEvents) {
+            Object.entries(rowEvents).forEach(([type, fn]) => {
+                if (typeof fn === 'function') tr.addEventListener(type, (e) => fn(row, tr, e));
+            });
+        }
+        columns.forEach(c => {
+            const conf = (c && typeof c === 'object') ? c : null;
+            const val = conf ? row[conf.key] : row[c];
+            if (conf && conf.render) {
                 const td = document.createElement("td");
-                const result = c.render(val, row);
+                const result = conf.render(val, row);
                 // [SEC-001] safeSetHTML para resultado de render() de coluna
                 if (typeof result === 'string') safeSetHTML(td, result);
                 else if (result instanceof Node) td.appendChild(result);
-                return td;
+                if (conf.align) td.style.textAlign = conf.align;
+                tr.appendChild(td);
+                return;
             }
-            return createElement("td", "", [val !== undefined && val !== null ? String(val) : ""]);
-        }));
+            const td = createElement("td", "", [val !== undefined && val !== null ? String(val) : ""]);
+            if (conf && conf.align) td.style.textAlign = conf.align;
+            tr.appendChild(td);
+        });
+        return tr;
     });
     const table = createElement("table", "ui-table", [thead, createElement("tbody", "", rows)]);
     const wrapper = createElement("div", "ui-table-wrapper", [table]);
-    return applyCommonProps(wrapper, options);
+    return applyCommonProps(wrapper, commonProps);
 }
 
 export function Tabs({ tabs = [], instance, activeTabBind }) {
