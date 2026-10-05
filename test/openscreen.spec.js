@@ -60,6 +60,27 @@ describe('openScreen retorno', () => {
         expect(win.windowEl).not.toBeNull();
     });
 
+    it('retorna a instância de forma síncrona para factory síncrona (() => obj)', () => {
+        const TaskScreen = {
+            id: 'tasks',
+            title: 'Tasks',
+            state: {},
+            view() {
+                const el = document.createElement('div');
+                el.textContent = 'tasks';
+                return el;
+            },
+        };
+        Desktop.registerScreens({ tasks: () => TaskScreen });
+
+        const win = Desktop.openScreen('tasks');
+
+        expect(win).not.toBeNull();
+        expect(typeof win.then).toBe('undefined');
+        expect(win.windowEl).not.toBeNull();
+        expect(document.body.contains(win.windowEl)).toBe(true);
+    });
+
     it('await continua funcionando no caso síncrono', async () => {
         Desktop.registerScreens({
             demo2: {

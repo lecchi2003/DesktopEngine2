@@ -2095,15 +2095,29 @@ export const Desktop = {
             }
 
             if (typeof registered === 'function') {
-                // Tela lazy (função) - retorna Promise
-                return registered(initialProps).then(res => {
-                    config = res.default || res;
-                    return this._finishOpenScreen(config, screenId, initialProps);
-                }).catch(err => {
+                let result;
+                try {
+                    result = registered(initialProps);
+                } catch (err) {
                     this.notify(`Erro ao carregar módulo da tela "${screenId}".`, "danger");
                     console.error(`Erro no carregamento dinâmico da tela "${screenId}":`, err);
                     return null;
-                });
+                }
+                // Lazy (Promise — `() => import(...)`) ou factory síncrona
+                // (`() => ScreenObject`): só encadeia .then se for thenable,
+                // senão a factory síncrona quebrava com "then is not a function".
+                if (result && typeof result.then === 'function') {
+                    // Tela lazy (função assíncrona) - retorna Promise
+                    return result.then(res => {
+                        config = res.default || res;
+                        return this._finishOpenScreen(config, screenId, initialProps);
+                    }).catch(err => {
+                        this.notify(`Erro ao carregar módulo da tela "${screenId}".`, "danger");
+                        console.error(`Erro no carregamento dinâmico da tela "${screenId}":`, err);
+                        return null;
+                    });
+                }
+                config = result.default || result;
             } else {
                 // Tela registrada como objeto - retorna síncrono
                 config = registered;
